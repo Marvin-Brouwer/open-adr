@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=../spec/v1.json
+
+### 
+# ADR: short-description
+# This is the original draft of how the adr templates will look like
+###
+
+# We start with some metadata, here you can set the status, creation date, deciders etc.
+adr:
+  subject: short-description
+  status: proposed
+  created: 2015-01-01
+  story: https://jira.com/ID-000
+  # For deciders we use emails instead of names, names can be inferred from emails
+  deciders:
+  - someone.lastname@company.com
+
+# The context basically should accept markdown, except for the title tag (h1)
+context: |-
+  What is the issue that we're seeing that is motivating this decision or change?
+
+decision:
+  # The decision summary basically should accept markdown, except for the title tag (h1)
+  summary: |-
+    What is the change that we're proposing and/or doing?
+  drivers:
+    - "driver1": Reason....
+    - "driver2": Reason....
+  alternatives:
+    - summary: Example one
+      url: "https://example.com"
+      description: |-
+        Some description....
+      dismissal: Too expensive
+
+outcome:
+  # The outcome summary basically should accept markdown, except for the title tag (h1)
+  summary: |-
+    What becomes easier or more difficult to do because of this change?
+  positive:
+    - More scalable...
+  negative:
+    - Slower....
+
+references:
+  # Simple IRI references are supported
+  - https://docs.com/example-simple
+  # You can name them
+  - "Example one": https://docs.com/example
+  - "Some local example": ./somefile.md
+  # If you need additional context, you can use these properties to add notes
+  - name: "Additional context"
+    url: https://docs.com/example
+    notes: |-
+      Some additional notes here

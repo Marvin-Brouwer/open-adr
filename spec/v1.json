@@ -1,0 +1,282 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://example.com/product.schema.json",
+	"title": "Open ADR",
+	"description": "Standardized Architecture Decision Record",
+	"type": "object",
+	"additionalProperties": false,
+	"required": [
+		"adr",
+		"context",
+		"decision",
+		"outcome"
+	],
+	"properties": {
+		"adr": {
+			"title": "Open ADR",
+			"description": "Basic ADR properties",
+			"type": "object",
+			"order": 0,
+			"additionalProperties": false,
+			"required": [
+				"subject",
+				"created",
+				"status",
+				"deciders"
+			],
+			"properties": {
+				"subject": {
+					"title": "ADR Subject",
+					"description": "A short summary describing the subject of the ADR",
+					"type": "string",
+					"pattern": "^((?!\\v).)*$",
+					"order": 0
+				},
+				"status": {
+					"title": "ADR Status",
+					"description": "The active status of the current ADR",
+					"enum": [
+						"proposed",
+						"rejected",
+						"accepted",
+						"deprecated",
+						"superseded"
+					],
+					"order": 1
+				},
+				"superseded-by": {
+					"title": "ADR Superseded by",
+					"description": "Reference to the ADR superseding this one",
+					"type": "string",
+					"order": 2
+				},
+				"created": {
+					"title": "ADR Created date",
+					"description": "An ISO 8601 format date of the creation date, modified will be determined by file metadata",
+					"type": "string",
+					"format": "date",
+					"order": 3
+				},
+				"story": {
+					"title": "ADR Related Story",
+					"description": "Reference to a story, related to this ADR",
+					"type": "string",
+					"format": "uri",
+					"order": 4
+				},
+				"deciders": {
+					"title": "ADR Deciders",
+					"description": "People who own this ADR",
+					"type": "array",
+					"items": {
+						"type": "string",
+						"format": "email"
+					},
+					"order": 5
+				}
+			},
+			"if": {
+				"properties": {
+					"status": {
+						"const": "superseded"
+					}
+				}
+			},
+			"then": {
+				"required": [
+					"superseded-by"
+				]
+			}
+		},
+		"context": {
+			"title": "Context and Problem Statement",
+			"description": "What is the issue that we're seeing that is motivating this decision or change?",
+			"type": "string",
+			"order": 1
+		},
+		"decision": {
+			"title": "Decision",
+			"description": "What is the change that we're proposing and/or doing?",
+			"type": "object",
+			"order": 2,
+			"additionalProperties": false,
+			"required": [
+				"summary"
+			],
+			"properties": {
+				"summary": {
+					"title": "Decision summary",
+					"description": "What is the change that we're proposing and/or doing?",
+					"type": "string",
+					"order": 0
+				},
+				"drivers": {
+					"title": "Decision drivers",
+					"description": "Factors that are driving the decision.",
+					"type": "array",
+					"order": 1,
+					"items":
+					{
+						"title": "Decision driver",
+						"description": "A short description, followed by details on what's driving the decision.",
+						"type": "object",
+						"additionalProperties": false,
+						"patternProperties": {
+							"^.*$": {
+								"title": "Named reference",
+								"description": "A named link to an external reference",
+								"type": "string"
+							}
+						}
+					}
+				},
+				"alternatives": {
+					"title": "Decision alternatives",
+					"description": "Which alternatives are considered?",
+					"type": "array",
+					"order": 1,
+					"items":
+					{
+						"title": "Decision alternative",
+						"description": "Details about alternatives related to this decision",
+						"type": "object",
+						"additionalProperties": false,
+						"required": [
+							"summary",
+							"description"
+						],
+						"properties": {
+							"summary": {
+								"title": "Alternative summary",
+								"description": "A short description of the considered alternative",
+								"type": "string",
+								"pattern": "^((?!\\v).)*$",
+								"order": 0
+							},
+							"url": {
+								"title": "Alternative reference url",
+								"description": "The link to this alternatives documentation or website",
+								"type": "string",
+								"format": "iri",
+								"order": 1
+							},
+							"description": {
+								"title": "Alternative description",
+								"description": "Additional context, related to this alternative",
+								"type": "string",
+								"order": 2
+							},
+							"dismissal": {
+								"title": "Alternative reason for dismissal",
+								"description": "Short description on why this alternative didn't make it.",
+								"type": "string",
+								"order": 3
+							}
+						}
+					}
+				}
+			}
+		},
+		"outcome": {
+			"title": "Outcome",
+			"description": "What becomes easier or more difficult to do because of this change?",
+			"type": "object",
+			"order": 3,
+			"additionalProperties": false,
+			"required": [
+				"summary"
+			],
+			"properties": {
+				"summary": {
+					"title": "Context and Problem Statement summary",
+					"description": "What becomes easier or more difficult to do because of this change?",
+					"type": "string",
+					"order": 0
+				},
+				"positive": {
+					"title": "Context and Problem Statement positives",
+					"description": "Bullet list overview of positive consequences",
+					"type": "array",
+					"order": 1,
+					"items": {
+						"type": "string"
+					}
+				},
+				"negative": {
+					"title": "Context and Problem Statement negatives",
+					"description": "Bullet list overview of negative consequences",
+					"type": "array",
+					"order": 1,
+					"items": {
+						"type": "string"
+					}
+				}
+			}
+		},
+		"references": {
+			"title": "References",
+			"description": " Any links to other documentation or resources here",
+			"type": "array",
+			"order": 4,
+			"unevaluatedItems": false,
+			"additionalItems": false,
+			"uniqueKeys": true,
+			"items": {
+				"oneOf": [
+					{
+						"title": "Context reference",
+						"description": "A named link to an external reference, with additional notes",
+						"type": "object",
+						"additionalProperties": false,
+						"required": [
+							"name",
+							"url"
+						],
+						"properties": {
+							"name": {
+								"title": "Reference name",
+								"description": "The name of this reference",
+								"type": "string",
+								"pattern": "^((?!\\v).)*$",
+								"order": 0
+							},
+							"url": {
+								"title": "Reference link",
+								"description": "The link to this reference",
+								"type": "string",
+								"format": "iri",
+								"order": 1
+							},
+							"notes": {
+								"title": "Reference notes",
+								"description": "Additional context, related to this reference",
+								"type": "string",
+								"order": 2
+							}
+						}
+					},
+					{
+						"title": "Named reference",
+						"description": "A named link to an external reference",
+						"type": "object",
+						"additionalProperties": false,
+						"patternProperties": {
+							"^(?!(name)$).*$": {
+								"title": "Named reference",
+								"description": "A named link to an external reference",
+								"type": "string",
+								"format": "iri"
+							}
+						}
+					},
+					{
+						"title": "Direct reference",
+						"description": "A direct link to an external reference",
+						"type": "string",
+						"format": "iri"
+					}
+				]
+			}
+		}
+	}
+}
