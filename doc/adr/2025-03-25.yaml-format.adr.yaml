@@ -31,7 +31,7 @@ decision:
       description: |-
         Just create a simple markdown template.
       dismissal: |-
-        There's already enough of those, and this will leave a lot of room for interpretation, and, deviation from the norm.
+        There's already enough of those, this will leave a lot of room for interpretation, and, for deviation from the norm.
 
 outcome:
   summary: |-
