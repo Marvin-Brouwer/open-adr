@@ -1,6 +1,6 @@
 {
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$id": "string:markdown",
+	"$id": "$$:string:pattern:markdown",
 	"title": "Markdown string",
 	"description": "A markdown representation",
 	"$comment": "Used by tooling to provide code completion and linting",
