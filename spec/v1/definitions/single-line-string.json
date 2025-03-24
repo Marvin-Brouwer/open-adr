@@ -1,0 +1,8 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "Single line string",
+	"description": "A string with no newlines",
+	"$comment": "This is mostly useful for fields that are used in titles, this will prevent weird markdown incompatibilities",
+	"type": "string",
+	"pattern": "^((?!\\v).)*$"
+}

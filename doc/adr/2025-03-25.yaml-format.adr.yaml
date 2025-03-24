@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../../spec/v1.json
+# yaml-language-server: $schema=../../spec/v1/adr.json
 
 adr:
   subject: YAML format
@@ -8,20 +8,19 @@ adr:
   - https://github.com/Marvin-Brouwer
 
 context: |-
-  To facilitate a unified template, markdown is too loose.  
-  We can create a template, like many others have done. However, people will still find a way to change the format.  
+  To facilitate a unified template, markdown is too loose.
+  We can create a template, like many others have done. However, people will still find a way to change the format.
 
-  We don't want this, we want a unified way of working. If the template is lacking, the template should be amended.  
+  We don't want this, we want a unified way of working. If the template is lacking, the template should be amended.
 
 decision:
   summary: |-
-    To basically make a type of "form" or "master template", we can use [YAML](https://yaml.org/).  
-    YAML's a well known, well supported format, that supports lists and multiline text input.  
+    To basically make a type of "form" or "master template", we can use [YAML](https://yaml.org/).
+    YAML's a well known, well supported format, that supports lists and multiline text input.
 
-    YAML can be restricted down with a [JSON schema](https://json-schema.org/) and offers validation mechanisms.  
-    These schemas can be used to make a unified template.  
-    Additionally, these schemas can give in line help by the `description` field by YAML tooling.  
-
+    YAML can be restricted down with a [JSON schema](https://json-schema.org/) and offers validation mechanisms.
+    These schemas can be used to make a unified template.
+    Additionally, these schemas can give in line help by the `description` field by YAML tooling.
   drivers:
     - "Master template": YAML can be (mis)used to create a simple drop-in template
     - "JSON Schema": Having a schema makes for easy validation

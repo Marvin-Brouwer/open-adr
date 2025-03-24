@@ -1,0 +1,7 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "Context and Problem Statement",
+	"description": "What is the issue that we're seeing that is motivating this decision or change?",
+	"$ref": "../definitions/markdown.json",
+	"order": 1
+}

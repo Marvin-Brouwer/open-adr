@@ -1,0 +1,81 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "Decision",
+	"description": "What is the change that we're proposing and/or doing?",
+	"type": "object",
+	"order": 2,
+	"additionalProperties": false,
+	"required": [
+		"summary"
+	],
+	"properties": {
+		"summary": {
+			"title": "Decision summary",
+			"description": "What is the change that we're proposing and/or doing?",
+			"$ref": "../definitions/markdown.json",
+			"order": 0
+		},
+		"drivers": {
+			"title": "Decision drivers",
+			"description": "Factors that are driving the decision.",
+			"type": "array",
+			"order": 1,
+			"items": {
+				"title": "Decision driver",
+				"description": "A short description, followed by details on what's driving the decision.",
+				"type": "object",
+				"additionalProperties": false,
+				"patternProperties": {
+					"^.*$": {
+						"title": "Named reference",
+						"description": "A named link to an external reference",
+						"$ref": "../definitions/markdown.json"
+					}
+				}
+			}
+		},
+		"alternatives": {
+			"title": "Decision alternatives",
+			"description": "Which alternatives are considered?",
+			"type": "array",
+			"order": 1,
+			"items": {
+				"title": "Decision alternative",
+				"description": "Details about alternatives related to this decision",
+				"type": "object",
+				"additionalProperties": false,
+				"required": [
+					"summary",
+					"description"
+				],
+				"properties": {
+					"summary": {
+						"title": "Alternative summary",
+						"description": "A short description of the considered alternative",
+						"$ref": "../definitions/single-line-string.json",
+						"order": 0
+					},
+					"url": {
+						"title": "Alternative reference url",
+						"description": "The link to this alternatives documentation or website",
+						"type": "string",
+						"format": "iri",
+						"order": 1
+					},
+					"description": {
+						"title": "Alternative description",
+						"description": "Additional context, related to this alternative",
+						"$ref": "../definitions/markdown.json",
+						"order": 2
+					},
+					"dismissal": {
+						"title": "Alternative reason for dismissal",
+						"description": "Short description on why this alternative didn't make it.",
+						"$ref": "../definitions/markdown.json",
+						"order": 3
+					}
+				}
+			}
+		}
+	}
+}

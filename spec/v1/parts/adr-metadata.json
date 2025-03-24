@@ -1,0 +1,88 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "Open ADR",
+	"description": "Basic ADR properties",
+	"type": "object",
+	"order": 0,
+	"additionalProperties": false,
+	"required": [
+		"subject",
+		"created",
+		"status",
+		"deciders"
+	],
+	"properties": {
+		"subject": {
+			"title": "ADR Subject",
+			"description": "A short summary describing the subject of the ADR",
+			"$ref": "../definitions/single-line-string.json",
+			"order": 0
+		},
+		"status": {
+			"title": "ADR Status",
+			"description": "The active status of the current ADR",
+			"enum": [
+				"proposed",
+				"rejected",
+				"accepted",
+				"deprecated",
+				"superseded"
+			],
+			"order": 1
+		},
+		"superseded-by": {
+			"title": "ADR Superseded by",
+			"description": "Reference to the ADR superseding this one",
+			"type": "string",
+			"format": "iri",
+			"order": 2
+		},
+		"created": {
+			"title": "ADR Created date",
+			"description": "An ISO 8601 format date of the creation date, modified will be determined by file metadata",
+			"type": "string",
+			"format": "date",
+			"order": 3
+		},
+		"story": {
+			"title": "ADR Related Story",
+			"description": "Reference to a story, related to this ADR",
+			"type": "string",
+			"format": "uri",
+			"order": 4
+		},
+		"deciders": {
+			"title": "ADR Deciders",
+			"description": "People who own this ADR",
+			"type": "array",
+			"unevaluatedItems": false,
+			"additionalItems": false,
+			"uniqueKeys": true,
+			"items": {
+				"oneOf": [
+					{
+						"type": "string",
+						"format": "email"
+					},
+					{
+						"type": "string",
+						"format": "uri"
+					}
+				]
+			},
+			"order": 5
+		}
+	},
+	"if": {
+		"properties": {
+			"status": {
+				"const": "superseded"
+			}
+		}
+	},
+	"then": {
+		"required": [
+			"superseded-by"
+		]
+	}
+}

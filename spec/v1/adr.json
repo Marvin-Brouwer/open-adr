@@ -1,0 +1,31 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://example.com/product.schema.json",
+	"title": "Open ADR",
+	"description": "Standardized Architecture Decision Record",
+	"type": "object",
+	"additionalProperties": false,
+	"required": [
+		"adr",
+		"context",
+		"decision",
+		"outcome"
+	],
+	"properties": {
+		"adr": {
+			"$ref": "./parts/adr-metadata.json"
+		},
+		"context": {
+			"$ref": "./parts/context+problem-statement.json"
+		},
+		"decision": {
+			"$ref": "./parts/decision.json"
+		},
+		"outcome": {
+			"$ref": "./parts/outcome.json"
+		},
+		"references": {
+			"$ref": "./parts/references.json"
+		}
+	}
+}

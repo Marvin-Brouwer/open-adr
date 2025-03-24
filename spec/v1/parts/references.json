@@ -1,0 +1,66 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"title": "References",
+	"description": " Any links to other documentation or resources here",
+	"type": "array",
+	"order": 4,
+	"unevaluatedItems": false,
+	"additionalItems": false,
+	"uniqueKeys": true,
+	"items": {
+		"oneOf": [
+			{
+				"title": "Context reference",
+				"description": "A named link to an external reference, with additional notes",
+				"type": "object",
+				"additionalProperties": false,
+				"required": [
+					"name",
+					"url"
+				],
+				"properties": {
+					"name": {
+						"title": "Reference name",
+						"description": "The name of this reference",
+						"type": "string",
+						"$ref": "../definitions/single-line-string.json",
+						"order": 0
+					},
+					"url": {
+						"title": "Reference link",
+						"description": "The link to this reference",
+						"type": "string",
+						"format": "iri",
+						"order": 1
+					},
+					"notes": {
+						"title": "Reference notes",
+						"description": "Additional context, related to this reference",
+						"$ref": "../definitions/markdown.json",
+						"order": 2
+					}
+				}
+			},
+			{
+				"title": "Named reference",
+				"description": "A named link to an external reference",
+				"type": "object",
+				"additionalProperties": false,
+				"patternProperties": {
+					"^(?!(name)$).*$": {
+						"title": "Named reference",
+						"description": "A named link to an external reference",
+						"type": "string",
+						"format": "iri"
+					}
+				}
+			},
+			{
+				"title": "Direct reference",
+				"description": "A direct link to an external reference",
+				"type": "string",
+				"format": "iri"
+			}
+		]
+	}
+}

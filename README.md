@@ -9,10 +9,10 @@ This repository is an attempt at unifying an open standard for ADRs.
 
 There's still some stuff to do.
 
-- [ ] Split v1 spec into parts
-- [ ] See if we can add `pattern:md` templates
+- [x] Split v1 spec into parts
+- [x] See if we can add `pattern:md` templates
   This is so we can use this for tooling later.
-  It will basically just be string yaml template, but the tooling will validate markdown.
+  It will basically just be string yaml template, but the tooling will validate (and code complete) markdown.
 - [ ] Create simple node package to convert yml to markdown and pdf
 - [ ] Add actual examples
 - [ ] Setup pipeline for publishing spec
