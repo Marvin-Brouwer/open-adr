@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=../../spec/v1.json
+
+adr:
+  subject: YAML format
+  status: proposed
+  created: 2025-03-25
+  deciders:
+  - https://github.com/Marvin-Brouwer
+
+context: |-
+  To facilitate a unified template, markdown is too loose.  
+  We can create a template, like many others have done. However, people will still find a way to change the format.  
+
+  We don't want this, we want a unified way of working. If the template is lacking, the template should be amended.  
+
+decision:
+  summary: |-
+    To basically make a type of "form" or "master template", we can use [YAML](https://yaml.org/).  
+    YAML's a well known, well supported format, that supports lists and multiline text input.  
+
+    YAML can be restricted down with a [JSON schema](https://json-schema.org/) and offers validation mechanisms.  
+    These schemas can be used to make a unified template.  
+    Additionally, these schemas can give in line help by the `description` field by YAML tooling.  
+
+  drivers:
+    - "Master template": YAML can be (mis)used to create a simple drop-in template
+    - "JSON Schema": Having a schema makes for easy validation
+    - "Well supported": It's a well supported format
+    - "Versionable": We can create new versions of the schema and keep the old one around, making it a non-obtrusive way of updating the spec
+  alternatives:
+    - summary: Pure markdown
+      description: |-
+        Just create a simple markdown template.
+      dismissal: |-
+        There's already enough of those, and this will leave a lot of room for interpretation, and, deviation from the norm.
+
+outcome:
+  summary: |-
+    The YAML format provides us with a versionable, unified, validated template for entering ADRs
+  positive:
+    - Versionable spec
+    - Unified way of working.
+    - Validated fields
+    - Well supported format
+  negative:
+    - Harshly constrained format
+
+references:
+  - "YAML": https://yaml.org/
+  - "JSON Schema": https://json-schema.org/

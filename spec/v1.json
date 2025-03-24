@@ -68,9 +68,20 @@
 					"title": "ADR Deciders",
 					"description": "People who own this ADR",
 					"type": "array",
+					"unevaluatedItems": false,
+					"additionalItems": false,
+					"uniqueKeys": true,
 					"items": {
-						"type": "string",
-						"format": "email"
+						"oneOf": [
+							{
+								"type": "string",
+								"format": "email"
+							},
+							{
+								"type": "string",
+								"format": "uri"
+							}
+						]
 					},
 					"order": 5
 				}
@@ -115,8 +126,7 @@
 					"description": "Factors that are driving the decision.",
 					"type": "array",
 					"order": 1,
-					"items":
-					{
+					"items": {
 						"title": "Decision driver",
 						"description": "A short description, followed by details on what's driving the decision.",
 						"type": "object",
@@ -135,8 +145,7 @@
 					"description": "Which alternatives are considered?",
 					"type": "array",
 					"order": 1,
-					"items":
-					{
+					"items": {
 						"title": "Decision alternative",
 						"description": "Details about alternatives related to this decision",
 						"type": "object",
