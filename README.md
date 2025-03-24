@@ -26,6 +26,7 @@ There's still some stuff to do.
   - "new ADR" functionality
   - Actually constrain order, yaml doesn't
   - Add save-as functionality, based on node script
+  - Show different status icon in "explorer view"
 
 ## Reading material
 
