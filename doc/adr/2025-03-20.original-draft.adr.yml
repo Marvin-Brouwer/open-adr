@@ -1,19 +1,18 @@
-# yaml-language-server: $schema=../spec/v1/adr.json
+# yaml-language-server: $schema=../../spec/v1/adr.json
 
-### 
-# ADR: short-description
+###
+# ADR: original draft
 # This is the original draft of how the adr templates will look like
 ###
 
 # We start with some metadata, here you can set the status, creation date, deciders etc.
 adr:
-  subject: short-description
-  status: proposed
-  created: 2015-01-01
-  story: https://jira.com/ID-000
-  # For deciders we use emails instead of names, names can be inferred from emails
+  subject: original draft
+  status: superseded
+  superseded-by: "./2025-03-25.yaml-format.adr.yaml"
+  created: 2025-03-20
   deciders:
-  - someone.lastname@company.com
+  - https://github.com/Marvin-Brouwer
 
 # The context basically should accept markdown, except for the title tag (h1)
 context: |-
