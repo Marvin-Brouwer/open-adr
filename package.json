@@ -1,0 +1,27 @@
+{
+	"name": "open-decision-record",
+	"version": "1.0.0",
+	"description": "",
+	"type": "module",
+	"scripts": {
+		"lint:md": "remark doc/odr/**/*.md --output"
+	},
+	"dependencies": {
+		"ajv": "^8.17.1",
+		"micromatch": "^4.0.8",
+		"remark": "^15.0.1",
+		"remark-lint": "^10.0.1",
+		"remark-parse": "^11.0.0",
+		"unified-language-server": "^4.0.1",
+		"unist-util-visit": "^5.0.0"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"packageManager": "pnpm@10.17.1",
+	"devDependencies": {
+		"remark-cli": "^12.0.1",
+		"unified": "^11.0.5",
+		"vfile": "^6.0.3"
+	}
+}

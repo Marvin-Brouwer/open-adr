@@ -1,0 +1,1 @@
+export const schemaTag = '#odr-schema'

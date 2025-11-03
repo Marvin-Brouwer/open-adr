@@ -39,4 +39,4 @@ There's still some stuff to do.
 - Some other ADR github organization  
   <https://adr.github.io/>  
   They have a merged ADR template of several existing ones, plus some kind of reference to an ISO standard. More reading is required.  
-  
+  https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-remark

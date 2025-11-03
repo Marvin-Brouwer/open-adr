@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "allowSyntheticDefaultImports": true,
+    "useDefineForClassFields": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "allowJs": true,
+    "outDir": "dist",
+    "lib": [
+      "ES2024.ArrayBuffer",
+      "ES2017.TypedArrays",
+      "ES2024"
+    ],
+    /* Bundler mode */
+    "moduleResolution": "nodenext",
+    "moduleDetection": "force",
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "dist",
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": [
+    "src/**.ts"
+  ],
+  "exclude": [
+    "src/**.test.ts",
+    "src/**.spec.ts"
+  ]
+}

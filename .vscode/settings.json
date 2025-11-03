@@ -1,0 +1,12 @@
+{
+	"markdownlint.lintWorkspaceGlobs": [
+		"!**/doc/odr",
+	],
+	"[markdown]": {
+		"editor.defaultFormatter": "unifiedjs.vscode-remark",
+		"editor.formatOnSave": true
+	},
+	"remark.requireConfig": true,
+	"remark.trace.server": "verbose",
+	"js/ts.implicitProjectConfig.checkJs": true
+}
