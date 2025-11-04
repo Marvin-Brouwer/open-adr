@@ -5,22 +5,26 @@ import micromatch from 'micromatch'
 import Ajv from 'ajv'
 
 import { debug, schemaTag } from '../constants.mts'
-import { plugin } from '../plugin.mts'
+import { definePlugin } from '../plugin.mts'
 import { DefinitionNode, HeadingNode } from '../nodes.mts'
 import { validateUrl } from '../helpers.mts'
+import { readFile } from 'fs/promises'
 
 const ajv = createValidator()
 
-export default plugin(async (tree, file) => {
-	console.log(tree)
-	const odrSettings = file.settings?.odr || {}
+const pluginName = 'remark-plugin-lint-schema'
+export default definePlugin(pluginName, async (tree, file, settings) => {
+	const odrSettings = settings.odr || {}
 	const allowedSchemas = odrSettings.allowedSchemas || []
 	const includePatterns = odrSettings.include || []
 
 	const filePath = file.path || file.history?.[0] || ''
 	const fileDir = path.dirname(filePath)
 
-	if (includePatterns.length > 0 && !micromatch.isMatch(filePath, includePatterns)) return
+	if (includePatterns.length > 0 && !micromatch.isMatch(filePath, includePatterns)) {
+		if(debug.logAllFilePatternMismatch) console.warn(`File doesn't match pattern`, includePatterns, filePath)
+		return
+	}
 
 	let schemaRefNode: DefinitionNode | undefined;
 	visit(tree, 'definition', (node: DefinitionNode) => {
@@ -91,10 +95,11 @@ async function loadSchema(uri: string) {
 
 	switch (url.protocol) {
 		case 'https:': return loadWebSchema(url);
-		case 'file:': return loadModuleSchema(uri);
+		case 'file:': return loadFileSchema(url);
 	}
 
-	throw new Error(`Unsupported protocol: ${url.protocol}`);
+	// This is validated elsewhere
+	return {}
 }
 
 async function loadWebSchema(uri: URL) {
@@ -115,16 +120,14 @@ async function loadWebSchema(uri: URL) {
 	return res.json();
 }
 
-async function loadModuleSchema(uri: string) {
+async function loadFileSchema(url: URL) {
 
-	let filePath = uri;
-	if (debug.logSchemaResolver) console.log(filePath)
-	if (uri.startsWith('file://')) filePath = 'file://' + path.resolve(uri.replace(`file://..`, '.'))
-	if (debug.logSchemaResolver) console.log(filePath)
-	const schemaExport = await import(filePath, {
-		assert: { type: "json" }
-	});
-	return schemaExport.default
+	if (debug.logSchemaResolver) console.log(url)
+	if(url.hostname === '..') url = new URL('file://' + path.resolve(url.toString().replace(`file://..`, '.')))
+	if (debug.logSchemaResolver) console.log(url)
+
+	const fileContents = await readFile(url)
+	return JSON.parse(fileContents.toString());
 }
 
 function createValidator() {

@@ -5,7 +5,8 @@
 	"type": "module",
 	"scripts": {
 		"build": "tsup-node",
-		"lint:md": "remark doc/odr/**/*.md --output"
+		"lint:md": "remark doc/odr/**/*.md --output",
+		"tt": "pnpm build && pnpm lint:md"
 	},
 	"dependencies": {
 		"ajv": "^8.17.1",

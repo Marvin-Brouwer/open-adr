@@ -1,5 +1,6 @@
 export const schemaTag = '#odr-schema'
 
 export const debug = {
-	logSchemaResolver: false
+	logSchemaResolver: false,
+	logAllFilePatternMismatch: false,
 }

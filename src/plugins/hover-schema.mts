@@ -4,12 +4,13 @@ import { visit } from 'unist-util-visit'
 import micromatch from 'micromatch'
 
 import { schemaTag } from '../constants.mts'
-import { plugin } from '../plugin.mts'
+import { definePlugin } from '../plugin.mts'
 import { DefinitionNode, HeadingNode } from '../nodes.mts'
 
 // TODO parse schema and figure this out
-export default plugin((tree, file) => {
-    const odrSettings = file.settings?.odr || {}
+const pluginName = 'remark-hover-schema'
+export default definePlugin(pluginName, (tree, file, settings) => {
+    const odrSettings = settings?.odr || {}
     const allowedSchemas = odrSettings.allowedSchemas || []
     const includePatterns = odrSettings.include || []
 
