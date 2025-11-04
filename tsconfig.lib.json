@@ -3,6 +3,7 @@
     "target": "esnext",
     "module": "esnext",
     "allowSyntheticDefaultImports": true,
+		"allowImportingTsExtensions": true,
     "useDefineForClassFields": true,
     "esModuleInterop": true,
     "isolatedModules": true,
@@ -14,7 +15,7 @@
       "ES2024"
     ],
     /* Bundler mode */
-    "moduleResolution": "nodenext",
+    "moduleResolution": "bundler",
     "moduleDetection": "force",
     "declaration": true,
     "declarationMap": true,
@@ -28,7 +29,7 @@
     "noUncheckedSideEffectImports": true
   },
   "include": [
-    "src/**.ts"
+    "src/**/*.mts"
   ],
   "exclude": [
     "src/**.test.ts",
