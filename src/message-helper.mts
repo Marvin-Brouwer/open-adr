@@ -1,4 +1,4 @@
-import { VFile } from "vfile";
+import { VFile } from 'vfile';
 import { Node, Parent } from 'unist';
 
 export function createMessageWriter(file: VFile) {
