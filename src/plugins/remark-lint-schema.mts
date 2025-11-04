@@ -4,7 +4,7 @@ import { visit } from 'unist-util-visit'
 import micromatch from 'micromatch'
 import Ajv from 'ajv'
 
-import { schemaTag } from '../constants.mts'
+import { debug, schemaTag } from '../constants.mts'
 import { plugin } from '../plugin.mts'
 import { DefinitionNode, HeadingNode } from '../nodes.mts'
 import { validateUrl } from '../helpers.mts'
@@ -12,6 +12,7 @@ import { validateUrl } from '../helpers.mts'
 const ajv = createValidator()
 
 export default plugin(async (tree, file) => {
+	console.log(tree)
 	const odrSettings = file.settings?.odr || {}
 	const allowedSchemas = odrSettings.allowedSchemas || []
 	const includePatterns = odrSettings.include || []
@@ -43,7 +44,7 @@ export default plugin(async (tree, file) => {
 	const validate = await ajv.compileAsync({
 		$ref: schemaUrl!.toString()
 	});
-	// TODO this is just a chatgpt bart where we validate our schema against the document.
+	// TODO this is just a chatgpt barf where we validate our schema against the document.
 	// However, it's probably more robust to convert the markdown into JSON and have ajv just validate that.
 	// Maybe that'll make it hard to find back the document nodes later.
 	console.log(validate)
@@ -99,10 +100,10 @@ async function loadSchema(uri: string) {
 async function loadWebSchema(uri: URL) {
 
 	const res = await fetch(uri);
-	console.log(uri)
+	if (debug.logSchemaResolver) console.log(uri)
 	if (res.ok) {
 		const json = await res.json() as any;
-		console.log(res.status, json)
+		if (debug.logSchemaResolver) console.log(res.status, json)
 
 		// Infinite loop fix
 		if (!json.$id) {
@@ -110,16 +111,16 @@ async function loadWebSchema(uri: URL) {
 		}
 		return json;
 	}
-	console.log(res.status, await res.text())
+	if (debug.logSchemaResolver) console.log(res.status, await res.text())
 	return res.json();
 }
 
 async function loadModuleSchema(uri: string) {
 
 	let filePath = uri;
-	console.log(filePath)
+	if (debug.logSchemaResolver) console.log(filePath)
 	if (uri.startsWith('file://')) filePath = 'file://' + path.resolve(uri.replace(`file://..`, '.'))
-	console.log(filePath)
+	if (debug.logSchemaResolver) console.log(filePath)
 	const schemaExport = await import(filePath, {
 		assert: { type: "json" }
 	});

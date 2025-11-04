@@ -5,6 +5,7 @@
     "allowSyntheticDefaultImports": true,
 		"allowImportingTsExtensions": true,
     "useDefineForClassFields": true,
+		"emitDeclarationOnly": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "allowJs": true,
@@ -29,7 +30,8 @@
     "noUncheckedSideEffectImports": true
   },
   "include": [
-    "src/**/*.mts"
+    "src/**/*.mts",
+    "tsup.config.mts",
   ],
   "exclude": [
     "src/**.test.ts",

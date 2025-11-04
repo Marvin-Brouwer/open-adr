@@ -1,9 +1,7 @@
 import remarkParse from 'remark-parse'
 import remarkLint from 'remark-lint'
 
-import remarkHoverSchema from './src/plugins/remark-hover-schema.mjs'
-import remarkRequireSchemaAnchor from './src/plugins/remark-require-schema-anchor.mjs'
-import remarkLintSchema from './src/plugins/remark-lint-schema.mjs'
+import { remarkSchemaInfo , remarkRequireSchemaAnchor, remarkLintSchema } from './dist/_module.js'
 
 export default {
   settings: {
@@ -18,6 +16,6 @@ export default {
 
     remarkRequireSchemaAnchor,
     remarkLintSchema,
-    remarkHoverSchema
+    remarkSchemaInfo
   ]
 }
