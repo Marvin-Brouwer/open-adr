@@ -69,7 +69,7 @@ export default definePlugin(pluginName, async (tree, file, settings) => {
 						.replaceAll('\n', String.raw`\n`)
 						.replaceAll('\r', String.raw`\r`)
 						.replaceAll('\t', String.raw`\t`)
-					+ `\n  at JSON.parse (${schemaUrl})`,
+						+ `\n  at JSON.parse (${schemaUrl})`,
 			},
 		)
 		return

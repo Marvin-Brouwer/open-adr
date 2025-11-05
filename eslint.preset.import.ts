@@ -54,4 +54,3 @@ export const lintImports = defineConfig([
 		},
 	},
 ])
-
