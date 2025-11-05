@@ -5,9 +5,8 @@ import Ajv, { JSONSchemaType } from 'ajv/dist/2020.js'
 
 import { debug } from '../constants.mts'
 import { checkFileIncluded } from '../files/file-include.mts'
-import { createMessageWriter } from '../message-helper.mts'
 import { getFrontMatterData, FrontMatterError } from '../nodes/front-matter'
-import { definePlugin } from '../plugin.mts'
+import { definePlugin, RemarkPluginContext } from '../plugin.mts'
 import { getOdrSettings } from '../settings.mts'
 
 interface OdrFileMetaData { 'odr:schema': string }
@@ -15,11 +14,10 @@ interface OdrFileMetaData { 'odr:schema': string }
 const pluginName = 'remark-plugin:odr-schema-loader'
 export default definePlugin({
 	pluginName,
-	async transform(tree, file, settings) {
-		const odrSettings = getOdrSettings(settings)
+	async transform(context) {
+		if (!checkFileIncluded(context)) return
 
-		if (!checkFileIncluded(file, odrSettings)) return
-		const messageWriter = createMessageWriter(file)
+		const { allowedSchemas } = getOdrSettings(context)
 
 		const frontMatterSchema: JSONSchemaType<OdrFileMetaData> = {
 			type: 'object',
@@ -36,28 +34,26 @@ export default definePlugin({
 			required: ['odr:schema'],
 			additionalProperties: true,
 		}
-		const frontMatterResult = await getFrontMatterData<OdrFileMetaData>(tree, frontMatterSchema)
+		const frontMatterResult = await getFrontMatterData<OdrFileMetaData>(context.root, frontMatterSchema)
 		if (frontMatterResult instanceof FrontMatterError) {
-			messageWriter.error(frontMatterResult.yamlError.message, frontMatterResult.position)
-			console.log(frontMatterResult.position)
+			context.appendError(frontMatterResult.yamlError.message, frontMatterResult.position)
 			return
 		}
 
 		const schemaUrl = frontMatterResult['odr:schema']
-		file.data['odr:schema'] = {
+		context.file.data['odr:schema'] = {
 			schemaUrl,
 		}
 
-		const allowedSchemas = getOdrSettings(settings).allowedSchemas
 		if (allowedSchemas && allowedSchemas.length > 0 && !allowedSchemas.includes(schemaUrl)) {
-			file.message(`Schema "${schemaUrl}" is not allowed. Allowed: ${allowedSchemas.join(', ')}`, frontMatterResult['@position'])
+			context.appendError(`Schema "${schemaUrl}" is not allowed. Allowed: ${allowedSchemas.join(', ')}`, frontMatterResult['@position'])
 			return
 		}
 
-		const schemaValue = await tryLoadSchema(schemaUrl, path.join(file.cwd, file.dirname ?? '.'))
+		const schemaValue = await tryLoadSchema(schemaUrl, path.join(context.file.cwd, context.file.dirname ?? '.'), context)
 		if (schemaValue instanceof Error) {
 			const [primaryError, additionalContext] = schemaValue.message.split(', "')
-			messageWriter.error(
+			context.appendError(
 				primaryError,
 				frontMatterResult['@position'],
 				{
@@ -78,12 +74,12 @@ export default definePlugin({
 			)
 			return
 		}
-		const ajv = createValidator(path.join(file.cwd, file.dirname ?? '.'))
+		const ajv = createValidator(path.join(context.file.cwd, context.file.dirname ?? '.'), context)
 
 		try {
 			const validator = await ajv.compileAsync(schemaValue)
 
-			file.data['odr:schema'] = {
+			context.file.data['odr:schema'] = {
 				schemaUrl,
 				validator,
 			}
@@ -91,7 +87,7 @@ export default definePlugin({
 		catch (error_) {
 			const error = error_ as Error
 
-			messageWriter.error(
+			context.appendError(
 				'Failed to load schema',
 				frontMatterResult['@position'],
 				{
@@ -104,16 +100,16 @@ export default definePlugin({
 	},
 })
 
-async function tryLoadSchema(uri: string, dirname: string) {
+async function tryLoadSchema(uri: string, dirname: string, context: RemarkPluginContext) {
 	try {
-		return await loadSchema(dirname)(uri)
+		return await loadSchema(dirname, context)(uri)
 	}
 	catch (error) {
 		return error as Error
 	}
 }
 
-function loadSchema(dirname: string) {
+function loadSchema(dirname: string, context: RemarkPluginContext) {
 	return async (uri: string) => {
 		// Skip meta schemas
 		if (uri.startsWith('https://json-schema.org/draft/')) return {}
@@ -124,10 +120,10 @@ function loadSchema(dirname: string) {
 			// TODO add npm: protocol
 			switch (url.protocol) {
 				case 'https:': {
-					return loadWebSchema(url)
+					return loadWebSchema(url, context)
 				}
 				case 'file:': {
-					return loadFileSchema(fileUrl(uri, dirname))
+					return loadFileSchema(fileUrl(uri, dirname), context)
 				}
 			}
 			return {}
@@ -138,12 +134,12 @@ function loadSchema(dirname: string) {
 	}
 }
 
-async function loadWebSchema(uri: URL) {
+async function loadWebSchema(uri: URL, context: RemarkPluginContext) {
 	const response = await fetch(uri)
-	if (debug.logSchemaResolver) console.log(uri)
+	if (debug.logSchemaResolver) context.writeTrace(uri)
 	if (response.ok) {
 		const json = await response.json() as Record<string, unknown>
-		if (debug.logSchemaResolver) console.log(response.status, json)
+		if (debug.logSchemaResolver) context.writeTrace(response.status, json)
 
 		// Infinite loop fix
 		if (!json.$id) {
@@ -151,15 +147,15 @@ async function loadWebSchema(uri: URL) {
 		}
 		return json
 	}
-	if (debug.logSchemaResolver) console.log(response.status, await response.text())
+	if (debug.logSchemaResolver) context.writeTrace(response.status, await response.text())
 	return response.json()
 }
 
 function fileUrl(uri: string, dirname: string) {
 	return path.resolve(dirname, uri.replace('file://', ''))
 }
-async function loadFileSchema(uri: string) {
-	if (debug.logSchemaResolver) console.log(uri)
+async function loadFileSchema(uri: string, context: RemarkPluginContext) {
+	if (debug.logSchemaResolver) context.writeTrace(uri)
 
 	const fileContents = await readFile(uri)
 	const fileJson = JSON.parse(fileContents.toString())
@@ -168,9 +164,9 @@ async function loadFileSchema(uri: string) {
 	return fileJson
 }
 
-function createValidator(dirname: string) {
+function createValidator(dirname: string, context: RemarkPluginContext) {
 	// TODO use strict
-	const ajv = new Ajv({ loadSchema: loadSchema(dirname), strict: false })
+	const ajv = new Ajv({ loadSchema: loadSchema(dirname, context), strict: false })
 		// TODO figure out why these are in spec but still "unkown keyword"
 		// Also only seems to happen when using https of the same schema :S
 		.addKeyword({

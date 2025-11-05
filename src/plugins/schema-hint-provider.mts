@@ -1,15 +1,12 @@
 import { checkFileIncluded } from '../files/file-include.mts'
 import { definePlugin } from '../plugin.mts'
-import { getOdrSettings } from '../settings.mts'
 
 // TODO parse schema and figure this out
 const pluginName = 'remark-plugin:odr-schema-provider'
 export default definePlugin({
 	pluginName,
-	transform(_tree, file, settings) {
-		const odrSettings = getOdrSettings(settings)
-
-		if (!checkFileIncluded(file, odrSettings)) return
+	transform(context) {
+		if (!checkFileIncluded(context)) return
 
 		// const activeSchemaPath = path.resolve(fileDir, schemaRefNode.url)
 		// let schema

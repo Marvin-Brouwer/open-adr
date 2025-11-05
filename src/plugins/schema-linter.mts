@@ -1,14 +1,11 @@
 import { checkFileIncluded } from '../files/file-include.mts'
 import { definePlugin } from '../plugin.mts'
-import { getOdrSettings } from '../settings.mts'
 
 const pluginName = 'remark-plugin:odr-schema-linter'
 export default definePlugin({
 	pluginName,
-	async transform(_tree, file, settings) {
-		const odrSettings = getOdrSettings(settings)
-
-		if (!checkFileIncluded(file, odrSettings)) return
+	async transform(context) {
+		if (!checkFileIncluded(context)) return
 
 		// TODO this is just a chatgpt barf where we validate our schema against the document.
 		// However, it's probably more robust to convert the markdown into JSON and have ajv just validate that.

@@ -1,6 +1,6 @@
 import { VFile } from 'vfile'
 
-import { createMessageWriter } from './message-helper.mts'
+import { createMessageWriter, MessageWriter } from './message-helper.mts'
 
 import type { Plugin, Processor, Settings, Transformer } from 'unified'
 import type { Node, Parent } from 'unist'
@@ -10,6 +10,9 @@ import type { Node, Parent } from 'unist'
  */
 export type RemarkPlugin = Plugin<Parameters<Transformer>, Parameters<Transformer>[0], Transformer>
 
+// See: <https://github.com/sindresorhus/type-fest/blob/main/source/empty-object.d.ts>
+declare const emptyObjectSymbol: unique symbol
+
 /**
  * ## Untyped settings for [remark `plugins`](https://github.com/remarkjs/remark?tab=readme-ov-file#plugins)
  *
@@ -17,16 +20,26 @@ export type RemarkPlugin = Plugin<Parameters<Transformer>, Parameters<Transforme
  * @todo When splitting into a separate library, create docs to illustrate best practices as done in the odr library.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type RemarkPluginSettings = Settings & Readonly<Record<string, Readonly<any>>>
+export type RemarkPluginSettings = Settings & Readonly<Record<string, Readonly<any>>> & {
+	[emptyObjectSymbol]: never
+}
 
 /**
- * ## Logic of a [remark `plugin`](https://github.com/remarkjs/remark?tab=readme-ov-file#plugins) transformer
- *
- * @param tree The initial document root node, at the time of invocation
- * @param file The current document being transformed
- * @param settings The settings as configured by the user
+ * {@inheritdoc RemarkPluginDefinition.transform}
  */
 export type RemarkTransformDefinition = RemarkPluginDefinition['transform']
+
+/**
+ * ## [Remark `plugin`](https://github.com/remarkjs/remark?tab=readme-ov-file#plugins) context
+ */
+export type RemarkPluginContext = {
+	/** The initial document root node, at the time of invocation */
+	root: Parent
+	/** The current document being transformed */
+	file: VFile
+	/** The settings as configured by the user */
+	settings: RemarkPluginSettings
+} & MessageWriter
 
 type PluginBody = NonNullable<Exclude<RemarkPlugin, void>>
 
@@ -77,11 +90,9 @@ export type RemarkPluginDefinition = {
 	 * })
 	 * ```
 	 *
-	 * @param tree The initial document root node, at the time of invocation
-	 * @param file The current document being transformed
-	 * @param settings The settings as configured by the user
+	 * @param context TODO think of a good description
 	 */
-	transform(tree: Parent, file: VFile, settings: RemarkPluginSettings): Node | void | Promise<Node | void>
+	transform(context: RemarkPluginContext): Node | void | Promise<Node | void>
 }
 
 /**
@@ -113,13 +124,23 @@ export const definePlugin = (pluginDefinition: RemarkPluginDefinition): RemarkPl
 		[pluginName]() {
 			const processor = this as Processor
 			return async (tree, file, next) => {
+				const settings = (processor.data().settings ?? {}) as RemarkPluginSettings
+				const messageWriter = createMessageWriter(
+					tree, file, pluginName,
+					settings['trace'] as unknown as boolean ?? false,
+				)
+				const context = {
+					...messageWriter,
+					root: tree as Parent,
+					file,
+					settings,
+				}
 				try {
-					await transform(tree as Parent, file, (processor.data().settings ?? {}) as RemarkPluginSettings)
+					await transform(context)
 				}
 				catch (error_) {
 					const error = error_ as Error
-					const messageWriter = createMessageWriter(file)
-					messageWriter.error(error.message, tree, {
+					messageWriter.appendError(error.message, tree, {
 						stack: error.stack,
 						cause: error.cause,
 					})

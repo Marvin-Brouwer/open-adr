@@ -4,16 +4,20 @@ import { Node, Parent, Position } from 'unist'
 import { VFile } from 'vfile'
 
 export type MessageWriter = ReturnType<typeof createMessageWriter>
-export function createMessageWriter(file: VFile) {
+export function createMessageWriter(root: Node, file: VFile, pluginName: string, traceEnabled: boolean) {
 	return {
-		info(message: string, parent: Parent | Node) {
-			file.info(message, parent)
+		writeTrace(...arguments_: Parameters<typeof console.log>) {
+			if (!traceEnabled) return
+			console.info(pluginName, ...arguments_)
 		},
-		warn(message: string, parent: Parent | Node) {
-			file.message(message, parent)
+		appendInfo(message: string, location?: Parent | Node | Position) {
+			file.info(message, location as Node ?? root)
 		},
-		error(message: string, parent: Parent | Node | Position, data?: { stack?: string, cause?: string | unknown, file?: string, note?: string }) {
-			const errorMessage = file.message(message, parent as Node)
+		appendWarn(message: string, location?: Parent | Node | Position) {
+			file.message(message, location as Node ?? root)
+		},
+		appendError(message: string, location?: Parent | Node | Position, data?: { stack?: string, cause?: string | unknown, file?: string, note?: string }) {
+			const errorMessage = file.message(message, location as Node ?? root)
 			errorMessage.fatal = true
 			errorMessage.cause = data?.cause
 			errorMessage.stack = data?.stack

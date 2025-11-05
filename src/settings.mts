@@ -1,4 +1,4 @@
-import { RemarkPluginSettings } from './plugin.mts'
+import { RemarkPluginContext } from './plugin.mts'
 
 export type OdrSettingsDefinition = Partial<OdrSettings>
 export interface OdrSettings {
@@ -11,7 +11,7 @@ const defaults: OdrSettings = {
 }
 
 export const odrSettings = (config?: OdrSettingsDefinition): OdrSettings => Object.assign(defaults, config) as OdrSettings
-export const getOdrSettings = (settings: RemarkPluginSettings): OdrSettings => {
-	if (!settings.odr) return defaults
-	return settings.odr as OdrSettings
+export const getOdrSettings = (context: RemarkPluginContext): OdrSettings => {
+	if (!context.settings.odr) return defaults
+	return context.settings.odr as OdrSettings
 }
