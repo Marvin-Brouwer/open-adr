@@ -6,7 +6,10 @@ import tseslint from 'typescript-eslint';
 
 const customConfig = defineConfig({
 	rules: {
-		'quotes': [2, 'single', { 'avoidEscape': true }]
+		// Single quotes are the best!
+		'quotes': [2, 'single', { 'avoidEscape': true }],
+		// Remove semicolons
+		'semi': ['error', 'never']
 	},
 });
 

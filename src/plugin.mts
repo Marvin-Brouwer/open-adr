@@ -1,9 +1,9 @@
-import { createMessageWriter } from './message-helper.mts';
-import { OdrSettings } from './settings.mts';
+import { createMessageWriter } from './message-helper.mts'
+import { OdrSettings } from './settings.mts'
 
-import type { Plugin, Processor, Settings, Transformer } from 'unified';
-import type { Node, Parent } from 'unist';
-import type { VFile } from 'vfile';
+import type { Plugin, Processor, Settings, Transformer } from 'unified'
+import type { Node, Parent } from 'unist'
+import type { VFile } from 'vfile'
 
 export type RemarkPlugin = Plugin<Parameters<Transformer>, Parameters<Transformer>[0], Transformer>;
 
@@ -16,23 +16,23 @@ type PluginBody = NonNullable<Exclude<RemarkPlugin, void>>;
 export const definePlugin = (name: string, pluginDefinition: RemarkPluginDefinition): RemarkPlugin => {
 	const plugin: Record<string, PluginBody> = {
 		[name]() {
-			const processor = this as Processor;
+			const processor = this as Processor
 			return async (tree, file, next) => {
 				try {
-					await pluginDefinition(tree as Parent, file, processor.data().settings ?? {});
+					await pluginDefinition(tree as Parent, file, processor.data().settings ?? {})
 				} catch (err) {
-					const error = err as Error;
-					const messageWriter = createMessageWriter(file);
+					const error = err as Error
+					const messageWriter = createMessageWriter(file)
 					messageWriter.error(error.message, tree, {
 						stack: error.stack,
 						cause: error.cause,
-					});
+					})
 				}
 				finally {
-					next(undefined, tree, file);
+					next(undefined, tree, file)
 				}
-			};
+			}
 		}
-	};
-	return Object.defineProperty<PluginBody>(plugin[name], 'name', { value: name });
-};
+	}
+	return Object.defineProperty<PluginBody>(plugin[name], 'name', { value: name })
+}

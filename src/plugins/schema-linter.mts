@@ -1,10 +1,10 @@
-import { checkFileIncluded } from '../files/file-include.mts';
-import { definePlugin } from '../plugin.mts';
+import { checkFileIncluded } from '../files/file-include.mts'
+import { definePlugin } from '../plugin.mts'
 
 
-const pluginName = 'remark-plugin:odr-schema-linter';
+const pluginName = 'remark-plugin:odr-schema-linter'
 export default definePlugin(pluginName, async (_tree, file, settings) => {
-	if (!checkFileIncluded(file, settings)) return;
+	if (!checkFileIncluded(file, settings)) return
 
 
 
@@ -47,4 +47,4 @@ export default definePlugin(pluginName, async (_tree, file, settings) => {
 	// }
 
 	// file.info(`Validated against schema: ${path.basename(activeSchemaPath)}`, tree);
-});
+})

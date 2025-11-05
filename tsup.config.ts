@@ -1,6 +1,6 @@
-import path from 'node:path';
+import path from 'node:path'
 
-import { defineConfig } from 'tsup';
+import { defineConfig } from 'tsup'
 
 export default defineConfig({
     entry: [
@@ -24,6 +24,6 @@ export default defineConfig({
     splitting: true,
     minify: false,
     esbuildOptions(options) {
-        options.outbase = './src';
+        options.outbase = './src'
     },
-});
+})

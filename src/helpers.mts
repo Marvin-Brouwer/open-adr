@@ -5,8 +5,8 @@ export type FaultyUrl = [url: undefined, error: Error]
 export function validateUrl(url?: string): ValidatedUrl | FaultyUrl {
 	try {
 		// Fall through empty string for errors
-		return [new URL(url!), undefined];
+		return [new URL(url!), undefined]
 	} catch (ex) {
-		return [undefined, ex as Error];
+		return [undefined, ex as Error]
 	}
 }

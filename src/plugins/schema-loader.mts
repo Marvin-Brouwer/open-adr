@@ -1,22 +1,22 @@
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
 
-import Ajv, { JSONSchemaType } from 'ajv';
+import Ajv, { JSONSchemaType } from 'ajv'
 
-import { debug } from '../constants.mts';
-import { checkFileIncluded } from '../files/file-include.mts';
-import { createMessageWriter } from '../message-helper.mts';
-import { getFrontMatterData, FrontMatterError } from '../nodes/front-matter';
-import { definePlugin } from '../plugin.mts';
-import { getSettings } from '../settings.mts';
+import { debug } from '../constants.mts'
+import { checkFileIncluded } from '../files/file-include.mts'
+import { createMessageWriter } from '../message-helper.mts'
+import { getFrontMatterData, FrontMatterError } from '../nodes/front-matter'
+import { definePlugin } from '../plugin.mts'
+import { getSettings } from '../settings.mts'
 
 type OdrFileMetaData = { 'odr:schema': string; };
 
-const pluginName = 'remark-plugin:odr-schema-loader';
+const pluginName = 'remark-plugin:odr-schema-loader'
 export default definePlugin(pluginName, async (tree, file, settings) => {
 
-	if (!checkFileIncluded(file, settings)) return;
-	const messageWriter = createMessageWriter(file);
+	if (!checkFileIncluded(file, settings)) return
+	const messageWriter = createMessageWriter(file)
 
 	const frontMatterSchema: JSONSchemaType<OdrFileMetaData> = {
 		type: 'object',
@@ -32,31 +32,31 @@ export default definePlugin(pluginName, async (tree, file, settings) => {
 		},
 		required: ['odr:schema'],
 		additionalProperties: true,
-	};
-	const frontMatterResult = await getFrontMatterData<OdrFileMetaData>(tree, frontMatterSchema);
+	}
+	const frontMatterResult = await getFrontMatterData<OdrFileMetaData>(tree, frontMatterSchema)
 	if (frontMatterResult instanceof FrontMatterError) {
-		messageWriter.error(frontMatterResult.yamlError.message, frontMatterResult.position);
-		console.log(frontMatterResult.position);
-		return;
+		messageWriter.error(frontMatterResult.yamlError.message, frontMatterResult.position)
+		console.log(frontMatterResult.position)
+		return
 	}
 
-	const schemaUrl = frontMatterResult['odr:schema'];
+	const schemaUrl = frontMatterResult['odr:schema']
 	file.data['odr:schema'] = {
 		schemaUrl
-	};
+	}
 
 
-	const allowedSchemas = getSettings(settings).allowedSchemas;
+	const allowedSchemas = getSettings(settings).allowedSchemas
 	if (allowedSchemas && allowedSchemas.length) {
 		if (!allowedSchemas.includes(schemaUrl)) {
-			file.message(`Schema "${schemaUrl}" is not allowed. Allowed: ${allowedSchemas.join(', ')}`, frontMatterResult['@position']);
-			return;
+			file.message(`Schema "${schemaUrl}" is not allowed. Allowed: ${allowedSchemas.join(', ')}`, frontMatterResult['@position'])
+			return
 		}
 	}
 
-	const schemaValue = await tryLoadSchema(schemaUrl, path.join(file.cwd, file.dirname ?? '.'));
+	const schemaValue = await tryLoadSchema(schemaUrl, path.join(file.cwd, file.dirname ?? '.'))
 	if (schemaValue instanceof Error) {
-		const [primaryError, additionalContext] = schemaValue.message.split(', "');
+		const [primaryError, additionalContext] = schemaValue.message.split(', "')
 		messageWriter.error(
 			primaryError,
 			frontMatterResult['@position'],
@@ -75,22 +75,22 @@ export default definePlugin(pluginName, async (tree, file, settings) => {
 						.replaceAll('\t', '\\t')
 					+ `\n  at JSON.parse (${schemaUrl})`
 			}
-		);
-		return;
+		)
+		return
 	}
-	const ajv = createValidator(path.join(file.cwd, file.dirname ?? '.'));
+	const ajv = createValidator(path.join(file.cwd, file.dirname ?? '.'))
 
 
 	try {
-		const validator = await ajv.compileAsync(schemaValue);
+		const validator = await ajv.compileAsync(schemaValue)
 
 		file.data['odr:schema'] = {
 			schemaUrl,
 			validator
-		};
+		}
 	}
 	catch (err) {
-		const error = err as Error;
+		const error = err as Error
 
 		messageWriter.error(
 			'Failed to load schema',
@@ -100,65 +100,65 @@ export default definePlugin(pluginName, async (tree, file, settings) => {
 				stack: error.stack,
 				file: schemaUrl
 			}
-		);
+		)
 	}
-});
+})
 
 async function tryLoadSchema(uri: string, dirname: string) {
 	try {
-		return await loadSchema(dirname)(uri);
+		return await loadSchema(dirname)(uri)
 	}
 	catch (err) {
-		return err as Error;
+		return err as Error
 	}
 }
 
 function loadSchema(dirname: string) {
 	return async (uri: string) => {
 		// Skip meta schemas
-		if (uri.startsWith('https://json-schema.org/draft/')) return {};
-		if (uri.startsWith('http://json-schema.org/draft/')) return {};
+		if (uri.startsWith('https://json-schema.org/draft/')) return {}
+		if (uri.startsWith('http://json-schema.org/draft/')) return {}
 
 		try {
-			const url = new URL(uri);
+			const url = new URL(uri)
 			switch (url.protocol) {
-				case 'https:': return loadWebSchema(url);
-				case 'file:': return loadFileSchema(fileUrl(uri, dirname));
+				case 'https:': return loadWebSchema(url)
+				case 'file:': return loadFileSchema(fileUrl(uri, dirname))
 			}
-			return {};
+			return {}
 		} catch {
-			return {};
+			return {}
 		}
-	};
+	}
 }
 
 async function loadWebSchema(uri: URL) {
 
-	const res = await fetch(uri);
-	if (debug.logSchemaResolver) console.log(uri);
+	const res = await fetch(uri)
+	if (debug.logSchemaResolver) console.log(uri)
 	if (res.ok) {
-		const json = await res.json() as Record<string, unknown>;
-		if (debug.logSchemaResolver) console.log(res.status, json);
+		const json = await res.json() as Record<string, unknown>
+		if (debug.logSchemaResolver) console.log(res.status, json)
 
 		// Infinite loop fix
 		if (!json.$id) {
-			json.$id = uri.toString();
+			json.$id = uri.toString()
 		}
-		return json;
+		return json
 	}
-	if (debug.logSchemaResolver) console.log(res.status, await res.text());
-	return res.json();
+	if (debug.logSchemaResolver) console.log(res.status, await res.text())
+	return res.json()
 }
 
 function fileUrl(uri: string, dirname: string) {
-	return path.resolve(dirname, uri.replace('file://', ''));
+	return path.resolve(dirname, uri.replace('file://', ''))
 }
 async function loadFileSchema(uri: string) {
 
-	if (debug.logSchemaResolver) console.log(uri);
+	if (debug.logSchemaResolver) console.log(uri)
 
-	const fileContents = await readFile(uri);
-	return JSON.parse(fileContents.toString());
+	const fileContents = await readFile(uri)
+	return JSON.parse(fileContents.toString())
 }
 
 function createValidator(dirname: string) {
@@ -170,7 +170,7 @@ function createValidator(dirname: string) {
 			modifying: false,
 			schemaType: ['string'],
 			validate: () => true
-		});
+		})
 	// TODO figure out why these are in spec but still "unkown keyword"
 	// // .addKeyword({
 	// 	keyword: 'order',
@@ -179,5 +179,5 @@ function createValidator(dirname: string) {
 	// 	validate: () => true
 	// });
 
-	return ajv;
+	return ajv
 }
