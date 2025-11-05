@@ -8,7 +8,7 @@ import { definePlugin } from '../plugin.mts';
 import { DefinitionNode, HeadingNode } from '../nodes.mts';
 
 // TODO parse schema and figure this out
-const pluginName = 'remark-hover-schema';
+const pluginName = 'remark-plugin:odr-schema-provider';
 export default definePlugin(pluginName, (tree, file, settings) => {
 	const odrSettings = settings?.odr || {};
 	const allowedSchemas = odrSettings.allowedSchemas as string[] || [];

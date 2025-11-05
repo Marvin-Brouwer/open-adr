@@ -1,40 +1,40 @@
 {
-  "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "allowSyntheticDefaultImports": true,
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "esnext",
+		"allowSyntheticDefaultImports": true,
 		"allowImportingTsExtensions": true,
-    "useDefineForClassFields": true,
+		"useDefineForClassFields": true,
 		"emitDeclarationOnly": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "allowJs": true,
-    "outDir": "dist",
-    "lib": [
-      "ES2024.ArrayBuffer",
-      "ES2017.TypedArrays",
-      "ES2024"
-    ],
-    /* Bundler mode */
-    "moduleResolution": "bundler",
-    "moduleDetection": "force",
-    "declaration": true,
-    "declarationMap": true,
-    "declarationDir": "dist",
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
-  },
-  "include": [
-    "src/**/*.mts",
-    "tsup.config.mts",
-  ],
-  "exclude": [
-    "src/**.test.ts",
-    "src/**.spec.ts"
-  ]
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"allowJs": true,
+		"outDir": "dist",
+		"lib": [
+			"ES2024.ArrayBuffer",
+			"ES2017.TypedArrays",
+			"ES2024"
+		],
+		/* Bundler mode */
+		"moduleResolution": "bundler",
+		"moduleDetection": "force",
+		"declaration": true,
+		"declarationMap": true,
+		"declarationDir": "dist",
+		/* Linting */
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"erasableSyntaxOnly": false,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedSideEffectImports": true
+	},
+	"include": [
+		"src/**/*.mts",
+		"tsup.config.mts",
+	],
+	"exclude": [
+		"src/**.test.ts",
+		"src/**.spec.ts"
+	]
 }
