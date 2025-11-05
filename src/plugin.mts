@@ -1,8 +1,9 @@
+import { VFile } from 'vfile'
+
 import { createMessageWriter } from './message-helper.mts'
 
 import type { Plugin, Processor, Settings, Transformer } from 'unified'
 import type { Node, Parent } from 'unist'
-import type { VFile } from 'vfile'
 
 /**
  * ## [remark `plugin`](https://github.com/remarkjs/remark?tab=readme-ov-file#plugins)
@@ -19,21 +20,13 @@ export type RemarkPlugin = Plugin<Parameters<Transformer>, Parameters<Transforme
 export type RemarkPluginSettings = Settings & Readonly<Record<string, Readonly<any>>>
 
 /**
- * ## Logic of a [remark `plugin`](https://github.com/remarkjs/remark?tab=readme-ov-file#plugins)
+ * ## Logic of a [remark `plugin`](https://github.com/remarkjs/remark?tab=readme-ov-file#plugins) transformer
  *
  * @param tree The initial document root node, at the time of invocation
  * @param file The current document being transformed
  * @param settings The settings as configured by the user
  */
-export type RemarkPluginDefinition = (
-	/**
-	 * ## Logic of a [remark `plugin`](https://github.com/remarkjs/remark?tab=readme-ov-file#plugins)
-	 *
-	 * @param tree The initial document root node, at the time of invocation
-	 * @param file The current document being transformed
-	 * @param settings The settings as configured by the user
-	 */
-	(tree: Parent, file: VFile, settings: RemarkPluginSettings) => Node | void | Promise<Node | void>)
+export type RemarkTransformDefinition = RemarkPluginDefinition['transform']
 
 type PluginBody = NonNullable<Exclude<RemarkPlugin, void>>
 
@@ -46,24 +39,82 @@ type PluginBody = NonNullable<Exclude<RemarkPlugin, void>>
  * ```ts
  * // basic-example.mts
  * const pluginName = `remark-plugin:basic-example`
- * export default definePlugin(pluginName, (tree, file, settings) => {
- * 	// This plugin does nothing yet...
+ * export default definePlugin({
+ * 	pluginName,
+ * 	transform(tree, file, settings) {
+ * 		// This plugin does nothing yet...
+ * 	}
  * })
  * ```
  *
- * **NOTE:** The {@link PluginDefinition} may be both async or non-async. \
+ * **NOTE:** The {@link RemarkTransformDefinition} may be both async or non-async. \
  * Both are handled the same.
  *
- * @param name The plugin's name, use vite-plugin like naming convention e.g.: `remark-plugin:your-name-here`
+ * @field pluginName The plugin's name, use vite-plugin like naming convention e.g.: `remark-plugin:your-name-here`
+ * @field transform The actual definition of your plugin, see: {@link RemarkTransformDefinition}
+ */
+export type RemarkPluginDefinition = {
+	/**
+	 * ## The plugin's name
+	 *
+	 * Use vite-plugin like naming convention e.g.: `remark-plugin:your-name-here`
+	 */
+	pluginName: string
+	/**
+	 * ## Logic of a [remark `plugin`](https://github.com/remarkjs/remark?tab=readme-ov-file#plugins) transformer
+	 *
+	 * A basic plugin will look like:
+	 *
+	 * ```ts
+	 * // basic-example.mts
+	 * const pluginName = `remark-plugin:basic-example`
+	 * export default definePlugin({
+	 * 	pluginName,
+	 * 	transform(tree, file, settings) {
+	 * 		const exampleSettings = getExampleSettings(settings);
+	 * 		// This plugin does nothing yet...
+	 * 	}
+	 * })
+	 * ```
+	 *
+	 * @param tree The initial document root node, at the time of invocation
+	 * @param file The current document being transformed
+	 * @param settings The settings as configured by the user
+	 */
+	transform(tree: Parent, file: VFile, settings: RemarkPluginSettings): Node | void | Promise<Node | void>
+}
+
+/**
+ * ## Define a [remark `plugin`](https://github.com/remarkjs/remark?tab=readme-ov-file#plugins)
+ *
+ * The plugin comes with explicit type information **and** an uncaught error handler to prevent the processor from crashing. \
+ * A basic plugin will look like:
+ *
+ * ```ts
+ * // basic-example.mts
+ * const pluginName = `remark-plugin:basic-example`
+ * export default definePlugin({
+ * 	pluginName,
+ * 	transform(tree, file, settings) {
+ * 		// This plugin does nothing yet...
+ * 	}
+ * })
+ * ```
+ *
+ * **NOTE:** The {@link RemarkTransformDefinition} may be both async or non-async. \
+ * Both are handled the same.
+ *
  * @param pluginDefinition The actual definition of your plugin, see: {@link RemarkPluginDefinition}
  */
-export const definePlugin = (name: string, pluginDefinition: RemarkPluginDefinition): RemarkPlugin => {
+export const definePlugin = (pluginDefinition: RemarkPluginDefinition): RemarkPlugin => {
+	const { pluginName, transform } = pluginDefinition
+
 	const plugin: Record<string, PluginBody> = {
-		[name]() {
+		[pluginName]() {
 			const processor = this as Processor
 			return async (tree, file, next) => {
 				try {
-					await pluginDefinition(tree as Parent, file, (processor.data().settings ?? {}) as RemarkPluginSettings)
+					await transform(tree as Parent, file, (processor.data().settings ?? {}) as RemarkPluginSettings)
 				}
 				catch (error_) {
 					const error = error_ as Error
@@ -79,5 +130,5 @@ export const definePlugin = (name: string, pluginDefinition: RemarkPluginDefinit
 			}
 		},
 	}
-	return Object.defineProperty<PluginBody>(plugin[name], 'name', { value: name })
+	return Object.defineProperty<PluginBody>(plugin[pluginName], 'name', { value: pluginName })
 }

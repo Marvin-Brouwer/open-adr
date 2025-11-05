@@ -11,7 +11,7 @@ const defaults: OdrSettings = {
 }
 
 export const odrSettings = (config?: OdrSettingsDefinition): OdrSettings => Object.assign(defaults, config) as OdrSettings
-export const getSettings = (settings: RemarkPluginSettings): OdrSettings => {
+export const getOdrSettings = (settings: RemarkPluginSettings): OdrSettings => {
 	if (!settings.odr) return defaults
 	return settings.odr as OdrSettings
 }

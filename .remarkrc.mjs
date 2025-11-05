@@ -4,7 +4,7 @@ import remarkLintCheckbox from 'remark-lint-checkbox-character-style'
 import remarkParse from 'remark-parse'
 import remarkStringify from 'remark-stringify'
 
-import { odrLinter, odrSchema, odrSettings } from './dist/_module.js'
+import { odrLinter, odrSchema, odrSchemaInfo, odrSettings } from './dist/_module.js'
 
 export default {
 	settings: {
@@ -14,16 +14,19 @@ export default {
 		}),
 	},
 	plugins: [
+		// Basic remark setup
 		remarkParse,
 		remarkFrontmatter,
 		remarkLint,
 		remarkLintCheckbox,
 
+		// Configure ODR
 		remarkFrontmatter,
 		odrSchema,
 		odrLinter,
-		// // odrSchemaInfo
+		odrSchemaInfo,
 
+		// Fix for vscode markdown-previewer
 		[remarkStringify, {
 			checklist: true,
 			fences: true,

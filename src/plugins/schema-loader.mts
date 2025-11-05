@@ -8,95 +8,100 @@ import { checkFileIncluded } from '../files/file-include.mts'
 import { createMessageWriter } from '../message-helper.mts'
 import { getFrontMatterData, FrontMatterError } from '../nodes/front-matter'
 import { definePlugin } from '../plugin.mts'
-import { getSettings } from '../settings.mts'
+import { getOdrSettings } from '../settings.mts'
 
 interface OdrFileMetaData { 'odr:schema': string }
 
 const pluginName = 'remark-plugin:odr-schema-loader'
-export default definePlugin(pluginName, async (tree, file, settings) => {
-	if (!checkFileIncluded(file, settings)) return
-	const messageWriter = createMessageWriter(file)
+export default definePlugin({
+	pluginName,
+	async transform(tree, file, settings) {
+		const odrSettings = getOdrSettings(settings)
 
-	const frontMatterSchema: JSONSchemaType<OdrFileMetaData> = {
-		type: 'object',
-		properties: {
-			// TODO validate protocol?
-			'odr:schema': {
-				type: 'string',
-				title: 'Schema URL',
-				errorMessage: 'schema url protocol only allows: https, or file.',
-				// eslint-disable-next-line no-useless-escape
-				pattern: '^(https:|file:)\/\/',
+		if (!checkFileIncluded(file, odrSettings)) return
+		const messageWriter = createMessageWriter(file)
+
+		const frontMatterSchema: JSONSchemaType<OdrFileMetaData> = {
+			type: 'object',
+			properties: {
+				// TODO validate protocol?
+				'odr:schema': {
+					type: 'string',
+					title: 'Schema URL',
+					errorMessage: 'schema url protocol only allows: https, or file.',
+					// eslint-disable-next-line no-useless-escape
+					pattern: '^(https:|file:)\/\/',
+				},
 			},
-		},
-		required: ['odr:schema'],
-		additionalProperties: true,
-	}
-	const frontMatterResult = await getFrontMatterData<OdrFileMetaData>(tree, frontMatterSchema)
-	if (frontMatterResult instanceof FrontMatterError) {
-		messageWriter.error(frontMatterResult.yamlError.message, frontMatterResult.position)
-		console.log(frontMatterResult.position)
-		return
-	}
+			required: ['odr:schema'],
+			additionalProperties: true,
+		}
+		const frontMatterResult = await getFrontMatterData<OdrFileMetaData>(tree, frontMatterSchema)
+		if (frontMatterResult instanceof FrontMatterError) {
+			messageWriter.error(frontMatterResult.yamlError.message, frontMatterResult.position)
+			console.log(frontMatterResult.position)
+			return
+		}
 
-	const schemaUrl = frontMatterResult['odr:schema']
-	file.data['odr:schema'] = {
-		schemaUrl,
-	}
-
-	const allowedSchemas = getSettings(settings).allowedSchemas
-	if (allowedSchemas && allowedSchemas.length > 0 && !allowedSchemas.includes(schemaUrl)) {
-		file.message(`Schema "${schemaUrl}" is not allowed. Allowed: ${allowedSchemas.join(', ')}`, frontMatterResult['@position'])
-		return
-	}
-
-	const schemaValue = await tryLoadSchema(schemaUrl, path.join(file.cwd, file.dirname ?? '.'))
-	if (schemaValue instanceof Error) {
-		const [primaryError, additionalContext] = schemaValue.message.split(', "')
-		messageWriter.error(
-			primaryError,
-			frontMatterResult['@position'],
-			{
-				stack: primaryError
-					+ `\n  at JSON.parse (${schemaUrl})`,
-				file: schemaUrl,
-				cause: additionalContext ?? ''
-					.replaceAll('\n', String.raw`\n`)
-					.replaceAll('\r', String.raw`\r`)
-					.replaceAll('\t', String.raw`\t`),
-				note: '  '
-					+ (additionalContext ?? '')
-						.replaceAll('\n', String.raw`\n`)
-						.replaceAll('\r', String.raw`\r`)
-						.replaceAll('\t', String.raw`\t`)
-					+ `\n  at JSON.parse (${schemaUrl})`,
-			},
-		)
-		return
-	}
-	const ajv = createValidator(path.join(file.cwd, file.dirname ?? '.'))
-
-	try {
-		const validator = await ajv.compileAsync(schemaValue)
-
+		const schemaUrl = frontMatterResult['odr:schema']
 		file.data['odr:schema'] = {
 			schemaUrl,
-			validator,
 		}
-	}
-	catch (error_) {
-		const error = error_ as Error
 
-		messageWriter.error(
-			'Failed to load schema',
-			frontMatterResult['@position'],
-			{
-				cause: error.message,
-				stack: error.stack,
-				file: schemaUrl,
-			},
-		)
-	}
+		const allowedSchemas = getOdrSettings(settings).allowedSchemas
+		if (allowedSchemas && allowedSchemas.length > 0 && !allowedSchemas.includes(schemaUrl)) {
+			file.message(`Schema "${schemaUrl}" is not allowed. Allowed: ${allowedSchemas.join(', ')}`, frontMatterResult['@position'])
+			return
+		}
+
+		const schemaValue = await tryLoadSchema(schemaUrl, path.join(file.cwd, file.dirname ?? '.'))
+		if (schemaValue instanceof Error) {
+			const [primaryError, additionalContext] = schemaValue.message.split(', "')
+			messageWriter.error(
+				primaryError,
+				frontMatterResult['@position'],
+				{
+					stack: primaryError
+						+ `\n  at JSON.parse (${schemaUrl})`,
+					file: schemaUrl,
+					cause: additionalContext ?? ''
+						.replaceAll('\n', String.raw`\n`)
+						.replaceAll('\r', String.raw`\r`)
+						.replaceAll('\t', String.raw`\t`),
+					note: '  '
+						+ (additionalContext ?? '')
+							.replaceAll('\n', String.raw`\n`)
+							.replaceAll('\r', String.raw`\r`)
+							.replaceAll('\t', String.raw`\t`)
+						+ `\n  at JSON.parse (${schemaUrl})`,
+				},
+			)
+			return
+		}
+		const ajv = createValidator(path.join(file.cwd, file.dirname ?? '.'))
+
+		try {
+			const validator = await ajv.compileAsync(schemaValue)
+
+			file.data['odr:schema'] = {
+				schemaUrl,
+				validator,
+			}
+		}
+		catch (error_) {
+			const error = error_ as Error
+
+			messageWriter.error(
+				'Failed to load schema',
+				frontMatterResult['@position'],
+				{
+					cause: error.message,
+					stack: error.stack,
+					file: schemaUrl,
+				},
+			)
+		}
+	},
 })
 
 async function tryLoadSchema(uri: string, dirname: string) {

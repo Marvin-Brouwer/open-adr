@@ -1,47 +1,35 @@
-import micromatch from 'micromatch'
-import { visit } from 'unist-util-visit'
-
-import { schemaTag } from '../constants.mts'
-import { DefinitionNode } from '../nodes.mts'
+import { checkFileIncluded } from '../files/file-include.mts'
 import { definePlugin } from '../plugin.mts'
-import { getSettings } from '../settings.mts'
+import { getOdrSettings } from '../settings.mts'
 
 // TODO parse schema and figure this out
 const pluginName = 'remark-plugin:odr-schema-provider'
-export default definePlugin(pluginName, (tree, file, settings) => {
-	const odrSettings = getSettings(settings)
-	const includePatterns = odrSettings.include
+export default definePlugin({
+	pluginName,
+	transform(_tree, file, settings) {
+		const odrSettings = getOdrSettings(settings)
 
-	const filePath = file.path || file.history?.[0] || ''
-	if (includePatterns.length > 0 && !micromatch.isMatch(filePath, includePatterns)) return
+		if (!checkFileIncluded(file, odrSettings)) return
 
-	let schemaReferenceNode: DefinitionNode | undefined
-	visit(tree, 'definition', (node: DefinitionNode) => {
-		if (node.identifier?.toLowerCase() === schemaTag) {
-			schemaReferenceNode = node
-		}
-	})
+		// const activeSchemaPath = path.resolve(fileDir, schemaRefNode.url)
+		// let schema
+		// try { schema = JSON.parse(fs.readFileSync(activeSchemaPath, 'utf8')) }
+		// catch { return }
 
-	if (!schemaReferenceNode?.url) return
+		// const headingDescriptions: Record<string, string> = {}
+		// if (Array.isArray(schema.requiredHeadings)) {
+		// 	// eslint-disable-next-line
+		// 	schema.requiredHeadings.forEach((h: any) => { if (h.text && h.description) headingDescriptions[h.text] = h.description })
+		// }
 
-	// const activeSchemaPath = path.resolve(fileDir, schemaRefNode.url)
-	// let schema
-	// try { schema = JSON.parse(fs.readFileSync(activeSchemaPath, 'utf8')) }
-	// catch { return }
-
-	// const headingDescriptions: Record<string, string> = {}
-	// if (Array.isArray(schema.requiredHeadings)) {
-	// 	// eslint-disable-next-line
-	// 	schema.requiredHeadings.forEach((h: any) => { if (h.text && h.description) headingDescriptions[h.text] = h.description })
-	// }
-
-	// visit(tree, 'heading', (node: HeadingNode) => {
-	// 	const text = node.children.map(c => c.value).join('')
-	// 	const desc = headingDescriptions[text]
-	// 	if (desc) {
-	// 		node.data = node.data || {}
-	// 		node.data.hProperties = node.data.hProperties || {}
-	// 		node.data.hProperties.hover = desc
-	// 	}
-	// })
+		// visit(tree, 'heading', (node: HeadingNode) => {
+		// 	const text = node.children.map(c => c.value).join('')
+		// 	const desc = headingDescriptions[text]
+		// 	if (desc) {
+		// 		node.data = node.data || {}
+		// 		node.data.hProperties = node.data.hProperties || {}
+		// 		node.data.hProperties.hover = desc
+		// 	}
+		// })
+	},
 })
