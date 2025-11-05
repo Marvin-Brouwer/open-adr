@@ -6,6 +6,7 @@ import { checkFileIncluded } from '../files/file-include.mts';
 import { debug } from '../constants.mts';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { getSettings } from '../settings.mts';
 
 type OdrFileMetaData = { 'odr:schema': string; };
 
@@ -43,14 +44,13 @@ export default definePlugin(pluginName, async (tree, file, settings) => {
 	};
 
 
-	const allowedSchemas = settings.odr?.allowedSchemas as string[] || undefined;
+	const allowedSchemas = getSettings(settings).allowedSchemas;
 	if (allowedSchemas && allowedSchemas.length) {
 		if (!allowedSchemas.includes(schemaUrl)) {
 			file.message(`Schema "${schemaUrl}" is not allowed. Allowed: ${allowedSchemas.join(', ')}`, frontMatterResult['@position']);
 			return;
 		}
 	}
-
 
 	const schemaValue = await tryLoadSchema(schemaUrl, path.join(file.cwd, file.dirname ?? '.'));
 	if (schemaValue instanceof Error) {

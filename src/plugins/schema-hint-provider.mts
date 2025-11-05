@@ -6,13 +6,13 @@ import micromatch from 'micromatch';
 import { schemaTag } from '../constants.mts';
 import { definePlugin } from '../plugin.mts';
 import { DefinitionNode, HeadingNode } from '../nodes.mts';
+import { getSettings } from '../settings.mts';
 
 // TODO parse schema and figure this out
 const pluginName = 'remark-plugin:odr-schema-provider';
 export default definePlugin(pluginName, (tree, file, settings) => {
-	const odrSettings = settings?.odr || {};
-	const allowedSchemas = odrSettings.allowedSchemas as string[] || [];
-	const includePatterns = odrSettings.include as string[] || [];
+	const odrSettings = getSettings(settings);
+	const includePatterns = odrSettings.include;
 
 	const filePath = file.path || file.history?.[0] || '';
 	const fileDir = path.dirname(filePath);
@@ -26,7 +26,6 @@ export default definePlugin(pluginName, (tree, file, settings) => {
 	});
 
 	if (!schemaRefNode?.url) return;
-	if (allowedSchemas.length > 0 && !allowedSchemas.includes(path.basename(schemaRefNode!.url))) return;
 
 	const activeSchemaPath = path.resolve(fileDir, schemaRefNode.url);
 	let schema;
