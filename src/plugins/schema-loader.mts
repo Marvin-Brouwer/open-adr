@@ -24,7 +24,7 @@ export default definePlugin({
 		const frontMatterSchema: JSONSchemaType<OdrFileMetaData> = {
 			type: 'object',
 			properties: {
-				// TODO validate protocol?
+				// TODO add npm: protocol
 				'odr:schema': {
 					type: 'string',
 					title: 'Schema URL',
@@ -121,6 +121,7 @@ function loadSchema(dirname: string) {
 
 		try {
 			const url = new URL(uri)
+			// TODO add npm: protocol
 			switch (url.protocol) {
 				case 'https:': {
 					return loadWebSchema(url)
