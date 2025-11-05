@@ -21,8 +21,8 @@ export const definePlugin = (name: string, pluginDefinition: RemarkPluginDefinit
 				try {
 					await pluginDefinition(tree as Parent, file, processor.data().settings ?? {})
 				}
-				catch (err) {
-					const error = err as Error
+				catch (error_) {
+					const error = error_ as Error
 					const messageWriter = createMessageWriter(file)
 					messageWriter.error(error.message, tree, {
 						stack: error.stack,

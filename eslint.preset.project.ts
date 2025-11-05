@@ -7,4 +7,9 @@ export const projectConfig = defineConfig([
 		quotes: 'single',
 		indent: 'tab',
 	}),
+	{
+		rules: {
+			'unicorn/prefer-node-protocol': ['error'],
+		},
+	},
 ])

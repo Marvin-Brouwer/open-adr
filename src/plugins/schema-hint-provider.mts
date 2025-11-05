@@ -15,14 +15,14 @@ export default definePlugin(pluginName, (tree, file, settings) => {
 	const filePath = file.path || file.history?.[0] || ''
 	if (includePatterns.length > 0 && !micromatch.isMatch(filePath, includePatterns)) return
 
-	let schemaRefNode: DefinitionNode | undefined
+	let schemaReferenceNode: DefinitionNode | undefined
 	visit(tree, 'definition', (node: DefinitionNode) => {
 		if (node.identifier?.toLowerCase() === schemaTag) {
-			schemaRefNode = node
+			schemaReferenceNode = node
 		}
 	})
 
-	if (!schemaRefNode?.url) return
+	if (!schemaReferenceNode?.url) return
 
 	// const activeSchemaPath = path.resolve(fileDir, schemaRefNode.url)
 	// let schema

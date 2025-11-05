@@ -61,12 +61,12 @@ export async function getFrontMatterData<T>(tree: Node, schema?: JSONSchemaType<
 
 		return yamlResult
 	}
-	catch (err) {
+	catch (error) {
 		return new FrontMatterError(
-			err as YAMLError,
+			error as YAMLError,
 			yamlNode,
-			(err instanceof YAMLError)
-				? getRelativePosition(yamlNode, err as YAMLError)
+			(error instanceof YAMLError)
+				? getRelativePosition(yamlNode, error as YAMLError)
 				: yamlNode.position!,
 		)
 	}
@@ -89,4 +89,4 @@ function getRelativePosition(tree: Node, error: YAMLError): Position {
 	}
 }
 
-const getYamlNode = (tree: Node) => scan<Literal>(tree, 'yaml').then(nodes => nodes.length ? nodes[0] : undefined)
+const getYamlNode = (tree: Node) => scan<Literal>(tree, 'yaml').then(nodes => nodes.length > 0 ? nodes[0] : undefined)

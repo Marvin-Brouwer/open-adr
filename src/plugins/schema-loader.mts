@@ -45,11 +45,9 @@ export default definePlugin(pluginName, async (tree, file, settings) => {
 	}
 
 	const allowedSchemas = getSettings(settings).allowedSchemas
-	if (allowedSchemas && allowedSchemas.length) {
-		if (!allowedSchemas.includes(schemaUrl)) {
-			file.message(`Schema "${schemaUrl}" is not allowed. Allowed: ${allowedSchemas.join(', ')}`, frontMatterResult['@position'])
-			return
-		}
+	if (allowedSchemas && allowedSchemas.length > 0 && !allowedSchemas.includes(schemaUrl)) {
+		file.message(`Schema "${schemaUrl}" is not allowed. Allowed: ${allowedSchemas.join(', ')}`, frontMatterResult['@position'])
+		return
 	}
 
 	const schemaValue = await tryLoadSchema(schemaUrl, path.join(file.cwd, file.dirname ?? '.'))
@@ -63,15 +61,15 @@ export default definePlugin(pluginName, async (tree, file, settings) => {
 					+ `\n  at JSON.parse (${schemaUrl})`,
 				file: schemaUrl,
 				cause: additionalContext ?? ''
-					.replaceAll('\n', '\\n')
-					.replaceAll('\r', '\\r')
-					.replaceAll('\t', '\\t'),
+					.replaceAll('\n', String.raw`\n`)
+					.replaceAll('\r', String.raw`\r`)
+					.replaceAll('\t', String.raw`\t`),
 				note: '  '
 					+ (additionalContext ?? '')
-						.replaceAll('\n', '\\n')
-						.replaceAll('\r', '\\r')
-						.replaceAll('\t', '\\t')
-						+ `\n  at JSON.parse (${schemaUrl})`,
+						.replaceAll('\n', String.raw`\n`)
+						.replaceAll('\r', String.raw`\r`)
+						.replaceAll('\t', String.raw`\t`)
+					+ `\n  at JSON.parse (${schemaUrl})`,
 			},
 		)
 		return
@@ -86,8 +84,8 @@ export default definePlugin(pluginName, async (tree, file, settings) => {
 			validator,
 		}
 	}
-	catch (err) {
-		const error = err as Error
+	catch (error_) {
+		const error = error_ as Error
 
 		messageWriter.error(
 			'Failed to load schema',
@@ -105,8 +103,8 @@ async function tryLoadSchema(uri: string, dirname: string) {
 	try {
 		return await loadSchema(dirname)(uri)
 	}
-	catch (err) {
-		return err as Error
+	catch (error) {
+		return error as Error
 	}
 }
 
@@ -119,8 +117,12 @@ function loadSchema(dirname: string) {
 		try {
 			const url = new URL(uri)
 			switch (url.protocol) {
-				case 'https:': return loadWebSchema(url)
-				case 'file:': return loadFileSchema(fileUrl(uri, dirname))
+				case 'https:': {
+					return loadWebSchema(url)
+				}
+				case 'file:': {
+					return loadFileSchema(fileUrl(uri, dirname))
+				}
 			}
 			return {}
 		}
@@ -131,11 +133,11 @@ function loadSchema(dirname: string) {
 }
 
 async function loadWebSchema(uri: URL) {
-	const res = await fetch(uri)
+	const response = await fetch(uri)
 	if (debug.logSchemaResolver) console.log(uri)
-	if (res.ok) {
-		const json = await res.json() as Record<string, unknown>
-		if (debug.logSchemaResolver) console.log(res.status, json)
+	if (response.ok) {
+		const json = await response.json() as Record<string, unknown>
+		if (debug.logSchemaResolver) console.log(response.status, json)
 
 		// Infinite loop fix
 		if (!json.$id) {
@@ -143,8 +145,8 @@ async function loadWebSchema(uri: URL) {
 		}
 		return json
 	}
-	if (debug.logSchemaResolver) console.log(res.status, await res.text())
-	return res.json()
+	if (debug.logSchemaResolver) console.log(response.status, await response.text())
+	return response.json()
 }
 
 function fileUrl(uri: string, dirname: string) {
@@ -159,7 +161,7 @@ async function loadFileSchema(uri: string) {
 
 function createValidator(dirname: string) {
 	const ajv = new Ajv({ loadSchema: loadSchema(dirname), strict: true })
-	// TODO: temp solution
+		// TODO: temp solution
 		.addKeyword({
 			keyword: '$$id',
 			modifying: false,

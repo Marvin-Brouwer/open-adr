@@ -1,8 +1,7 @@
 import remarkLint from 'remark-lint'
 import remarkParse from 'remark-parse'
 
-// eslint-disable-next-line
-import { odrSettings, odrSchema, odrLinter, odrSchemaInfo } from './dist/_module.js'
+import { odrSettings, odrSchema, odrLinter } from './dist/_module.js'
 import remarkFrontmatter from './node_modules/remark-frontmatter/index.js'
 
 export default {
