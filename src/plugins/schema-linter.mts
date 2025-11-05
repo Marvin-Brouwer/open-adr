@@ -1,5 +1,5 @@
-import { definePlugin } from '../plugin.mts';
 import { checkFileIncluded } from '../files/file-include.mts';
+import { definePlugin } from '../plugin.mts';
 
 
 const pluginName = 'remark-plugin:odr-schema-linter';

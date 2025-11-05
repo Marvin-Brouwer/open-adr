@@ -1,10 +1,9 @@
-import { Literal, Position } from 'unist';
-import { Node } from 'unist';
+import Ajv, { JSONSchemaType } from 'ajv';
+import AjvErrors from 'ajv-errors';
+import { Literal, Position , Node } from 'unist';
 import { YAMLError, parse as yamlParse } from 'yaml';
 
 import { scan } from './node-helper';
-import AjvErrors from 'ajv-errors';
-import Ajv, { JSONSchemaType } from 'ajv';
 
 const ajv = AjvErrors(new Ajv({ allErrors: true }));
 

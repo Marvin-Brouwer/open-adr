@@ -1,11 +1,12 @@
 import fs from 'fs';
 import path from 'path';
-import { visit } from 'unist-util-visit';
+
 import micromatch from 'micromatch';
+import { visit } from 'unist-util-visit';
 
 import { schemaTag } from '../constants.mts';
-import { definePlugin } from '../plugin.mts';
 import { DefinitionNode, HeadingNode } from '../nodes.mts';
+import { definePlugin } from '../plugin.mts';
 import { getSettings } from '../settings.mts';
 
 // TODO parse schema and figure this out

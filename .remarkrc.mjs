@@ -1,5 +1,5 @@
-import remarkParse from 'remark-parse'
 import remarkLint from 'remark-lint'
+import remarkParse from 'remark-parse'
 
 // eslint-disable-next-line
 import { odrSettings, odrSchema, odrLinter, odrSchemaInfo } from './dist/_module.js'

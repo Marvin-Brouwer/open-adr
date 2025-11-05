@@ -1,6 +1,7 @@
-import { VFile } from 'vfile';
-import { Node, Parent, Position } from 'unist';
 import path from 'node:path';
+
+import { Node, Parent, Position } from 'unist';
+import { VFile } from 'vfile';
 
 export type MessageWriter = ReturnType<typeof createMessageWriter>;
 export function createMessageWriter(file: VFile) {

@@ -1,11 +1,13 @@
-import { definePlugin } from '../plugin.mts';
-import { createMessageWriter } from '../message-helper.mts';
-import { getFrontMatterData, FrontMatterError } from '../nodes/front-matter';
-import Ajv, { JSONSchemaType } from 'ajv';
-import { checkFileIncluded } from '../files/file-include.mts';
-import { debug } from '../constants.mts';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+
+import Ajv, { JSONSchemaType } from 'ajv';
+
+import { debug } from '../constants.mts';
+import { checkFileIncluded } from '../files/file-include.mts';
+import { createMessageWriter } from '../message-helper.mts';
+import { getFrontMatterData, FrontMatterError } from '../nodes/front-matter';
+import { definePlugin } from '../plugin.mts';
 import { getSettings } from '../settings.mts';
 
 type OdrFileMetaData = { 'odr:schema': string; };

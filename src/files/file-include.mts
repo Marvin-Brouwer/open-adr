@@ -1,5 +1,5 @@
-import { VFile } from 'vfile';
 import micromatch from 'micromatch';
+import { VFile } from 'vfile';
 
 import { PluginSettings } from '../plugin.mts';
 import { getSettings } from '../settings.mts';
