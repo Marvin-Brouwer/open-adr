@@ -9,8 +9,8 @@ export default {
 	settings: {
 		odr: odrSettings({
 			// allowedSchemas: ['incident.schema.json', 'project.schema.json'],
-			include: ['docs/odr/**/*.md', 'doc/odr/**/*.md']
-		})
+			include: ['docs/odr/**/*.md', 'doc/odr/**/*.md'],
+		}),
 	},
 	plugins: [
 		remarkParse,
@@ -21,5 +21,5 @@ export default {
 		odrSchema,
 		odrLinter,
 		// odrSchemaInfo
-	]
+	],
 }

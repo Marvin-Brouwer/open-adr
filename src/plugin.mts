@@ -5,13 +5,13 @@ import type { Plugin, Processor, Settings, Transformer } from 'unified'
 import type { Node, Parent } from 'unist'
 import type { VFile } from 'vfile'
 
-export type RemarkPlugin = Plugin<Parameters<Transformer>, Parameters<Transformer>[0], Transformer>;
+export type RemarkPlugin = Plugin<Parameters<Transformer>, Parameters<Transformer>[0], Transformer>
 
 export type PluginSettings = Settings & {
-	odr?: OdrSettings;
-};
-export type RemarkPluginDefinition = (tree: Parent, file: VFile, settings: PluginSettings) => Node | void | Promise<Node | void>;
-type PluginBody = NonNullable<Exclude<RemarkPlugin, void>>;
+	odr?: OdrSettings
+}
+export type RemarkPluginDefinition = (tree: Parent, file: VFile, settings: PluginSettings) => Node | void | Promise<Node | void>
+type PluginBody = NonNullable<Exclude<RemarkPlugin, void>>
 
 export const definePlugin = (name: string, pluginDefinition: RemarkPluginDefinition): RemarkPlugin => {
 	const plugin: Record<string, PluginBody> = {
@@ -20,7 +20,8 @@ export const definePlugin = (name: string, pluginDefinition: RemarkPluginDefinit
 			return async (tree, file, next) => {
 				try {
 					await pluginDefinition(tree as Parent, file, processor.data().settings ?? {})
-				} catch (err) {
+				}
+				catch (err) {
 					const error = err as Error
 					const messageWriter = createMessageWriter(file)
 					messageWriter.error(error.message, tree, {
@@ -32,7 +33,7 @@ export const definePlugin = (name: string, pluginDefinition: RemarkPluginDefinit
 					next(undefined, tree, file)
 				}
 			}
-		}
+		},
 	}
 	return Object.defineProperty<PluginBody>(plugin[name], 'name', { value: name })
 }

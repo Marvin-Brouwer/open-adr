@@ -3,7 +3,7 @@ import path from 'node:path'
 import { Node, Parent, Position } from 'unist'
 import { VFile } from 'vfile'
 
-export type MessageWriter = ReturnType<typeof createMessageWriter>;
+export type MessageWriter = ReturnType<typeof createMessageWriter>
 export function createMessageWriter(file: VFile) {
 	return {
 		info(message: string, parent: Parent | Node) {
@@ -12,7 +12,7 @@ export function createMessageWriter(file: VFile) {
 		warn(message: string, parent: Parent | Node) {
 			file.message(message, parent)
 		},
-		error(message: string, parent: Parent | Node | Position, data?: { stack?: string, cause?: string | unknown, file?: string, note?: string; }) {
+		error(message: string, parent: Parent | Node | Position, data?: { stack?: string, cause?: string | unknown, file?: string, note?: string }) {
 			const errorMessage = file.message(message, parent as Node)
 			errorMessage.fatal = true
 			errorMessage.cause = data?.cause
@@ -22,6 +22,6 @@ export function createMessageWriter(file: VFile) {
 			// errorMessage.source = (data?.file ?? file.path).replace('file://', '');
 			errorMessage.note = data?.note
 			errorMessage.url = errorMessage.file
-		}
+		},
 	}
 }

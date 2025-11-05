@@ -1,6 +1,6 @@
 import Ajv, { JSONSchemaType } from 'ajv'
 import AjvErrors from 'ajv-errors'
-import { Literal, Position , Node } from 'unist'
+import { Literal, Position, Node } from 'unist'
 import { YAMLError, parse as yamlParse } from 'yaml'
 
 import { scan } from './node-helper'
@@ -18,33 +18,32 @@ export class FrontMatterError extends Error {
 }
 
 export async function getFrontMatterData<T>(tree: Node, schema?: JSONSchemaType<T>) {
-
 	const yamlNode = await getYamlNode(tree)
 	if (!yamlNode?.value)
 		return new FrontMatterError(
 			new YAMLError('YAMLParseError', [0, 0], 'IMPOSSIBLE', 'No frontmatter data found'),
 			tree,
-			tree.position!
+			tree.position!,
 		)
 	if (yamlNode.value.toString().trim() === '')
 		return new FrontMatterError(
 			new YAMLError('YAMLParseError', [0, 0], 'IMPOSSIBLE', 'No frontmatter data found'),
 			yamlNode,
-			yamlNode.position!
+			yamlNode.position!,
 		)
 
 	try {
 		const yamlResult = yamlParse(yamlNode.value as string ?? '', {
 			prettyErrors: true,
-			strict: false
+			strict: false,
 			// TODO use symbol instead
-		}) as T & { '@position': Position; }
+		}) as T & { '@position': Position }
 
 		if (!yamlResult)
 			return new FrontMatterError(
 				new YAMLError('YAMLParseError', [0, 0], 'IMPOSSIBLE', 'No frontmatter data found'),
 				yamlNode,
-				yamlNode.position!
+				yamlNode.position!,
 			)
 		// TODO get exact position of url
 		yamlResult['@position'] = yamlNode.position!
@@ -56,18 +55,19 @@ export async function getFrontMatterData<T>(tree: Node, schema?: JSONSchemaType<
 		if (!validate(yamlResult)) {
 			// TODO map the error back to the actual position
 			throw new Error(ajv.errorsText(validate.errors, {
-				dataVar: 'meta-data'
+				dataVar: 'meta-data',
 			}))
 		}
 
 		return yamlResult
-	} catch (err) {
+	}
+	catch (err) {
 		return new FrontMatterError(
 			err as YAMLError,
 			yamlNode,
 			(err instanceof YAMLError)
 				? getRelativePosition(yamlNode, err as YAMLError)
-				: yamlNode.position!
+				: yamlNode.position!,
 		)
 	}
 }
@@ -79,13 +79,13 @@ function getRelativePosition(tree: Node, error: YAMLError): Position {
 		start: {
 			column: (tree.position?.start.column ?? 1) - 1 + (error.linePos?.[0].col ?? 0),
 			line: (tree.position?.start.line ?? 1) + (error.linePos?.[0].line ?? 0),
-			offset: tree.position?.start.offset ?? 0
+			offset: tree.position?.start.offset ?? 0,
 		},
 		end: {
 			column: (tree.position?.start.column ?? 1) - 1 + (error.linePos?.[1]?.col ?? 0),
 			line: (tree.position?.start.line ?? 1) + (error.linePos?.[1]?.line ?? 0),
-			offset: tree.position?.start.offset ?? 0
-		}
+			offset: tree.position?.start.offset ?? 0,
+		},
 	}
 }
 

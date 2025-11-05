@@ -10,11 +10,10 @@ import { getFrontMatterData, FrontMatterError } from '../nodes/front-matter'
 import { definePlugin } from '../plugin.mts'
 import { getSettings } from '../settings.mts'
 
-type OdrFileMetaData = { 'odr:schema': string; };
+interface OdrFileMetaData { 'odr:schema': string }
 
 const pluginName = 'remark-plugin:odr-schema-loader'
 export default definePlugin(pluginName, async (tree, file, settings) => {
-
 	if (!checkFileIncluded(file, settings)) return
 	const messageWriter = createMessageWriter(file)
 
@@ -27,7 +26,7 @@ export default definePlugin(pluginName, async (tree, file, settings) => {
 				title: 'Schema URL',
 				errorMessage: 'schema url protocol only allows: https, or file.',
 				// eslint-disable-next-line no-useless-escape
-				pattern: '^(https:|file:)\/\/'
+				pattern: '^(https:|file:)\/\/',
 			},
 		},
 		required: ['odr:schema'],
@@ -42,9 +41,8 @@ export default definePlugin(pluginName, async (tree, file, settings) => {
 
 	const schemaUrl = frontMatterResult['odr:schema']
 	file.data['odr:schema'] = {
-		schemaUrl
+		schemaUrl,
 	}
-
 
 	const allowedSchemas = getSettings(settings).allowedSchemas
 	if (allowedSchemas && allowedSchemas.length) {
@@ -73,20 +71,19 @@ export default definePlugin(pluginName, async (tree, file, settings) => {
 						.replaceAll('\n', '\\n')
 						.replaceAll('\r', '\\r')
 						.replaceAll('\t', '\\t')
-					+ `\n  at JSON.parse (${schemaUrl})`
-			}
+						+ `\n  at JSON.parse (${schemaUrl})`,
+			},
 		)
 		return
 	}
 	const ajv = createValidator(path.join(file.cwd, file.dirname ?? '.'))
-
 
 	try {
 		const validator = await ajv.compileAsync(schemaValue)
 
 		file.data['odr:schema'] = {
 			schemaUrl,
-			validator
+			validator,
 		}
 	}
 	catch (err) {
@@ -98,8 +95,8 @@ export default definePlugin(pluginName, async (tree, file, settings) => {
 			{
 				cause: error.message,
 				stack: error.stack,
-				file: schemaUrl
-			}
+				file: schemaUrl,
+			},
 		)
 	}
 })
@@ -126,14 +123,14 @@ function loadSchema(dirname: string) {
 				case 'file:': return loadFileSchema(fileUrl(uri, dirname))
 			}
 			return {}
-		} catch {
+		}
+		catch {
 			return {}
 		}
 	}
 }
 
 async function loadWebSchema(uri: URL) {
-
 	const res = await fetch(uri)
 	if (debug.logSchemaResolver) console.log(uri)
 	if (res.ok) {
@@ -154,7 +151,6 @@ function fileUrl(uri: string, dirname: string) {
 	return path.resolve(dirname, uri.replace('file://', ''))
 }
 async function loadFileSchema(uri: string) {
-
 	if (debug.logSchemaResolver) console.log(uri)
 
 	const fileContents = await readFile(uri)
@@ -162,14 +158,13 @@ async function loadFileSchema(uri: string) {
 }
 
 function createValidator(dirname: string) {
-
 	const ajv = new Ajv({ loadSchema: loadSchema(dirname), strict: true })
-		// TODO: temp solution
+	// TODO: temp solution
 		.addKeyword({
 			keyword: '$$id',
 			modifying: false,
 			schemaType: ['string'],
-			validate: () => true
+			validate: () => true,
 		})
 	// TODO figure out why these are in spec but still "unkown keyword"
 	// // .addKeyword({

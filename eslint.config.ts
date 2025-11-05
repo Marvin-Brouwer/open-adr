@@ -1,84 +1,32 @@
-import js from '@eslint/js';
-import { Config, defineConfig, globalIgnores } from 'eslint/config';
-import importPlugin from 'eslint-plugin-import';
-import globals from 'globals';
-import tseslint from 'typescript-eslint';
+import stylistic from '@stylistic/eslint-plugin'
+import { Config, defineConfig, globalIgnores } from 'eslint/config'
+import globals from 'globals'
+import tseslint from 'typescript-eslint'
 
-const customConfig = defineConfig({
-	rules: {
-		// Single quotes are the best!
-		'quotes': [2, 'single', { 'avoidEscape': true }],
-		// Remove semicolons
-		'semi': ['error', 'never']
-	},
-});
+import { lintImports } from './eslint.preset.import.js'
+import { lintJs } from './eslint.preset.js'
+import { projectConfig } from './eslint.preset.project'
 
 export default defineConfig([
 	globalIgnores(['node_modules', 'dist']),
-	configureFiles(['**/*.{js,mjs,cjs,ts,mts,cts}']),
-	jsInterop(),
-	importSort(),
+	configureFiles([
+		'remarkrc.mjs',
+		'eslint.*.ts',
+		'src/**/*.mts',
+	]),
+	lintJs,
 	// eslint-disable-next-line import/no-named-as-default-member
 	tseslint.configs.recommended,
-	customConfig,
-]);
-
+	stylistic.configs.recommended,
+	lintImports,
+	projectConfig,
+])
 
 function configureFiles(files: Config['files']): Config {
 	return {
 		files,
 		languageOptions: {
-			globals: globals.es2015
-		}
-	};
-}
-function jsInterop(): Config[] {
-	return [
-		{
-			plugins: {
-				js,
-			}
+			globals: globals.es2015,
 		},
-		js.configs.recommended,
-	];
-};
-
-function importSort(): Config[] {
-	return [
-		importPlugin.flatConfigs.recommended,
-		importPlugin.flatConfigs.typescript,
-		{
-			settings: {
-				'import/resolver': {
-					typescript: {
-						alwaysTryTypes: true
-					}
-				}
-			},
-			rules: {
-				'import/order': [
-					'error',
-					{
-						'groups': [
-							'builtin',   // Node.js builtins
-							'external',  // npm libs
-							'internal',  // alias paths, tsconfig paths
-							'parent',    // ../
-							'sibling',   // ./same-folder
-							'index',     // index imports
-							'object',    // import a namespace
-							'type'       // import type {...}
-						],
-						'newlines-between': 'always',
-						'alphabetize': {
-							order: 'asc',
-							caseInsensitive: true
-						}
-					}
-				],
-				// ✅ Disable conflicting built-in sorting
-				'sort-imports': 'off'
-			}
-		}
-	];
+	}
 }
