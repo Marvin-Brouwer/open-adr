@@ -26,7 +26,13 @@ importers:
       remark-lint:
         specifier: ^10.0.1
         version: 10.0.1
+      remark-lint-checkbox-character-style:
+        specifier: ^5.0.1
+        version: 5.0.1
       remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0
+      remark-stringify:
         specifier: ^11.0.0
         version: 11.0.0
       unified-language-server:
@@ -2074,6 +2080,9 @@ packages:
   remark-frontmatter@5.0.0:
     resolution: {integrity: sha512-XTFYvNASMe5iPN0719nPrdItC9aU0ssC4v14mH1BCi1u0n1gAocqcujWUrByftZTbLhRtiKRyjYTSIOcr69UVQ==}
 
+  remark-lint-checkbox-character-style@5.0.1:
+    resolution: {integrity: sha512-6qilm7XQXOcTvjFEqqNY57Ki7md9rkSdpMIfIzVXdEnI4Npl2BnUff6ANrGRM7qTgJTrloaf8H0eQ91urcU6Og==}
+
   remark-lint@10.0.1:
     resolution: {integrity: sha512-1+PYGFziOg4pH7DDf1uMd4AR3YuO2EMnds/SdIWMPGT7CAfDRSnAmpxPsJD0Ds3IKpn97h3d5KPGf1WFOg6hXQ==}
 
@@ -2415,6 +2424,9 @@ packages:
   unified-language-server@4.0.1:
     resolution: {integrity: sha512-cWjMoW3QcUCtJfQ1ifms2qz8fbO9fuT4YizOSDmv299khazt2e3e5jtJ1fUBBN1zKY/EWir7ZfK+4ffj5xe7Wg==}
 
+  unified-lint-rule@3.0.1:
+    resolution: {integrity: sha512-HxIeQOmwL19DGsxHXbeyzKHBsoSCFO7UtRVUvT2v61ptw/G+GbysWcrpHdfs5jqbIFDA11MoKngIhQK0BeTVjA==}
+
   unified-message-control@5.0.0:
     resolution: {integrity: sha512-B2cSAkpuMVVmPP90KCfKdBhm1e9KYJ+zK3x5BCa0N65zpq1Ybkc9C77+M5qwR8FWO7RF3LM5QRRPZtgjW6DUCw==}
 
@@ -2429,6 +2441,9 @@ packages:
 
   unist-util-lsp@2.1.0:
     resolution: {integrity: sha512-ICI1PWbalSfOrsdosGk+WXdZBvdjhZVjbkgHOzKFdkCdzBpVEi8GjsVTAG6NR3VLGcwTOGLj/+k4L0HwGQYvEQ==}
+
+  unist-util-position@5.0.0:
+    resolution: {integrity: sha512-fucsC7HjXvkB5R3kTCO7kUjRdrS0BJt3M/FPxmHMBOm8JQi2BsHAHFsy27E0EolP8rp0NzXsJ+jNPyDWvOJZPA==}
 
   unist-util-stringify-position@4.0.0:
     resolution: {integrity: sha512-0ASV06AAoKCDkS2+xw5RXJywruurpbC4JZSm7nr7MOt1ojAzvyyaO+UxZf18j8FCF6kmzCZKcAgN/yu2gm2XgQ==}
@@ -4701,6 +4716,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  remark-lint-checkbox-character-style@5.0.1:
+    dependencies:
+      '@types/mdast': 4.0.4
+      mdast-util-phrasing: 4.1.0
+      unified-lint-rule: 3.0.1
+      unist-util-position: 5.0.0
+      unist-util-visit-parents: 6.0.2
+      vfile-message: 4.0.3
+
   remark-lint@10.0.1:
     dependencies:
       '@types/mdast': 4.0.4
@@ -5178,6 +5202,13 @@ snapshots:
       - bluebird
       - supports-color
 
+  unified-lint-rule@3.0.1:
+    dependencies:
+      '@types/unist': 3.0.3
+      trough: 2.2.0
+      unified: 11.0.5
+      vfile: 6.0.3
+
   unified-message-control@5.0.0:
     dependencies:
       '@types/unist': 3.0.3
@@ -5211,6 +5242,10 @@ snapshots:
     dependencies:
       '@types/unist': 3.0.3
       vscode-languageserver-types: 3.17.5
+
+  unist-util-position@5.0.0:
+    dependencies:
+      '@types/unist': 3.0.3
 
   unist-util-stringify-position@4.0.0:
     dependencies:

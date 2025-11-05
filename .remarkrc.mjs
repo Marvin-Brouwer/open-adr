@@ -1,8 +1,10 @@
+import remarkFrontmatter from 'remark-frontmatter'
 import remarkLint from 'remark-lint'
+import remarkLintCheckbox from 'remark-lint-checkbox-character-style'
 import remarkParse from 'remark-parse'
+import remarkStringify from 'remark-stringify'
 
-import { odrSettings, odrSchema, odrLinter } from './dist/_module.js'
-import remarkFrontmatter from './node_modules/remark-frontmatter/index.js'
+import { odrLinter, odrSchema, odrSettings } from './dist/_module.js'
 
 export default {
 	settings: {
@@ -15,10 +17,18 @@ export default {
 		remarkParse,
 		remarkFrontmatter,
 		remarkLint,
+		remarkLintCheckbox,
 
 		remarkFrontmatter,
 		odrSchema,
 		odrLinter,
-		// odrSchemaInfo
+		// // odrSchemaInfo
+
+		[remarkStringify, {
+			checklist: true,
+			fences: true,
+			listItemIndent: '1',
+			gfm: true,
+		}],
 	],
 }

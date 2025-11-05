@@ -1,5 +1,5 @@
 {
-	"name": "open-decision-record",
+	"name": "@marvin-brouwer/open-decision-records",
 	"version": "1.0.0",
 	"description": "",
 	"type": "module",
@@ -18,7 +18,9 @@
 		"remark": "^15.0.1",
 		"remark-frontmatter": "^5.0.0",
 		"remark-lint": "^10.0.1",
+		"remark-lint-checkbox-character-style": "^5.0.1",
 		"remark-parse": "^11.0.0",
+		"remark-stringify": "^11.0.0",
 		"unified-language-server": "^4.0.1",
 		"unist-util-visit": "^5.0.0",
 		"yaml": "^2.8.1"
