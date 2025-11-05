@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import Ajv, { JSONSchemaType } from 'ajv'
+import Ajv, { JSONSchemaType } from 'ajv/dist/2020.js'
 
 import { debug } from '../constants.mts'
 import { checkFileIncluded } from '../files/file-include.mts'
@@ -69,7 +69,7 @@ export default definePlugin(pluginName, async (tree, file, settings) => {
 						.replaceAll('\n', String.raw`\n`)
 						.replaceAll('\r', String.raw`\r`)
 						.replaceAll('\t', String.raw`\t`)
-						+ `\n  at JSON.parse (${schemaUrl})`,
+					+ `\n  at JSON.parse (${schemaUrl})`,
 			},
 		)
 		return
@@ -156,25 +156,23 @@ async function loadFileSchema(uri: string) {
 	if (debug.logSchemaResolver) console.log(uri)
 
 	const fileContents = await readFile(uri)
-	return JSON.parse(fileContents.toString())
+	const fileJson = JSON.parse(fileContents.toString())
+	// Remove the $id when traversing file system, otherwise the loader will open the web
+	fileJson['$id'] = undefined
+	return fileJson
 }
 
 function createValidator(dirname: string) {
-	const ajv = new Ajv({ loadSchema: loadSchema(dirname), strict: true })
-		// TODO: temp solution
+	// TODO use strict
+	const ajv = new Ajv({ loadSchema: loadSchema(dirname), strict: false })
+		// TODO figure out why these are in spec but still "unkown keyword"
+		// Also only seems to happen when using https of the same schema :S
 		.addKeyword({
-			keyword: '$$id',
+			keyword: 'order',
 			modifying: false,
-			schemaType: ['string'],
+			schemaType: ['number'],
 			validate: () => true,
 		})
-	// TODO figure out why these are in spec but still "unkown keyword"
-	// // .addKeyword({
-	// 	keyword: 'order',
-	// 	modifying: false,
-	// 	schemaType: ['number'],
-	// 	validate: () => true
-	// });
 
 	return ajv
 }

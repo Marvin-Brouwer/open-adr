@@ -1,11 +1,10 @@
 {
 	"$schema": "https://json-schema.org/draft/2020-12/schema",
-	"$$id": "https://raw.githubusercontent.com/Marvin-Brouwer/open-adr/refs/heads/main/spec/v1/adr.json",
+	"$id": "https://raw.githubusercontent.com/Marvin-Brouwer/open-adr/refs/heads/main/spec/v1/adr.json",
 	"title": "Open ADR",
 	"description": "Standardized Architecture Decision Record",
 	"type": "object",
 	"additionalProperties": false,
-	"$comment": "We comment out the $id here because it gives issues locally. Perhaps add a compiler step to include them at build time",
 	"required": [
 		"adr",
 		"context",

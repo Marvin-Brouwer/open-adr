@@ -9,6 +9,7 @@ export const projectConfig = defineConfig([
 	}),
 	{
 		rules: {
+			'@stylistic/indent-binary-ops': ['off'],
 			'unicorn/prefer-node-protocol': ['error'],
 		},
 	},
