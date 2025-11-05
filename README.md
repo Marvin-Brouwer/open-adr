@@ -13,7 +13,8 @@ There's still some stuff to do.
 * [x] See if we can add `pattern:md` templates
   This is so we can use this for tooling later.
   It will basically just be string yaml template, but the tooling will validate (and code complete) markdown.
-* [ ] Create simple node package to convert yml to markdown and pdf
+* [~] Create simple node package to convert yml to markdown and pdf
+  > Replaced with remark setup
 * [x] Add actual examples
 * [ ] Setup pipeline for publishing spec
 * [ ] Add usage guide
@@ -24,8 +25,6 @@ There's still some stuff to do.
 
 * [ ] Create visual studio code plugin
   * "new ADR" functionality
-  * Actually constrain order, yaml doesn't
-  * Add save-as functionality, based on node script
   * Show different status icon in "explorer view"
 
 ## Reading material
