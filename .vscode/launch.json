@@ -6,9 +6,9 @@
 	"configurations": [
 		{
 			"type": "node-terminal",
-			"name": "Run Script: tt",
+			"name": "Debug remark plugins",
 			"request": "launch",
-			"command": "pnpm run tt",
+			"command": "pnpm run debug",
 			"cwd": "${workspaceFolder}"
 		}
 	]
