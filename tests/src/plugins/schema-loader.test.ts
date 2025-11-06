@@ -8,6 +8,7 @@ import { VFile } from 'vfile'
 import { assert, describe, test, vi } from 'vitest'
 
 import pluginUnderTest, { pluginName } from '../../../src/plugins/schema-loader.mts'
+import { md, unPad } from '../../helpers/un-pad.mts'
 import fsMock from '../../mocks/fs.mts'
 
 vi.mock('node:fs/promises', async () => {
@@ -36,11 +37,11 @@ describe(pluginName, () => {
 		// ARRANGE
 		const document = new VFile({
 			path: 'doc/odr/test/no-remark.md',
-			value: `
-# No Remark
+			value: md(`
+				# No Remark
 
-This file has no remark header
-`.trimStart(),
+				This file has no remark header
+			`),
 		})
 
 		// ACT
@@ -68,14 +69,14 @@ This file has no remark header
 		// ARRANGE
 		const document = new VFile({
 			path: 'doc/odr/test/no-yaml.md',
-			value: `
----
----
+			value: md(`
+				---
+				---
 
-# No yaml
+				# No yaml
 
-This file has no yaml in the remark data
-`.trimStart(),
+				This file has no yaml in the remark data
+			`),
 		})
 
 		// ACT
@@ -103,15 +104,15 @@ This file has no yaml in the remark data
 		// ARRANGE
 		const document = new VFile({
 			path: 'doc/odr/test/no-schema.md',
-			value: `
----
-no: false
----
+			value: md(`
+				---
+				no: false
+				---
 
-# No schema
+				# No schema
 
-This file has no odr:schema in the remark data
-`.trimStart(),
+				This file has no odr:schema in the remark data
+			`),
 		})
 
 		// ACT
@@ -140,15 +141,15 @@ This file has no odr:schema in the remark data
 		// ARRANGE
 		const document = new VFile({
 			path: 'doc/odr/test/empty-schema.md',
-			value: `
----
-odr:schema: ''
----
+			value: md(`
+				---
+				odr:schema: ''
+				---
 
-# Empty schema
+				# Empty schema
 
-This file has an invalid odr:schema in the remark data
-`.trimStart(),
+				This file has an invalid odr:schema in the remark data
+			`),
 		})
 
 		// ACT
@@ -177,16 +178,16 @@ This file has an invalid odr:schema in the remark data
 		// ARRANGE
 		const document = new VFile({
 			path: 'doc/odr/test/duplicate-schema.md',
-			value: `
----
-odr:schema: 'file://./any.json'
-odr:schema: 'file://./any.json'
----
+			value: md(`
+				---
+				odr:schema: 'file://./any.json'
+				odr:schema: 'file://./any.json'
+				---
 
-# Double schema
+				# Double schema
 
-This file has an invalid odr:schema in the remark data
-`.trimStart(),
+				This file has an invalid odr:schema in the remark data
+			`),
 		})
 
 		// ACT
@@ -194,13 +195,13 @@ This file has an invalid odr:schema in the remark data
 		const file = await sut.process(document)
 
 		// ASSERT
-		assert.equal(file.messages[0].message.trim(), `
-Map keys must be unique at line 2, column 1:
+		assert.equal(file.messages[0].message.trim(), unPad(`
+			Map keys must be unique at line 2, column 1:
 
-odr:schema: 'file://./any.json'
-odr:schema: 'file://./any.json'
-^
-`.trim())
+			odr:schema: 'file://./any.json'
+			odr:schema: 'file://./any.json'
+			^
+		`))
 		// It should mark the yaml value
 		assert.deepEqual(file.messages[0].place, {
 			start: {
@@ -220,15 +221,15 @@ odr:schema: 'file://./any.json'
 		// ARRANGE
 		const document = new VFile({
 			path: 'doc/odr/test/schema-not-found.md',
-			value: `
----
-odr:schema: 'file://./non-existent.json'
----
+			value: md(`
+				---
+				odr:schema: 'file://./non-existent.json'
+				---
 
-# Schema not found
+				# Schema not found
 
-This file has an invalid odr:schema in the remark data
-`.trimStart(),
+				This file has an invalid odr:schema in the remark data
+			`),
 		})
 
 		fsMock.readFile = () => Promise.reject(new Error('File not found'))
@@ -259,15 +260,15 @@ This file has an invalid odr:schema in the remark data
 		// ARRANGE
 		const document = new VFile({
 			path: 'doc/odr/test/schema-not-json.md',
-			value: `
----
-odr:schema: 'file://./non-json.txt'
----
+			value: md(`
+				---
+				odr:schema: 'file://./non-json.txt'
+				---
 
-# Schema not json
+				# Schema not json
 
-This file has an invalid odr:schema in the remark data
-`.trimStart(),
+				This file has an invalid odr:schema in the remark data
+			`),
 		})
 
 		fsMock.readFile = () => Promise.resolve(Buffer.from(`This isn't even JSON`))
@@ -298,15 +299,15 @@ This file has an invalid odr:schema in the remark data
 		// ARRANGE
 		const document = new VFile({
 			path: 'doc/odr/test/schema-invalid.md',
-			value: `
----
-odr:schema: 'file://./invalid.json'
----
+			value: md(`
+				---
+				odr:schema: 'file://./invalid.json'
+				---
 
-# Schema invalid
+				# Schema invalid
 
-This file has an invalid odr:schema in the remark data
-`.trimStart(),
+				This file has an invalid odr:schema in the remark data
+			`),
 		})
 
 		const schema = {
@@ -341,15 +342,15 @@ This file has an invalid odr:schema in the remark data
 		// ARRANGE
 		const document = new VFile({
 			path: 'doc/odr/test/schema-valid.md',
-			value: `
----
-odr:schema: 'file://./valid.json'
----
+			value: md(`
+				---
+				odr:schema: 'file://./valid.json'
+				---
 
-# Schema valid
+				# Schema valid
 
-This file has a valid odr:schema in the remark data
-`.trimStart(),
+				This file has a valid odr:schema in the remark data
+			`),
 		})
 
 		const schema = {
