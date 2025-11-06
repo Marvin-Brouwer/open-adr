@@ -11,7 +11,7 @@ import { getOdrSettings } from '../settings.mts'
 
 interface OdrFileMetaData { 'odr:schema': string }
 
-const pluginName = 'remark-plugin:odr-schema-loader'
+export const pluginName = 'remark-plugin:odr-schema-loader'
 export default definePlugin({
 	pluginName,
 	async transform(context) {

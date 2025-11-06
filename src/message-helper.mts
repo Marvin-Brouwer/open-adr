@@ -8,7 +8,7 @@ export function createMessageWriter(root: Node, file: VFile, pluginName: string,
 	return {
 		writeTrace(...arguments_: Parameters<typeof console.log>) {
 			if (!traceEnabled) return
-			console.info(pluginName, ...arguments_)
+			console.info(`[${pluginName}]`, ...arguments_)
 		},
 		appendInfo(message: string, location?: Parent | Node | Position) {
 			file.info(message, location as Node ?? root)

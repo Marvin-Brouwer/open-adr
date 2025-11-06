@@ -6,10 +6,17 @@
 	"configurations": [
 		{
 			"type": "node-terminal",
+			"name": "Debug tests",
+			"request": "launch",
+			"command": "pnpm run test",
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "node-terminal",
 			"name": "Debug remark plugins",
 			"request": "launch",
 			"command": "pnpm run debug",
 			"cwd": "${workspaceFolder}"
 		}
-	]
+	],
 }

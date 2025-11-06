@@ -73,8 +73,6 @@ export async function getFrontMatterData<T>(tree: Node, schema?: JSONSchemaType<
 }
 
 function getRelativePosition(tree: Node, error: YAMLError): Position {
-	console.log(tree.position)
-	console.log(error.linePos)
 	return {
 		start: {
 			column: (tree.position?.start.column ?? 1) - 1 + (error.linePos?.[0].col ?? 0),

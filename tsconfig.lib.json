@@ -32,6 +32,7 @@
 	"include": [
 		"src/**/*.mts",
 		"tsup.config.mts",
+		"vitest.config.mts",
 	],
 	"exclude": [
 		"src/**.test.ts",

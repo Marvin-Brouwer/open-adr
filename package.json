@@ -5,6 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "tsup-node",
+		"test": "vitest",
 		"lint:nofix": "eslint .",
 		"lint": "eslint . --fix",
 		"remark:lint": "remark doc/odr/**/*.md --output",
@@ -23,6 +24,7 @@
 		"remark-stringify": "^11.0.0",
 		"unified-language-server": "^4.0.1",
 		"unist-util-visit": "^5.0.0",
+		"vitest": "^4.0.7",
 		"yaml": "^2.8.1"
 	},
 	"keywords": [],
