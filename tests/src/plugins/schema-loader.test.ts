@@ -1,26 +1,36 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { remark } from 'remark'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkParse from 'remark-parse'
 import { Settings } from 'unified'
 import { VFile } from 'vfile'
-import { assert, describe, test } from 'vitest'
+import { assert, describe, test, vi } from 'vitest'
 
 import pluginUnderTest, { pluginName } from '../../../src/plugins/schema-loader.mts'
+import fsMock from '../../mocks/fs.mts'
+
+vi.mock('node:fs/promises', async () => {
+	return {
+		readFile: () => import('../../mocks/fs.mts').then(fs => fs.default.readFile()),
+	}
+})
 
 describe(pluginName, () => {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const settings: Settings & Record<string, any> = {
 		trace: true,
 	}
-	const sut = () => remark().use({
-		settings,
-		plugins: [
-			remarkParse,
-			// TODO add functionality to check for yaml section
-			remarkFrontmatter,
-			pluginUnderTest,
-		],
-	})
+	const loadProcessor = async () => {
+		return remark().use({
+			settings,
+			plugins: [
+				remarkParse,
+				// TODO add functionality to check for yaml section
+				remarkFrontmatter,
+				pluginUnderTest,
+			],
+		})
+	}
 
 	test('no remark', async () => {
 		// ARRANGE
@@ -34,8 +44,8 @@ This file has no remark header
 		})
 
 		// ACT
-		const file = await sut()
-			.process(document)
+		const sut = await loadProcessor()
+		const file = await sut.process(document)
 
 		// ASSERT
 		assert.equal(file.messages[0].message, 'No frontmatter data found')
@@ -69,8 +79,8 @@ This file has no yaml in the remark data
 		})
 
 		// ACT
-		const file = await sut()
-			.process(document)
+		const sut = await loadProcessor()
+		const file = await sut.process(document)
 
 		// ASSERT
 		assert.equal(file.messages[0].message, 'No frontmatter data found')
@@ -100,13 +110,13 @@ no: false
 
 # No schema
 
-This file has no odr: schema in the remark data
+This file has no odr:schema in the remark data
 `.trimStart(),
 		})
 
 		// ACT
-		const file = await sut()
-			.process(document)
+		const sut = await loadProcessor()
+		const file = await sut.process(document)
 
 		// ASSERT
 		assert.equal(file.messages[0].message, `meta-data must have required property 'odr:schema'`)
@@ -137,13 +147,13 @@ odr:schema: ''
 
 # Empty schema
 
-This file has an invalid odr: schema in the remark data
+This file has an invalid odr:schema in the remark data
 `.trimStart(),
 		})
 
 		// ACT
-		const file = await sut()
-			.process(document)
+		const sut = await loadProcessor()
+		const file = await sut.process(document)
 
 		// ASSERT
 		assert.equal(file.messages[0].message, 'meta-data/odr:schema schema url protocol only allows: https, or file.')
@@ -169,26 +179,26 @@ This file has an invalid odr: schema in the remark data
 			path: 'doc/odr/test/duplicate-schema.md',
 			value: `
 ---
-odr:schema: 'file:./any.json'
-odr:schema: 'file:./any.json'
+odr:schema: 'file://./any.json'
+odr:schema: 'file://./any.json'
 ---
 
 # Double schema
 
-This file has an invalid odr: schema in the remark data
+This file has an invalid odr:schema in the remark data
 `.trimStart(),
 		})
 
 		// ACT
-		const file = await sut()
-			.process(document)
+		const sut = await loadProcessor()
+		const file = await sut.process(document)
 
 		// ASSERT
 		assert.equal(file.messages[0].message.trim(), `
 Map keys must be unique at line 2, column 1:
 
-odr:schema: 'file:./any.json'
-odr:schema: 'file:./any.json'
+odr:schema: 'file://./any.json'
+odr:schema: 'file://./any.json'
 ^
 `.trim())
 		// It should mark the yaml value
@@ -206,7 +216,154 @@ odr:schema: 'file:./any.json'
 		})
 	})
 
-	// TODO non-existent file
-	// TODO non-readable file
-	// TODO valid schema
+	test('schema not found', async () => {
+		// ARRANGE
+		const document = new VFile({
+			path: 'doc/odr/test/schema-not-found.md',
+			value: `
+---
+odr:schema: 'file://./non-existent.json'
+---
+
+# Schema not found
+
+This file has an invalid odr:schema in the remark data
+`.trimStart(),
+		})
+
+		fsMock.readFile = () => Promise.reject(new Error('File not found'))
+
+		// ACT
+		const sut = await loadProcessor()
+		const file = await sut.process(document)
+
+		// ASSERT
+		assert.equal(file.messages[0].message.trim(), 'File not found')
+		// It should mark the yaml URL value
+		// But it marks the entire block for now
+		assert.deepEqual(file.messages[0].place, {
+			start: {
+				column: 1,
+				line: 1,
+				offset: 0,
+			},
+			end: {
+				column: 4,
+				line: 3,
+				offset: 48,
+			},
+		})
+	})
+
+	test('schema not json', async () => {
+		// ARRANGE
+		const document = new VFile({
+			path: 'doc/odr/test/schema-not-json.md',
+			value: `
+---
+odr:schema: 'file://./non-json.txt'
+---
+
+# Schema not json
+
+This file has an invalid odr:schema in the remark data
+`.trimStart(),
+		})
+
+		fsMock.readFile = () => Promise.resolve(Buffer.from(`This isn't even JSON`))
+
+		// ACT
+		const sut = await loadProcessor()
+		const file = await sut.process(document)
+
+		// ASSERT
+		assert.equal(file.messages[0].message.trim(), `Unexpected token 'T'`)
+		// It should mark the yaml URL value
+		// But it marks the entire block for now
+		assert.deepEqual(file.messages[0].place, {
+			start: {
+				column: 1,
+				line: 1,
+				offset: 0,
+			},
+			end: {
+				column: 4,
+				line: 3,
+				offset: 43,
+			},
+		})
+	})
+
+	test('schema invalid', async () => {
+		// ARRANGE
+		const document = new VFile({
+			path: 'doc/odr/test/schema-invalid.md',
+			value: `
+---
+odr:schema: 'file://./invalid.json'
+---
+
+# Schema invalid
+
+This file has an invalid odr:schema in the remark data
+`.trimStart(),
+		})
+
+		const schema = {
+			['additionalProperties']: 'non compliant',
+		}
+		fsMock.readFile = () => Promise.resolve(Buffer.from(JSON.stringify(schema)))
+
+		// ACT
+		const sut = await loadProcessor()
+		const file = await sut.process(document)
+
+		// ASSERT
+		assert.equal(file.messages[0].message.trim(), `Failed to load schema`)
+		assert.equal(file.messages[0].cause?.toString(), `schema is invalid: data/additionalProperties must be object,boolean`)
+		// It should mark the yaml URL value
+		// But it marks the entire block for now
+		assert.deepEqual(file.messages[0].place, {
+			start: {
+				column: 1,
+				line: 1,
+				offset: 0,
+			},
+			end: {
+				column: 4,
+				line: 3,
+				offset: 43,
+			},
+		})
+	})
+
+	test('schema valid', async () => {
+		// ARRANGE
+		const document = new VFile({
+			path: 'doc/odr/test/schema-valid.md',
+			value: `
+---
+odr:schema: 'file://./valid.json'
+---
+
+# Schema valid
+
+This file has a valid odr:schema in the remark data
+`.trimStart(),
+		})
+
+		const schema = {
+			['$id']: 'https://validexample.com/valid.json',
+			['additionalProperties']: false,
+		}
+		fsMock.readFile = () => Promise.resolve(Buffer.from(JSON.stringify(schema)))
+
+		// ACT
+		const sut = await loadProcessor()
+		const file = await sut.process(document)
+
+		// ASSERT
+		assert.isEmpty(file.messages)
+		assert.isNotNull((file.data['odr:schema']! as any).validator)
+	})
 })
