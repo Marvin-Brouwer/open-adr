@@ -1,5 +1,5 @@
 {
-	"name": "@marvin-brouwer/open-decision-records",
+	"name": "@md-schema/odr",
 	"version": "1.0.0",
 	"description": "",
 	"type": "module",
