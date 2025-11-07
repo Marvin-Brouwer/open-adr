@@ -7,6 +7,7 @@
 		"useDefineForClassFields": true,
 		"emitDeclarationOnly": true,
 		"esModuleInterop": true,
+		"skipLibCheck": true,
 		"isolatedModules": true,
 		"allowJs": true,
 		"outDir": "dist",
@@ -14,6 +15,9 @@
 			"ES2024.ArrayBuffer",
 			"ES2017.TypedArrays",
 			"ES2024"
+		],
+		"types": [
+			"node"
 		],
 		/* Bundler mode */
 		"moduleResolution": "bundler",
@@ -30,12 +34,10 @@
 		"noUncheckedSideEffectImports": true
 	},
 	"include": [
-		"src/**/*.mts",
-		"tsup.config.mts",
-		"vitest.config.mts",
+		"./src/**/*.mts"
 	],
 	"exclude": [
-		"src/**.test.ts",
-		"src/**.spec.ts"
+		"./src/**.test.ts",
+		"./src/**.spec.ts"
 	]
 }

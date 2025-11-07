@@ -3,15 +3,16 @@
 import { remark } from 'remark'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkParse from 'remark-parse'
-import { Settings } from 'unified'
 import { VFile } from 'vfile'
 import { assert, describe, test, vi } from 'vitest'
 
-import pluginUnderTest, { pluginName } from '../../../src/plugins/schema-loader.mts'
+import pluginUnderTest, { getSchemaData, pluginName } from '../../../src/plugins/schema-loader.mts'
 import { md, unPad } from '../../helpers/un-pad.mts'
 import fsMock from '../../mocks/fs.mts'
 
-vi.mock('node:fs/promises', async () => {
+import type { Settings } from 'unified'
+
+vi.mock('node:fs/promises', () => {
 	return {
 		readFile: () => import('../../mocks/fs.mts').then(fs => fs.default.readFile()),
 	}
@@ -21,7 +22,7 @@ describe(pluginName, () => {
 	const settings: Settings & Record<string, any> = {
 		trace: true,
 	}
-	const loadProcessor = async () => {
+	const loadProcessor = () => {
 		return remark().use({
 			settings,
 			plugins: [
@@ -45,7 +46,7 @@ describe(pluginName, () => {
 		})
 
 		// ACT
-		const sut = await loadProcessor()
+		const sut = loadProcessor()
 		const file = await sut.process(document)
 
 		// ASSERT
@@ -80,7 +81,7 @@ describe(pluginName, () => {
 		})
 
 		// ACT
-		const sut = await loadProcessor()
+		const sut = loadProcessor()
 		const file = await sut.process(document)
 
 		// ASSERT
@@ -116,7 +117,7 @@ describe(pluginName, () => {
 		})
 
 		// ACT
-		const sut = await loadProcessor()
+		const sut = loadProcessor()
 		const file = await sut.process(document)
 
 		// ASSERT
@@ -153,7 +154,7 @@ describe(pluginName, () => {
 		})
 
 		// ACT
-		const sut = await loadProcessor()
+		const sut = loadProcessor()
 		const file = await sut.process(document)
 
 		// ASSERT
@@ -191,7 +192,7 @@ describe(pluginName, () => {
 		})
 
 		// ACT
-		const sut = await loadProcessor()
+		const sut = loadProcessor()
 		const file = await sut.process(document)
 
 		// ASSERT
@@ -235,7 +236,7 @@ describe(pluginName, () => {
 		fsMock.readFile = () => Promise.reject(new Error('File not found'))
 
 		// ACT
-		const sut = await loadProcessor()
+		const sut = loadProcessor()
 		const file = await sut.process(document)
 
 		// ASSERT
@@ -274,7 +275,7 @@ describe(pluginName, () => {
 		fsMock.readFile = () => Promise.resolve(Buffer.from(`This isn't even JSON`))
 
 		// ACT
-		const sut = await loadProcessor()
+		const sut = loadProcessor()
 		const file = await sut.process(document)
 
 		// ASSERT
@@ -316,7 +317,7 @@ describe(pluginName, () => {
 		fsMock.readFile = () => Promise.resolve(Buffer.from(JSON.stringify(schema)))
 
 		// ACT
-		const sut = await loadProcessor()
+		const sut = loadProcessor()
 		const file = await sut.process(document)
 
 		// ASSERT
@@ -360,11 +361,11 @@ describe(pluginName, () => {
 		fsMock.readFile = () => Promise.resolve(Buffer.from(JSON.stringify(schema)))
 
 		// ACT
-		const sut = await loadProcessor()
+		const sut = loadProcessor()
 		const file = await sut.process(document)
 
 		// ASSERT
 		assert.isEmpty(file.messages)
-		assert.isNotNull((file.data['odr:schema']! as any).validator)
+		assert.isNotNull(getSchemaData(file)?.validator)
 	})
 })

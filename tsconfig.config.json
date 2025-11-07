@@ -1,0 +1,22 @@
+{
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "esnext",
+		"allowSyntheticDefaultImports": true,
+		"allowImportingTsExtensions": true,
+		"useDefineForClassFields": true,
+		"emitDeclarationOnly": true,
+		"declaration": true,
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"allowJs": true,
+		"moduleResolution": "bundler",
+		"moduleDetection": "force",
+		"strict": true,
+	},
+	"include": [
+		"eslint.*.ts",
+		"tsup.config.mts",
+		"vitest.config.mts",
+	]
+}

@@ -7,6 +7,7 @@ export default definePlugin({
 	async transform(context) {
 		if (!checkFileIncluded(context)) return
 
+		await Promise.resolve()
 		// TODO this is just a chatgpt barf where we validate our schema against the document.
 		// However, it's probably more robust to convert the markdown into JSON and have ajv just validate that.
 		// Maybe that'll make it hard to find back the document nodes later.

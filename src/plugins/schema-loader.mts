@@ -1,15 +1,29 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import Ajv, { JSONSchemaType } from 'ajv/dist/2020.js'
+import Ajv, { type JSONSchemaType, type ValidateFunction } from 'ajv/dist/2020.js'
+import { VFile } from 'vfile'
 
 import { debug } from '../constants.mts'
 import { checkFileIncluded } from '../files/file-include.mts'
-import { getFrontMatterData, FrontMatterError } from '../nodes/front-matter'
-import { definePlugin, RemarkPluginContext } from '../plugin.mts'
+import { getFrontMatterData, FrontMatterError } from '../nodes/front-matter.mts'
+import { definePlugin, type RemarkPluginContext } from '../plugin.mts'
 import { getOdrSettings } from '../settings.mts'
 
-interface OdrFileMetaData { 'odr:schema': string }
+const schemaKey = 'odr:schema' as const
+// TODO add npm: protocol
+const protocols = ['https', 'file'] as const
+
+type SchemaProtocols = `${typeof protocols[number]}:`
+
+interface OdrFileMetaData { [schemaKey]: string }
+
+export const getSchemaData = (fileOrContext: VFile | RemarkPluginContext) => {
+	const file = fileOrContext instanceof VFile ? fileOrContext : fileOrContext.file
+	return file.data[schemaKey] as undefined | (OdrFileMetaData & {
+		validator: ValidateFunction
+	})
+}
 
 export const pluginName = 'remark-plugin:odr-schema-loader'
 export default definePlugin({
@@ -22,16 +36,15 @@ export default definePlugin({
 		const frontMatterSchema: JSONSchemaType<OdrFileMetaData> = {
 			type: 'object',
 			properties: {
-				// TODO add npm: protocol
-				'odr:schema': {
+				[schemaKey]: {
 					type: 'string',
 					title: 'Schema URL',
 					errorMessage: 'schema url protocol only allows: https, or file.',
 					// eslint-disable-next-line no-useless-escape
-					pattern: '^(https:|file:)\/\/',
+					pattern: `^(${protocols.map(p => `${p}:`).join('|')})\/\/`,
 				},
 			},
-			required: ['odr:schema'],
+			required: [schemaKey],
 			additionalProperties: true,
 		}
 		const frontMatterResult = await getFrontMatterData<OdrFileMetaData>(context.root, frontMatterSchema)
@@ -40,8 +53,8 @@ export default definePlugin({
 			return
 		}
 
-		const schemaUrl = frontMatterResult['odr:schema']
-		context.file.data['odr:schema'] = {
+		const schemaUrl = frontMatterResult[schemaKey]
+		context.file.data[schemaKey] = {
 			schemaUrl,
 		}
 
@@ -79,7 +92,7 @@ export default definePlugin({
 		try {
 			const validator = await ajv.compileAsync(schemaValue)
 
-			context.file.data['odr:schema'] = {
+			context.file.data[schemaKey] = {
 				schemaUrl,
 				validator,
 			}
@@ -118,15 +131,17 @@ function loadSchema(dirname: string, context: RemarkPluginContext) {
 		try {
 			const url = new URL(uri)
 			// TODO add npm: protocol
-			switch (url.protocol) {
+			switch (url.protocol as SchemaProtocols) {
 				case 'https:': {
 					return loadWebSchema(url, context)
 				}
 				case 'file:': {
 					return loadFileSchema(fileUrl(uri, dirname), context)
 				}
+				default: {
+					return {}
+				}
 			}
-			return {}
 		}
 		catch {
 			return {}
@@ -147,8 +162,14 @@ async function loadWebSchema(uri: URL, context: RemarkPluginContext) {
 		}
 		return json
 	}
-	if (debug.logSchemaResolver) context.writeTrace(response.status, await response.text())
-	return response.json()
+
+	const errorData = await response.text()
+	if (debug.logSchemaResolver) {
+		context.writeTrace(response.status, errorData)
+	}
+	throw new Error('Unhandled web response', {
+		cause: errorData,
+	})
 }
 
 function fileUrl(uri: string, dirname: string) {
@@ -157,8 +178,8 @@ function fileUrl(uri: string, dirname: string) {
 async function loadFileSchema(uri: string, context: RemarkPluginContext) {
 	if (debug.logSchemaResolver) context.writeTrace(uri)
 
-	const fileContents = await readFile(uri)
-	const fileJson = JSON.parse(fileContents.toString())
+	const fileContents: string = await readFile(uri, 'utf8')
+	const fileJson = JSON.parse(fileContents.toString()) as Record<string, unknown>
 	// Remove the $id when traversing file system, otherwise the loader will open the web
 	fileJson['$id'] = undefined
 	return fileJson

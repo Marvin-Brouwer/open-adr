@@ -5,7 +5,7 @@ Object.defineProperty(fsMock, 'readFile', {
 	get() {
 		return readFile
 	},
-	set(value) {
+	set(value: () => Promise<Buffer>) {
 		readFile = value
 	},
 })

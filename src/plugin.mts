@@ -1,8 +1,8 @@
 import { VFile } from 'vfile'
 
-import { createMessageWriter, MessageWriter } from './message-helper.mts'
+import { createMessageWriter, type MessageWriter } from './message-helper.mts'
 
-import type { Plugin, Processor, Settings, Transformer } from 'unified'
+import type { Plugin, Settings, Transformer } from 'unified'
 import type { Node, Parent } from 'unist'
 
 /**
@@ -118,13 +118,12 @@ export type RemarkPluginDefinition = {
  * @param pluginDefinition The actual definition of your plugin, see: {@link RemarkPluginDefinition}
  */
 export const definePlugin = (pluginDefinition: RemarkPluginDefinition): RemarkPlugin => {
-	const { pluginName, transform } = pluginDefinition
+	const { pluginName } = pluginDefinition
 
 	const plugin: Record<string, PluginBody> = {
 		[pluginName]() {
-			const processor = this as Processor
+			const settings = (this.data().settings ?? {}) as RemarkPluginSettings
 			return async (tree, file, next) => {
-				const settings = (processor.data().settings ?? {}) as RemarkPluginSettings
 				const messageWriter = createMessageWriter(
 					tree, file, pluginName,
 					settings['trace'] as unknown as boolean ?? false,
@@ -136,7 +135,7 @@ export const definePlugin = (pluginDefinition: RemarkPluginDefinition): RemarkPl
 					settings,
 				}
 				try {
-					await transform(context)
+					await pluginDefinition.transform(context)
 				}
 				catch (error_) {
 					const error = error_ as Error

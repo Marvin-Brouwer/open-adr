@@ -1,9 +1,10 @@
-import Ajv, { JSONSchemaType } from 'ajv'
+import Ajv, { type JSONSchemaType } from 'ajv'
 import AjvErrors from 'ajv-errors'
-import { Literal, Position, Node } from 'unist'
 import { YAMLError, parse as yamlParse } from 'yaml'
 
-import { scan } from './node-helper'
+import { scan } from './node-helper.mts'
+
+import type { Literal, Position, Node } from 'unist'
 
 const ajv = AjvErrors(new Ajv({ allErrors: true }))
 
@@ -25,7 +26,7 @@ export async function getFrontMatterData<T>(tree: Node, schema?: JSONSchemaType<
 			tree,
 			tree.position!,
 		)
-	if (yamlNode.value.toString().trim() === '')
+	if ((yamlNode.value as string).toString().trim() === '')
 		return new FrontMatterError(
 			new YAMLError('YAMLParseError', [0, 0], 'IMPOSSIBLE', 'No frontmatter data found'),
 			yamlNode,
@@ -66,7 +67,7 @@ export async function getFrontMatterData<T>(tree: Node, schema?: JSONSchemaType<
 			error as YAMLError,
 			yamlNode,
 			(error instanceof YAMLError)
-				? getRelativePosition(yamlNode, error as YAMLError)
+				? getRelativePosition(yamlNode, error)
 				: yamlNode.position!,
 		)
 	}

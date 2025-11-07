@@ -1,7 +1,7 @@
 /**
  * ## Un pad
  *
- * Removes the left padding from each line based on the most-left character.\
+ * Removes the left padding from each line based on the most - left character.\
  * Ignores empty lines
  */
 export function unPad(text: string) {

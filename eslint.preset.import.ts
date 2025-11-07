@@ -21,9 +21,18 @@ export const lintImports = defineConfig([
 	},
 	{
 		settings: {
+			'import/parsers': {
+				'@typescript-eslint/parser': ['.ts', '.tsx', '.mts', '.cts', '.d.ts'],
+			},
 			'import/resolver': {
 				typescript: {
 					alwaysTryTypes: true,
+					extensions: ['.ts', '.tsx', '.mts', '.cts', '.d.ts'],
+					moduleDirectory: ['node_modules', 'src/', 'tests/'],
+				},
+				node: {
+					extensions: ['.js', '.jsx'],
+					moduleDirectory: ['node_modules', 'src/', 'tests/'],
 				},
 			},
 		},
