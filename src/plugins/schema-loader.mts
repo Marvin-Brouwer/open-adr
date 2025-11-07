@@ -6,8 +6,8 @@ import { VFile } from 'vfile'
 
 import { debug } from '../constants.mts'
 import { checkFileIncluded } from '../files/file-include.mts'
-import { getFrontMatterData, FrontMatterError } from '../nodes/front-matter.mts'
-import { definePlugin, type RemarkPluginContext } from '../plugin.mts'
+import { getFrontMatterData, FrontMatterError } from '../helpers/front-matter.mts'
+import { definePlugin, type RemarkPluginContext } from '../move-later/remark-plugin/plugin.mts'
 import { getOdrSettings } from '../settings.mts'
 
 const schemaKey = 'odr:schema' as const

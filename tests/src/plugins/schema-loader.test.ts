@@ -6,8 +6,9 @@ import remarkParse from 'remark-parse'
 import { VFile } from 'vfile'
 import { assert, describe, test, vi } from 'vitest'
 
+import { odrSettings } from '../../../src/_module.mts'
 import pluginUnderTest, { getSchemaData, pluginName } from '../../../src/plugins/schema-loader.mts'
-import { odrSettings, type OdrSettingsDefinition } from '../../../src/settings.mts'
+import { type OdrSettingsDefinition } from '../../../src/settings.mts'
 import { md, unPad } from '../../helpers/un-pad.mts'
 import fsMock from '../../mocks/fs.mts'
 

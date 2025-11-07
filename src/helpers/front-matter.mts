@@ -2,7 +2,7 @@ import Ajv, { type JSONSchemaType } from 'ajv'
 import AjvErrors from 'ajv-errors'
 import { YAMLError, parse as yamlParse } from 'yaml'
 
-import { scan } from './node-helper.mts'
+import { scan } from '../nodes/node-helper.mts'
 
 import type { Literal, Position, Node } from 'unist'
 

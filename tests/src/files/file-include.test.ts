@@ -1,16 +1,10 @@
 import { VFile } from 'vfile'
-import { assert, describe, test, vi } from 'vitest'
+import { assert, describe, test } from 'vitest'
 
+import { odrSettings } from '../../../src/_module.mts'
 import { checkFileIncluded } from '../../../src/files/file-include.mts'
-import { odrSettings } from '../../../src/settings.mts'
 
-import type { RemarkPluginContext, RemarkPluginSettings } from '../../../src/plugin.mts'
-
-vi.mock('node:fs/promises', () => {
-	return {
-		readFile: () => import('../../mocks/fs.mts').then(fs => fs.default.readFile()),
-	}
-})
+import type { RemarkPluginContext, RemarkPluginSettings } from '../../../src/move-later/remark-plugin/plugin.mts'
 
 describe('checkFileIncluded', () => {
 	test('not in include list', () => {

@@ -1,4 +1,4 @@
-import type { RemarkPluginContext } from './plugin.mts'
+import type { RemarkPluginContext } from './move-later/remark-plugin/plugin.mts'
 
 export type OdrSettingsDefinition = Partial<OdrSettings>
 export interface OdrSettings {
@@ -6,17 +6,25 @@ export interface OdrSettings {
 	include: string[]
 }
 
-const defaults: OdrSettings = Object.freeze({
+export const odrSettingDefaults: OdrSettings = Object.freeze({
 	include: ['docs/odr/**/*.md', 'doc/odr/**/*.md'],
 })
 
-export const odrSettings = (config?: OdrSettingsDefinition): OdrSettings => Object.assign({}, defaults, config) as OdrSettings
+export const applyOdrSettings = (config?: OdrSettingsDefinition): OdrSettings => {
+	if (!config) return odrSettingDefaults
+	const settingEntries = (Object.entries<unknown>(config) as [keyof OdrSettings, OdrSettings[keyof OdrSettings]][])
+		.filter(([, value]) => !!value)
+
+	const defaultsCopy = Object.assign({}, odrSettingDefaults)
+	for (const [key, value] of settingEntries) {
+		defaultsCopy[key] = value!
+	}
+
+	return defaultsCopy
+}
 export const getOdrSettings = (context: RemarkPluginContext): OdrSettings => {
 	const userSettings = context.settings.odr as OdrSettingsDefinition
-	if (!userSettings) return defaults
+	if (!userSettings) return odrSettingDefaults
 
-	return {
-		include: userSettings.include ?? defaults.include,
-		allowedSchemas: userSettings.allowedSchemas ?? defaults.allowedSchemas,
-	} as OdrSettings
+	return Object.freeze(applyOdrSettings(userSettings))
 }

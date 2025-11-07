@@ -1,4 +1,4 @@
-export { odrSettings } from './settings.mts'
+export { applyOdrSettings as odrSettings } from './settings.mts'
 
 export { default as odrSchema } from './plugins/schema-loader.mts'
 export { default as odrLinter } from './plugins/schema-linter.mts'
