@@ -7,6 +7,7 @@ import { VFile } from 'vfile'
 import { assert, describe, test, vi } from 'vitest'
 
 import pluginUnderTest, { getSchemaData, pluginName } from '../../../src/plugins/schema-loader.mts'
+import { odrSettings, type OdrSettingsDefinition } from '../../../src/settings.mts'
 import { md, unPad } from '../../helpers/un-pad.mts'
 import fsMock from '../../mocks/fs.mts'
 
@@ -19,12 +20,15 @@ vi.mock('node:fs/promises', () => {
 })
 
 describe(pluginName, () => {
-	const settings: Settings & Record<string, any> = {
+	const testSettings: Settings & Record<string, any> = {
 		trace: true,
 	}
-	const loadProcessor = () => {
+	const loadProcessor = (settings?: OdrSettingsDefinition) => {
 		return remark().use({
-			settings,
+			settings: {
+				...testSettings,
+				odr: odrSettings(settings ?? {}),
+			} as Settings,
 			plugins: [
 				remarkParse,
 				// TODO add functionality to check for yaml section
@@ -362,6 +366,92 @@ describe(pluginName, () => {
 
 		// ACT
 		const sut = loadProcessor()
+		const file = await sut.process(document)
+
+		// ASSERT
+		assert.isEmpty(file.messages)
+		assert.isNotNull(getSchemaData(file)?.validator)
+	})
+
+	test('schema not in allow list', async () => {
+		// ARRANGE
+		const settings: OdrSettingsDefinition = {
+			allowedSchemas: [
+				'file://./valid.json',
+			],
+		}
+		const document = new VFile({
+			path: 'doc/odr/test/schema-valid-not-allowed.md',
+			value: md(`
+				---
+				odr:schema: 'file://./valid-not-allowed.json'
+				---
+
+				# Schema valid
+
+				This file has a valid odr:schema in the remark data
+			`),
+		})
+
+		// const schema = {
+		// 	['$id']: 'https://validexample.com/valid.json',
+		// 	['additionalProperties']: false,
+		// }
+		// fsMock.readFile = () => Promise.resolve(Buffer.from(JSON.stringify(schema)))
+
+		// ACT
+		const sut = loadProcessor(settings)
+		const file = await sut.process(document)
+
+		// ASSERT
+		assert.equal(
+			file.messages[0].message.trim(),
+			`Schema "file://./valid-not-allowed.json" is not allowed. Allowed: file://./valid.json`,
+		)
+		// It should mark the yaml URL value
+		// But it marks the entire block for now
+		assert.deepEqual(file.messages[0].place, {
+			start: {
+				column: 1,
+				line: 1,
+				offset: 0,
+			},
+			end: {
+				column: 4,
+				line: 3,
+				offset: 53,
+			},
+		})
+	})
+
+	test('schema in allow list', async () => {
+		// ARRANGE
+		const settings: OdrSettingsDefinition = {
+			allowedSchemas: [
+				'file://./valid.json',
+			],
+		}
+		const document = new VFile({
+			path: 'doc/odr/test/schema-valid-not-allowed.md',
+			value: md(`
+				---
+				odr:schema: 'file://./valid.json'
+				---
+
+				# Schema valid
+
+				This file has a valid odr:schema in the remark data
+			`),
+		})
+
+		const schema = {
+			['$id']: 'https://validexample.com/valid.json',
+			['additionalProperties']: false,
+		}
+		fsMock.readFile = () => Promise.resolve(Buffer.from(JSON.stringify(schema)))
+
+		// ACT
+		const sut = loadProcessor(settings)
 		const file = await sut.process(document)
 
 		// ASSERT

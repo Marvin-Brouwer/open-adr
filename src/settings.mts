@@ -1,4 +1,4 @@
-import { RemarkPluginContext } from './plugin.mts'
+import type { RemarkPluginContext } from './plugin.mts'
 
 export type OdrSettingsDefinition = Partial<OdrSettings>
 export interface OdrSettings {

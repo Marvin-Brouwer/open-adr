@@ -1,8 +1,9 @@
 import micromatch from 'micromatch'
 
 import { debug } from '../constants.mts'
-import { RemarkPluginContext } from '../plugin.mts'
 import { getOdrSettings } from '../settings.mts'
+
+import type { RemarkPluginContext } from '../plugin.mts'
 
 export function checkFileIncluded(context: RemarkPluginContext) {
 	const { file } = context
