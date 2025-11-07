@@ -6,12 +6,17 @@ export interface OdrSettings {
 	include: string[]
 }
 
-const defaults: OdrSettings = {
+const defaults: OdrSettings = Object.freeze({
 	include: ['docs/odr/**/*.md', 'doc/odr/**/*.md'],
-}
+})
 
-export const odrSettings = (config?: OdrSettingsDefinition): OdrSettings => Object.assign(defaults, config) as OdrSettings
+export const odrSettings = (config?: OdrSettingsDefinition): OdrSettings => Object.assign({}, defaults, config) as OdrSettings
 export const getOdrSettings = (context: RemarkPluginContext): OdrSettings => {
-	if (!context.settings.odr) return defaults
-	return context.settings.odr as OdrSettings
+	const userSettings = context.settings.odr as OdrSettingsDefinition
+	if (!userSettings) return defaults
+
+	return {
+		include: userSettings.include ?? defaults.include,
+		allowedSchemas: userSettings.allowedSchemas ?? defaults.allowedSchemas,
+	} as OdrSettings
 }
