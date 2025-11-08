@@ -37,7 +37,7 @@ export async function getFrontMatterData<T>(tree: Node, schema?: JSONSchemaType<
 		const yamlResult = yamlParse(yamlNode.value as string ?? '', {
 			prettyErrors: true,
 			strict: false,
-			// TODO use symbol instead
+			// todo use getPosition function instead
 		}) as T & { '@position': Position }
 
 		if (!yamlResult)

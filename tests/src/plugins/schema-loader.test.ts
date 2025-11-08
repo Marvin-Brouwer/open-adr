@@ -32,7 +32,6 @@ describe(pluginName, () => {
 			} as Settings,
 			plugins: [
 				remarkParse,
-				// TODO add functionality to check for yaml section
 				remarkFrontmatter,
 				pluginUnderTest,
 			],
