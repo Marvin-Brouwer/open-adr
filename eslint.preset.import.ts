@@ -27,14 +27,14 @@ export const lintImports = defineConfig([
 			'import/resolver': {
 				typescript: {
 					alwaysTryTypes: true,
-					extensions: ['.ts', '.tsx', '.mts', '.cts', '.d.ts'],
-					moduleDirectory: ['node_modules', 'src/', 'tests/'],
 				},
 				node: {
 					extensions: ['.js', '.jsx'],
 					moduleDirectory: ['node_modules', 'src/', 'tests/'],
 				},
 			},
+			'import/extensions': ['.js', '.jsx', '.ts', '.tsx', '.mts', '.cts'],
+
 		},
 		rules: {
 			'import/order': [

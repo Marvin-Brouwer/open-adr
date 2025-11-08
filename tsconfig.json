@@ -1,5 +1,11 @@
 {
 	"files": [],
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"moduleDetection": "force"
+	},
 	"references": [
 		{
 			"path": "./tsconfig.config.json"

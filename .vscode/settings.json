@@ -49,6 +49,7 @@
 	"markdown-preview-enhanced.disablePreview": false,
 	"markdown-preview-enhanced.enableScriptExecution": false,
 	"markdown-preview-enhanced.previewMode": "Single Preview",
+	"explorer.fileNesting.enabled": true,
 	"explorer.fileNesting.patterns": {
 		"*.ts": "${capture}.js",
 		"*.js": "${capture}.js.map, ${capture}.min.js, ${capture}.d.ts",

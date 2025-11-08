@@ -1,7 +1,6 @@
 {
+	"extends": "./tsconfig.json",
 	"compilerOptions": {
-		"target": "esnext",
-		"module": "esnext",
 		"allowSyntheticDefaultImports": true,
 		"allowImportingTsExtensions": true,
 		"useDefineForClassFields": true,
@@ -10,8 +9,6 @@
 		"esModuleInterop": true,
 		"isolatedModules": true,
 		"allowJs": true,
-		"moduleResolution": "bundler",
-		"moduleDetection": "force",
 		"strict": true,
 	},
 	"include": [

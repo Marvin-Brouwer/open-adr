@@ -1,12 +1,12 @@
 import Ajv, { type JSONSchemaType } from 'ajv'
-import AjvErrors from 'ajv-errors'
+import ajvErrors from 'ajv-errors'
 import { YAMLError, parse as yamlParse } from 'yaml'
 
 import { scan } from '../nodes/node-helper.mts'
 
 import type { Literal, Position, Node } from 'unist'
 
-const ajv = AjvErrors(new Ajv({ allErrors: true }))
+const ajv = ajvErrors(new Ajv({ allErrors: true }))
 
 export class FrontMatterError extends Error {
 	constructor(

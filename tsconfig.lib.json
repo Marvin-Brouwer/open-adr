@@ -1,7 +1,6 @@
 {
+	"extends": "./tsconfig.json",
 	"compilerOptions": {
-		"target": "esnext",
-		"module": "esnext",
 		"allowSyntheticDefaultImports": true,
 		"allowImportingTsExtensions": true,
 		"useDefineForClassFields": true,
@@ -20,8 +19,6 @@
 			"node"
 		],
 		/* Bundler mode */
-		"moduleResolution": "bundler",
-		"moduleDetection": "force",
 		"declaration": true,
 		"declarationMap": true,
 		"declarationDir": "dist",
@@ -35,9 +32,5 @@
 	},
 	"include": [
 		"./src/**/*.mts"
-	],
-	"exclude": [
-		"./src/**.test.ts",
-		"./src/**.spec.ts"
 	]
 }
