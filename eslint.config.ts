@@ -4,9 +4,8 @@ import unicorn from 'eslint-plugin-unicorn'
 import globals from 'globals'
 
 import { lintImports } from './eslint.preset.import.js'
-import { lintJs } from './eslint.preset.java-script.js'
+import { lintJs, lintTs } from './eslint.preset.lang.js'
 import { projectConfig } from './eslint.preset.project'
-import { lintTs } from './eslint.preset.type-script.js'
 
 export default defineConfig([
 	globalIgnores(['node_modules', 'dist']),
