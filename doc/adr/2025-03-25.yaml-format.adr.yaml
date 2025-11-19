@@ -2,10 +2,10 @@
 
 adr:
   subject: YAML format
-  status: proposed
+  status: rejected
   created: 2025-03-25
   deciders:
-  - https://github.com/Marvin-Brouwer
+    - https://github.com/Marvin-Brouwer
 
 context: |-
   To facilitate a unified template, markdown is too loose.
