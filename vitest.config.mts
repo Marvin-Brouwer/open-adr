@@ -11,5 +11,29 @@ export default defineConfig({
 				fallbackCJS: true,
 			},
 		},
+		outputFile: {
+			junit: './testresults/junit-report.xml',
+		},
+		reporters: [
+			// Show in terminal
+			['default'],
+			// Export to junit format for GitHub actions
+			['junit'],
+		],
+		coverage: {
+			enabled: false,
+			reporter: [
+				// Show in terminal
+				'text',
+				// Export to cobertura format for GitHub actions
+				'cobertura',
+			],
+			include: [
+				'src',
+			],
+			exclude: [
+				'src/_module.mts',
+			],
+		},
 	},
 })

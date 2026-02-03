@@ -5,7 +5,8 @@
 	"type": "module",
 	"scripts": {
 		"build": "tsup-node",
-		"test": "vitest",
+		"test": "vitest --config ./vitest.config.mts",
+		"test:coverage": "vitest run --config ./vitest.config.mts --coverage",
 		"lint:nofix": "eslint .",
 		"lint": "eslint . --fix",
 		"remark:lint": "remark doc/odr/**/*.md --output",
@@ -39,6 +40,7 @@
 		"@types/unist": "^3.0.3",
 		"@typescript-eslint/eslint-plugin": "^8.46.3",
 		"@typescript-eslint/parser": "^8.44.1",
+		"@vitest/coverage-v8": "4.0.7",
 		"eslint": "^9.36.0",
 		"eslint-import-resolver-typescript": "^4.4.4",
 		"eslint-plugin-import": "^2.32.0",
