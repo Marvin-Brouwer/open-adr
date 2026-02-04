@@ -18,7 +18,7 @@ export function createMessageWriter(root: Node, file: VFile, pluginName: string,
 		appendWarn(message: string, location?: Parent | Node | Position) {
 			file.message(message, location as Node ?? root)
 		},
-		appendError(message: string, location?: Parent | Node | Position, data?: { stack?: string, cause?: unknown, file?: string, note?: string }) {
+		appendError(message: string, location?: Parent | Node | Position, data?: { stack?: string, cause?: unknown, file?: string, note?: string, expectedValues?: string[] }) {
 			const errorMessage = file.message(message, location as Node ?? root)
 			errorMessage.fatal = true
 			errorMessage.cause = data?.cause
@@ -31,6 +31,7 @@ export function createMessageWriter(root: Node, file: VFile, pluginName: string,
 			// errorMessage.source = (data?.file ?? file.path).replace('file://', '');
 			errorMessage.note = data?.note
 			errorMessage.url = errorMessage.file
+			errorMessage.expected = data?.expectedValues
 		},
 	}
 }

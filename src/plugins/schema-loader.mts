@@ -1,8 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import Ajv, { type JSONSchemaType, type ValidateFunction } from 'ajv/dist/2020.js'
-import { VFile } from 'vfile'
+import Ajv, { type JSONSchemaType } from 'ajv/dist/2020.js'
 
 import { debug } from '../constants.mts'
 import { checkFileIncluded } from '../files/file-include.mts'
@@ -10,20 +9,13 @@ import { getFrontMatterData, FrontMatterError } from '../helpers/front-matter.mt
 import { definePlugin, type RemarkPluginContext } from '../move-later/remark-plugin/plugin.mts'
 import { getOdrSettings } from '../settings.mts'
 
-const schemaKey = 'odr:schema' as const
+export const odrSchemaKey = 'odr:schema' as const
 // TODO add npm: protocol
 const protocols = ['https', 'file'] as const
 
 type SchemaProtocols = `${typeof protocols[number]}:`
 
-interface OdrFileMetaData { [schemaKey]: string }
-
-export const getSchemaData = (fileOrContext: VFile | RemarkPluginContext) => {
-	const file = fileOrContext instanceof VFile ? fileOrContext : fileOrContext.file
-	return file.data[schemaKey] as undefined | (OdrFileMetaData & {
-		validator: ValidateFunction
-	})
-}
+export interface OdrFileMetaData { [odrSchemaKey]: string }
 
 export const pluginName = 'remark-plugin:odr-schema-loader'
 export default definePlugin({
@@ -36,7 +28,7 @@ export default definePlugin({
 		const frontMatterSchema: JSONSchemaType<OdrFileMetaData> = {
 			type: 'object',
 			properties: {
-				[schemaKey]: {
+				[odrSchemaKey]: {
 					type: 'string',
 					title: 'Schema URL',
 					errorMessage: 'schema url protocol only allows: https, or file.',
@@ -44,7 +36,7 @@ export default definePlugin({
 					pattern: `^(${protocols.map(p => `${p}:`).join('|')})\/\/`,
 				},
 			},
-			required: [schemaKey],
+			required: [odrSchemaKey],
 			additionalProperties: true,
 		}
 		const frontMatterResult = await getFrontMatterData<OdrFileMetaData>(context.root, frontMatterSchema)
@@ -53,8 +45,8 @@ export default definePlugin({
 			return
 		}
 
-		const schemaUrl = frontMatterResult[schemaKey]
-		context.file.data[schemaKey] = {
+		const schemaUrl = frontMatterResult[odrSchemaKey]
+		context.file.data[odrSchemaKey] = {
 			schemaUrl,
 		}
 
@@ -92,7 +84,7 @@ export default definePlugin({
 		try {
 			const validator = await ajv.compileAsync(schemaValue)
 
-			context.file.data[schemaKey] = {
+			context.file.data[odrSchemaKey] = {
 				schemaUrl,
 				validator,
 			}

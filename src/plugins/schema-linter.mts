@@ -1,11 +1,49 @@
 import { checkFileIncluded } from '../files/file-include.mts'
+import { type JsonPrimitive, trailJsonPath } from '../helpers/json-path.mts'
+import { getSchemaData } from '../helpers/schema-data.mts'
 import { definePlugin } from '../move-later/remark-plugin/plugin.mts'
 
-const pluginName = 'remark-plugin:odr-schema-linter'
+import type { ErrorObject } from 'ajv'
+import type { Node } from 'unist'
+
+export const pluginName = 'remark-plugin:odr-schema-linter'
 export default definePlugin({
 	pluginName,
 	async transform(context) {
 		if (!checkFileIncluded(context)) return
+
+		const schema = getSchemaData(context)
+		if (!schema) throw new Error('No schema was present to lint, please check your plugin configuration.')
+
+		const validationSuccess = schema.validator(context.root)
+		console.log(context.file.path, validationSuccess ? 'valid' : 'invalid')
+
+		if (!validationSuccess) {
+			for (const validationError of schema.validator.errors ?? []) {
+				const sourceTrail = trailJsonPath<Node>(context.root, validationError.instancePath)
+				if (sourceTrail.length === 0) {
+					context.appendError(`Invalid error state, tree does not contain ${validationError.instancePath}`)
+					return
+				}
+
+				// We need an object, for the pos, so we take the parent if it's not an object.
+				const sourceNode: Node | undefined = typeof sourceTrail[0] === 'object'
+					? sourceTrail[0] as Node | undefined ?? undefined
+					: sourceTrail[1] as Node | undefined ?? undefined
+
+				const errorMessage = formatMessage(validationError, sourceTrail[0])
+
+				context.appendError(errorMessage,
+					sourceNode ?? context.root,
+					{
+						file: context.file.path,
+						cause: validationError.message,
+						stack: validationError.instancePath,
+						expectedValues: getExpectedValues(validationError),
+					})
+			}
+			console.log(context.file.path, context.file.messages)
+		}
 
 		await Promise.resolve()
 		// TODO this is just a chatgpt barf where we validate our schema against the document.
@@ -47,3 +85,29 @@ export default definePlugin({
 		// file.info(`Validated against schema: ${path.basename(activeSchemaPath)}`, tree);
 	},
 })
+
+function formatMessage(validationError: ErrorObject, value: Node | JsonPrimitive) {
+	if (!validationError.message)
+		return `Unknown error at ${validationError.instancePath}.`
+
+	switch (validationError.keyword) {
+		case 'const': {
+			// This has to be string!
+			const testedValue = (value as string | undefined)?.toString() ?? 'undefined'
+			return `Expected absolute value of '${validationError.params.allowedValue}', got '${testedValue}' instead`
+		}
+	}
+
+	console.warn(validationError)
+	return `Unknown error type '${validationError.keyword}' at ${validationError.instancePath}.`
+}
+
+function getExpectedValues(validationError: ErrorObject) {
+	switch (validationError.keyword) {
+		case 'const': {
+			return [validationError.params.allowedValue as string]
+		}
+	}
+
+	return
+}

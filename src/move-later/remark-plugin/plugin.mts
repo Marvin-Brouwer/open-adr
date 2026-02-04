@@ -41,7 +41,7 @@ export type RemarkPluginContext = {
 	settings: RemarkPluginSettings
 } & MessageWriter
 
-type PluginBody = NonNullable<Exclude<RemarkPlugin, void>>
+export type PluginBody = NonNullable<Exclude<RemarkPlugin, void>>
 
 /**
  * ## Define a [remark `plugin`](https://github.com/remarkjs/remark?tab=readme-ov-file#plugins)
