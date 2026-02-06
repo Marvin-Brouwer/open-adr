@@ -39,6 +39,8 @@
 		"caseSensitivity": "caseSensitive",
 		"numericCollation": true,
 	},
+	"javascript.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces": false,
+	"typescript.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces": false,
 	// These options search the repo recursively and slow down
 	// the build task menu. We define our own in tasks.json.
 	"typescript.tsc.autoDetect": "off",
