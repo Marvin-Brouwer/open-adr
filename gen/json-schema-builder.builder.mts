@@ -58,6 +58,30 @@ export type BuiltNode = {
 }
 
 /**
+ * Resolves a reference target to a JSON Schema $ref path
+ */
+function resolveReferencePath(target: unknown, currentFile: string): string {
+	if (typeof target === 'string') {
+		return target
+	}
+
+	if (typeof target === 'object' && target !== undefined && target !== null && 'file' in target) {
+		const targetFile = (target as SchemaNode).file
+		const currentDirectory = path.dirname(currentFile)
+		let referencePath = path.relative(currentDirectory, targetFile).replaceAll(path.sep, '/')
+
+		// Ensure relative paths start with ./
+		if (!referencePath.startsWith('.')) {
+			referencePath = './' + referencePath
+		}
+		return referencePath
+	}
+
+	// Fallback for unknown types
+	return `#/$defs/${String(target)}`
+}
+
+/**
  * Creates a reference node that lazily resolves to the target schema
  */
 export function createReferenceNode(node: () => BuiltNode | string | SchemaBuilder): BuiltNode {
@@ -92,6 +116,95 @@ export function assignOrderToChildren<T extends BuiltNode[] | Record<string, Bui
 }
 
 /**
+ * Processes a schema value during emission
+ */
+function processSchemaValue(
+	value: unknown,
+	file: string,
+	seen: Set<BuiltNode>,
+	orderMode: 'strict' | 'loose',
+): unknown {
+	if (!value || typeof value !== 'object') {
+		return value
+	}
+
+	if (Array.isArray(value)) {
+		return value.map(item => emitSchema(item as BuiltNode, file, seen, orderMode))
+	}
+
+	if ('__ref__' in value) {
+		const target = (value as BuiltNode).__ref__
+		return { $ref: resolveReferencePath(target, file) }
+	}
+
+	return emitSchema(value as BuiltNode, file, seen, orderMode)
+}
+
+/**
+ * Sorts object properties by their order values
+ */
+function sortObjectPropertiesByOrder(
+	properties: Record<string, JSONSchemaAST>,
+	schemaProperties: Record<string, BuiltNode>,
+): Record<string, JSONSchemaAST> {
+	const entries = Object.entries(properties)
+		.map(([propertyKey, propertyValue]) => ({
+			key: propertyKey,
+			value: propertyValue,
+			order: schemaProperties[propertyKey]?.order ?? Infinity,
+		}))
+		.toSorted((a, b) => a.order - b.order)
+
+	const orderedProperties: Record<string, JSONSchemaAST> = {}
+	for (const { key, value } of entries) {
+		orderedProperties[key] = value
+	}
+	return orderedProperties
+}
+
+/**
+ * Sorts array prefix items by their order values
+ */
+function sortPrefixItemsByOrder(
+	prefixItems: JSONSchemaAST[],
+	schemaPrefixItems: BuiltNode[],
+): JSONSchemaAST[] {
+	return prefixItems
+		.map((item, index) => ({
+			item,
+			order: schemaPrefixItems[index]?.order ?? Infinity,
+		}))
+		.toSorted((a, b) => a.order - b.order)
+		.map(({ item }) => item)
+}
+
+/**
+ * Applies implicit schema restrictions based on schema type
+ */
+function applyImplicitRestrictions(output: JSONSchemaAST, schema: BuiltNode): void {
+	if (schema.type === 'object') {
+		if (!('additionalProperties' in schema)) {
+			output.additionalProperties = false
+		}
+		if (!('unevaluatedProperties' in schema)) {
+			output.unevaluatedProperties = false
+		}
+	}
+
+	if (schema.type === 'array') {
+		if (schema.prefixItems && !('items' in schema)) {
+			output.items = false
+		}
+		if (schema.items && !('additionalItems' in schema)) {
+			output.additionalItems = false
+		}
+		if (!('unevaluatedItems' in schema)) {
+			output.unevaluatedItems = false
+		}
+	}
+}
+
+/**
  * Emits a BuiltNode as a JSON Schema AST, resolving references and applying ordering
  */
 export function emitSchema(
@@ -102,28 +215,7 @@ export function emitSchema(
 ): JSONSchemaAST {
 	// Handle ref nodes first before processing as regular objects
 	if ('__ref__' in schema) {
-		const target = schema.__ref__
-		let referencePath: string
-
-		if (typeof target === 'string') {
-			referencePath = target
-		}
-		else if (typeof target === 'object' && target !== undefined && target !== null && 'file' in target) {
-			// It's a SchemaNode - calculate relative path
-			const targetFile = (target as SchemaNode).file
-			const currentDirectory = path.dirname(file)
-			referencePath = path.relative(currentDirectory, targetFile).replaceAll(path.sep, '/')
-			// Ensure relative paths start with ./
-			if (!referencePath.startsWith('.')) {
-				referencePath = './' + referencePath
-			}
-		}
-		else {
-			// Fallback for unknown types
-			referencePath = `#/$defs/${String(target)}`
-		}
-
-		return { $ref: referencePath }
+		return { $ref: resolveReferencePath(schema.__ref__, file) }
 	}
 
 	if (seen.has(schema)) {
@@ -133,6 +225,7 @@ export function emitSchema(
 
 	const output: JSONSchemaAST = {}
 	for (const [key, value] of Object.entries(schema)) {
+		// Skip internal properties
 		if (key === '__ref__' || key === '__schemaNode') {
 			continue
 		}
@@ -152,92 +245,27 @@ export function emitSchema(
 			continue
 		}
 
-		if (value && typeof value === 'object') {
-			if (Array.isArray(value)) {
-				output[key] = value.map(item => emitSchema(item as BuiltNode, file, seen, orderMode))
-			}
-			else if (typeof value === 'object' && '__ref__' in value) {
-				const target = (value as BuiltNode).__ref__
-				let referencePath: string
-
-				if (typeof target === 'string') {
-					referencePath = target
-				}
-				else if (typeof target === 'object' && target !== undefined && target !== null && 'file' in target) {
-					// It's a SchemaNode - calculate relative path
-					const targetFile = (target as SchemaNode).file
-					const currentDirectory = path.dirname(file)
-					referencePath = path.relative(currentDirectory, targetFile).replaceAll(path.sep, '/')
-					// Ensure relative paths start with ./
-					if (!referencePath.startsWith('.')) {
-						referencePath = './' + referencePath
-					}
-				}
-				else {
-					// Fallback for unknown types
-					referencePath = `#/$defs/${String(target)}`
-				}
-
-				// Create a nested object with $ref instead of setting it on the parent
-				output[key] = { $ref: referencePath }
-			}
-			else {
-				output[key] = emitSchema(value as BuiltNode, file, seen, orderMode)
-			}
-		}
-		else {
-			output[key] = value
-		}
+		output[key] = processSchemaValue(value, file, seen, orderMode)
 	}
 
 	// Apply strict ordering if enabled
 	if (orderMode === 'strict') {
 		if (schema.type === 'object' && schema.properties) {
-			const orderedProperties: Record<string, JSONSchemaAST> = {}
-			const entries = Object.entries(output.properties as Record<string, JSONSchemaAST>)
-				.map(([propertyKey, propertyValue]) => ({
-					key: propertyKey,
-					value: propertyValue,
-					order: (schema.properties?.[propertyKey])?.order ?? Infinity,
-				}))
-				.toSorted((a, b) => a.order - b.order)
-
-			for (const { key, value } of entries) {
-				orderedProperties[key] = value
-			}
-			output.properties = orderedProperties
+			output.properties = sortObjectPropertiesByOrder(
+				output.properties as Record<string, JSONSchemaAST>,
+				schema.properties,
+			)
 		}
 
 		if (schema.type === 'array' && schema.prefixItems) {
-			const prefixItemsArray = output.prefixItems as JSONSchemaAST[]
-			const orderedItems = prefixItemsArray
-				.map((item, index) => ({
-					item,
-					order: (schema.prefixItems?.[index])?.order ?? Infinity,
-				}))
-				.toSorted((a, b) => a.order - b.order)
-				.map(({ item }) => item)
-
-			output.prefixItems = orderedItems
+			output.prefixItems = sortPrefixItemsByOrder(
+				output.prefixItems as JSONSchemaAST[],
+				schema.prefixItems,
+			)
 		}
 	}
 
-	// Apply implicit restrictions unless allowAdditional or allowUnevaluated was called
-	if (schema.type === 'object' && !('additionalProperties' in schema)) {
-		output.additionalProperties = false
-	}
-	if (schema.type === 'object' && !('unevaluatedProperties' in schema)) {
-		output.unevaluatedProperties = false
-	}
-	if (schema.type === 'array' && schema.prefixItems && !('items' in schema)) {
-		output.items = false
-	}
-	if (schema.type === 'array' && schema.items && !('additionalItems' in schema)) {
-		output.additionalItems = false
-	}
-	if (schema.type === 'array' && !('unevaluatedItems' in schema)) {
-		output.unevaluatedItems = false
-	}
+	applyImplicitRestrictions(output, schema)
 
 	return output
 }
@@ -271,50 +299,36 @@ export function createSchemaBuilder(schemaNode: SchemaNode): SchemaBuilder {
 
 		ref(node: () => BuiltNode | string | SchemaBuilder) {
 			const target = node()
+
 			if (typeof target === 'string') {
 				schemaNode.schema.$ref = target
+				return this
 			}
-			else if (typeof target === 'object' && target !== undefined && target !== null && '__ref__' in target) {
-				const reference = (target).__ref__
-				if (typeof reference === 'string') {
-					schemaNode.schema.$ref = reference
-				}
-				else if (typeof reference === 'object' && reference !== undefined && reference !== null && 'file' in reference) {
-					// It's a SchemaNode - create a relative path reference
-					const targetSchemaNode = reference as SchemaNode
-					const currentDirectory = path.dirname(schemaNode.file)
-					let referencePath = path.relative(currentDirectory, targetSchemaNode.file).replaceAll(path.sep, '/')
-					// Ensure relative paths start with ./
-					if (!referencePath.startsWith('.')) {
-						referencePath = './' + referencePath
+
+			if (typeof target === 'object' && target !== undefined && target !== null) {
+				if ('__ref__' in target) {
+					const reference = target.__ref__
+					if (typeof reference === 'object' && reference !== null && !('file' in reference)) {
+						throw new Error('Invalid ref target: __ref__ must resolve to a string or SchemaNode')
 					}
-					schemaNode.schema.$ref = referencePath
+					schemaNode.schema.$ref = resolveReferencePath(reference, schemaNode.file)
+					return this
 				}
-				else {
-					// reference is an unknown object - this shouldn't happen in normal usage
-					throw new Error('Invalid ref target: __ref__ must resolve to a string or SchemaNode')
-				}
-			}
-			else if (typeof target === 'object' && target !== undefined && target !== null && '__schemaNode' in target) {
-				// It's a SchemaBuilder - create a relative path reference
-				const targetSchemaNode = (target as SchemaBuilder).__schemaNode
-				if (targetSchemaNode) {
-					const currentDirectory = path.dirname(schemaNode.file)
-					let referencePath = path.relative(currentDirectory, targetSchemaNode.file).replaceAll(path.sep, '/')
-					// Ensure relative paths start with ./
-					if (!referencePath.startsWith('.')) {
-						referencePath = './' + referencePath
+
+				if ('__schemaNode' in target) {
+					const targetSchemaNode = (target as SchemaBuilder).__schemaNode
+					if (targetSchemaNode) {
+						schemaNode.schema.$ref = resolveReferencePath(targetSchemaNode, schemaNode.file)
 					}
-					schemaNode.schema.$ref = referencePath
+					return this
 				}
-			}
-			else if (typeof target === 'object' && target !== undefined && target !== null) {
+
 				// Direct BuiltNode reference - copy it
 				Object.assign(schemaNode.schema, target)
+				return this
 			}
-			else {
-				schemaNode.schema.$ref = String(target)
-			}
+
+			schemaNode.schema.$ref = String(target)
 			return this
 		},
 
