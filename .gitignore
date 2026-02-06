@@ -3,3 +3,5 @@ dist
 
 coverage
 testresults
+
+.claude/settings.local.json

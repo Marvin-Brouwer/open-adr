@@ -1,0 +1,24 @@
+{
+	"type": "object",
+	"properties": {
+		"type": {
+			"const": "strikethrough",
+			"order": 0
+		},
+		"children": {
+			"items": {
+				"$ref": "./inline-node.json"
+			},
+			"type": "array",
+			"order": 1,
+			"additionalItems": false,
+			"unevaluatedItems": false
+		}
+	},
+	"required": [
+		"type",
+		"children"
+	],
+	"additionalProperties": false,
+	"unevaluatedProperties": false
+}

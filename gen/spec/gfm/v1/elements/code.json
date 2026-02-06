@@ -1,0 +1,43 @@
+{
+	"type": "object",
+	"properties": {
+		"type": {
+			"const": "code",
+			"order": 0
+		},
+		"lang": {
+			"anyOf": [
+				{
+					"type": "string"
+				},
+				{
+					"type": "null"
+				}
+			],
+			"order": 1
+		},
+		"meta": {
+			"anyOf": [
+				{
+					"type": "string"
+				},
+				{
+					"type": "null"
+				}
+			],
+			"order": 2
+		},
+		"value": {
+			"type": "string",
+			"order": 3
+		}
+	},
+	"required": [
+		"type",
+		"lang",
+		"meta",
+		"value"
+	],
+	"additionalProperties": false,
+	"unevaluatedProperties": false
+}

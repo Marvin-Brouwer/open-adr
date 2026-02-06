@@ -1,0 +1,5 @@
+{
+	"title": "Full md-ast, GitHub flavored markdown, document spec",
+	"$id": "https://github.com/Marvin-Brouwer/open-adr/blob/main/spec/gfm/v1/gfm.json",
+	"$ref": "./elements/root.json"
+}

@@ -1,0 +1,29 @@
+{
+	"type": "object",
+	"properties": {
+		"type": {
+			"const": "heading",
+			"order": 0
+		},
+		"depth": {
+			"type": "number",
+			"order": 1
+		},
+		"children": {
+			"items": {
+				"$ref": "./inline-node.json"
+			},
+			"type": "array",
+			"order": 2,
+			"additionalItems": false,
+			"unevaluatedItems": false
+		}
+	},
+	"required": [
+		"type",
+		"depth",
+		"children"
+	],
+	"additionalProperties": false,
+	"unevaluatedProperties": false
+}

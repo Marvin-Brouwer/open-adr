@@ -1,0 +1,46 @@
+{
+	"oneOf": [
+		{
+			"$ref": "./root.json"
+		},
+		{
+			"$ref": "./paragraph.json"
+		},
+		{
+			"$ref": "./heading.json"
+		},
+		{
+			"$ref": "./thematic-break.json"
+		},
+		{
+			"$ref": "./blockquote.json"
+		},
+		{
+			"$ref": "./list.json"
+		},
+		{
+			"$ref": "./list-item.json"
+		},
+		{
+			"$ref": "./table.json"
+		},
+		{
+			"$ref": "./code.json"
+		},
+		{
+			"$ref": "./html.json"
+		},
+		{
+			"$ref": "./yaml.json"
+		},
+		{
+			"$ref": "./definition.json"
+		},
+		{
+			"$ref": "./footnote-definition.json"
+		},
+		{
+			"$ref": "./custom-block-node.json"
+		}
+	]
+}

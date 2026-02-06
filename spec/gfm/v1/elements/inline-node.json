@@ -1,0 +1,43 @@
+{
+	"oneOf": [
+		{
+			"$ref": "./text.json"
+		},
+		{
+			"$ref": "./text-single-line.json"
+		},
+		{
+			"$ref": "./strong.json"
+		},
+		{
+			"$ref": "./emphasis.json"
+		},
+		{
+			"$ref": "./strikethrough.json"
+		},
+		{
+			"$ref": "./inline-code.json"
+		},
+		{
+			"$ref": "./link.json"
+		},
+		{
+			"$ref": "./link-reference.json"
+		},
+		{
+			"$ref": "./image.json"
+		},
+		{
+			"$ref": "./image-reference.json"
+		},
+		{
+			"$ref": "./break.json"
+		},
+		{
+			"$ref": "./footnote-reference.json"
+		},
+		{
+			"$ref": "./custom-inline-node.json"
+		}
+	]
+}

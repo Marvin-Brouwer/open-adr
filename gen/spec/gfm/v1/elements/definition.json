@@ -1,0 +1,36 @@
+{
+	"type": "object",
+	"properties": {
+		"type": {
+			"const": "definition",
+			"order": 0
+		},
+		"identifier": {
+			"type": "string",
+			"order": 1
+		},
+		"url": {
+			"type": "string",
+			"order": 2
+		},
+		"title": {
+			"anyOf": [
+				{
+					"type": "string"
+				},
+				{
+					"type": "null"
+				}
+			],
+			"order": 3
+		}
+	},
+	"required": [
+		"type",
+		"identifier",
+		"url",
+		"title"
+	],
+	"additionalProperties": false,
+	"unevaluatedProperties": false
+}

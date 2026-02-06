@@ -1,0 +1,31 @@
+{
+	"type": "object",
+	"properties": {
+		"type": {
+			"const": "imageReference",
+			"order": 0
+		},
+		"identifier": {
+			"type": "string",
+			"order": 1
+		},
+		"label": {
+			"anyOf": [
+				{
+					"type": "string"
+				},
+				{
+					"type": "null"
+				}
+			],
+			"order": 2
+		}
+	},
+	"required": [
+		"type",
+		"identifier",
+		"label"
+	],
+	"additionalProperties": true,
+	"unevaluatedProperties": false
+}

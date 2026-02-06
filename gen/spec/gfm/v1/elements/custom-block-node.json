@@ -1,0 +1,14 @@
+{
+	"type": "object",
+	"properties": {
+		"type": {
+			"type": "string",
+			"order": 0
+		}
+	},
+	"required": [
+		"type"
+	],
+	"additionalProperties": true,
+	"unevaluatedProperties": false
+}

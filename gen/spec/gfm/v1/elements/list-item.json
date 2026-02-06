@@ -1,0 +1,41 @@
+{
+	"type": "object",
+	"properties": {
+		"type": {
+			"const": "listItem",
+			"order": 0
+		},
+		"checked": {
+			"anyOf": [
+				{
+					"type": "boolean"
+				},
+				{
+					"type": "null"
+				}
+			],
+			"order": 1
+		},
+		"spread": {
+			"type": "boolean",
+			"order": 2
+		},
+		"children": {
+			"items": {
+				"$ref": "./block-node.json"
+			},
+			"type": "array",
+			"order": 3,
+			"additionalItems": false,
+			"unevaluatedItems": false
+		}
+	},
+	"required": [
+		"type",
+		"checked",
+		"spread",
+		"children"
+	],
+	"additionalProperties": false,
+	"unevaluatedProperties": false
+}

@@ -1,0 +1,53 @@
+{
+	"type": "object",
+	"properties": {
+		"type": {
+			"const": "linkReference",
+			"order": 0
+		},
+		"identifier": {
+			"type": "string",
+			"order": 1
+		},
+		"label": {
+			"anyOf": [
+				{
+					"type": "string"
+				},
+				{
+					"type": "null"
+				}
+			],
+			"order": 2
+		},
+		"referenceType": {
+			"anyOf": [
+				{
+					"type": "string"
+				},
+				{
+					"type": "null"
+				}
+			],
+			"order": 3
+		},
+		"children": {
+			"items": {
+				"$ref": "./inline-node.json"
+			},
+			"type": "array",
+			"order": 4,
+			"additionalItems": false,
+			"unevaluatedItems": false
+		}
+	},
+	"required": [
+		"type",
+		"identifier",
+		"label",
+		"referenceType",
+		"children"
+	],
+	"additionalProperties": false,
+	"unevaluatedProperties": false
+}

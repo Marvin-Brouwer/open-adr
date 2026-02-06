@@ -1,0 +1,5 @@
+{
+	"title": "Full md-ast, GitHub flavored markdown, document spec",
+	"$id": "https://example.com/schemas/mdast-gfm.schema.json",
+	"$ref": "./elements/root.json"
+}

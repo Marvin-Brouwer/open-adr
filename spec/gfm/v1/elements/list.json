@@ -1,0 +1,39 @@
+{
+	"type": "object",
+	"properties": {
+		"type": {
+			"const": "list",
+			"order": 0
+		},
+		"ordered": {
+			"type": "boolean",
+			"order": 1
+		},
+		"start": {
+			"type": "number",
+			"order": 2
+		},
+		"spread": {
+			"type": "boolean",
+			"order": 3
+		},
+		"children": {
+			"items": {
+				"$ref": "./list-item.json"
+			},
+			"type": "array",
+			"order": 4,
+			"additionalItems": false,
+			"unevaluatedItems": false
+		}
+	},
+	"required": [
+		"type",
+		"ordered",
+		"start",
+		"spread",
+		"children"
+	],
+	"additionalProperties": false,
+	"unevaluatedProperties": false
+}

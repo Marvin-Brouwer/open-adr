@@ -1,0 +1,14 @@
+{
+	"type": "object",
+	"properties": {
+		"type": {
+			"const": "thematicBreak",
+			"order": 0
+		}
+	},
+	"required": [
+		"type"
+	],
+	"additionalProperties": false,
+	"unevaluatedProperties": false
+}
