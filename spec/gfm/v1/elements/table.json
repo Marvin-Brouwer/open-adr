@@ -6,26 +6,21 @@
 			"order": 0
 		},
 		"align": {
-			"items": {
-				"anyOf": [
-					{
-						"const": "left"
-					},
-					{
-						"const": "right"
-					},
-					{
-						"const": "center"
-					},
-					{
-						"type": "null"
-					}
-				]
-			},
-			"type": "array",
-			"order": 1,
-			"additionalItems": false,
-			"unevaluatedItems": false
+			"enum": [
+				{
+					"const": "left"
+				},
+				{
+					"const": "right"
+				},
+				{
+					"const": "center"
+				},
+				{
+					"type": "null"
+				}
+			],
+			"order": 1
 		},
 		"children": {
 			"items": {

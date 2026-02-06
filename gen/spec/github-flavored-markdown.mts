@@ -108,6 +108,7 @@ paragraph
 		type: s.required.const('paragraph'),
 		children: s.required.array(s.ref(() => inlineNode)),
 	})
+	.order('loose')
 
 // Heading
 heading
@@ -116,12 +117,14 @@ heading
 		depth: s.required.number(),
 		children: s.required.array(s.ref(() => inlineNode)),
 	})
+	.order('loose')
 
 // ThematicBreak
 thematicBreak
 	.object({
 		type: s.required.const('thematicBreak'),
 	})
+	.order('loose')
 
 // Blockquote
 blockquote
@@ -129,6 +132,7 @@ blockquote
 		type: s.required.const('blockquote'),
 		children: s.required.array(s.ref(() => blockNode)),
 	})
+	.order('loose')
 
 // List
 list
@@ -139,6 +143,7 @@ list
 		spread: s.required.boolean(),
 		children: s.required.array(s.ref(() => listItem)),
 	})
+	.order('loose')
 
 // ListItem
 listItem
@@ -148,6 +153,7 @@ listItem
 		spread: s.required.boolean(),
 		children: s.required.array(s.ref(() => blockNode)),
 	})
+	.order('loose')
 
 // Code
 code
@@ -157,6 +163,7 @@ code
 		meta: s.anyOf(s.required.string(), s.required.null()),
 		value: s.required.string(),
 	})
+	.order('loose')
 
 // HTML
 html
@@ -164,6 +171,7 @@ html
 		type: s.required.const('html'),
 		value: s.required.string(),
 	})
+	.order('loose')
 
 // YAML
 yaml
@@ -171,6 +179,7 @@ yaml
 		type: s.required.const('yaml'),
 		value: s.required.string(),
 	})
+	.order('loose')
 
 // Definition
 definition
@@ -180,6 +189,7 @@ definition
 		url: s.required.string(),
 		title: s.anyOf(s.required.string(), s.required.null()),
 	})
+	.order('loose')
 
 // FootnoteDefinition
 footnoteDefinition
@@ -188,14 +198,16 @@ footnoteDefinition
 		identifier: s.required.string(),
 		children: s.required.array(s.ref(() => blockNode)),
 	})
+	.order('loose')
 
 // Table
 table
 	.object({
 		type: s.required.const('table'),
-		align: s.array(s.anyOf(s.const('left'), s.const('right'), s.const('center'), s.null())),
+		align: s.enum(s.const('left'), s.const('right'), s.const('center'), s.null()),
 		children: s.required.array(s.ref(() => tableRow)),
 	})
+	.order('loose')
 
 // TableRow
 tableRow
@@ -203,6 +215,7 @@ tableRow
 		type: s.required.const('tableRow'),
 		children: s.required.array(s.ref(() => tableCell)),
 	})
+	.order('loose')
 
 // TableCell
 tableCell
@@ -210,18 +223,21 @@ tableCell
 		type: s.required.const('tableCell'),
 		children: s.required.array(s.ref(() => inlineNode)),
 	})
+	.order('loose')
 
 // Custom nodes
 customBlockNode
 	.object({
 		type: s.required.string(),
 	})
+	.order('loose')
 	.allowAdditional()
 
 customInlineNode
 	.object({
 		type: s.required.string(),
 	})
+	.order('loose')
 	.allowAdditional()
 
 // Inline nodes
@@ -230,44 +246,51 @@ text
 		type: s.required.const('text'),
 		value: s.required.string(),
 	})
+	.order('loose')
 
 textSingleLine
 	.object({
 		type: s.required.const('text'),
 		value: s.required.string(),
 	})
+	.order('loose')
 
 strong
 	.object({
 		type: s.required.const('strong'),
 		children: s.required.array(s.ref(() => inlineNode)),
 	})
+	.order('loose')
 
 emphasis
 	.object({
 		type: s.required.const('emphasis'),
 		children: s.required.array(s.ref(() => inlineNode)),
 	})
+	.order('loose')
 
 strikethrough
 	.object({
 		type: s.required.const('strikethrough'),
 		children: s.required.array(s.ref(() => inlineNode)),
 	})
+	.order('loose')
 
 inlineCode
 	.object({
 		type: s.required.const('inlineCode'),
 		value: s.required.string(),
 	})
+	.order('loose')
 
 link
 	.object({
 		type: s.required.const('link'),
 		url: s.required.string(),
-		title: s.anyOf(s.required.string(), s.required.null()),
+		title: s.oneOf(s.required.string(), s.required.null()),
 		children: s.required.array(s.ref(() => inlineNode)),
 	})
+	.order('loose')
 
 linkReference
 	.object({
@@ -277,6 +300,7 @@ linkReference
 		referenceType: s.anyOf(s.required.string(), s.required.null()),
 		children: s.required.array(s.ref(() => inlineNode)),
 	})
+	.order('loose')
 
 image
 	.object({
@@ -285,6 +309,7 @@ image
 		alt: s.anyOf(s.required.string(), s.required.null()),
 		title: s.anyOf(s.required.string(), s.required.null()),
 	})
+	.order('loose')
 
 imageReference
 	.object({
@@ -292,18 +317,21 @@ imageReference
 		identifier: s.required.string(),
 		label: s.anyOf(s.required.string(), s.required.null()),
 	})
+	.order('loose')
 	.allowAdditional()
 
 breakNode
 	.object({
 		type: s.required.const('break'),
 	})
+	.order('loose')
 
 footnoteReference
 	.object({
 		type: s.required.const('footnoteReference'),
 		identifier: s.required.string(),
 	})
+	.order('loose')
 
 // finally, write all schemas
 await s.write()

@@ -206,18 +206,18 @@ describe(pluginName, () => {
 			const fileResult = await sut.process(invalidDocument)
 
 			// ASSERT
-			assert.deepEqual(fileResult.messages[0].message, 'Expected absolute value of \'Example\', got \'Wrong!\' instead')
-			assert.deepEqual(fileResult.messages[0].expected, ['Example'])
+			assert.deepEqual(fileResult.messages[0].message, 'You provided more elements than the schema expects, expected \'1\' elements, got \'2\' instead')
+			assert.isUndefined(fileResult.messages[0].expected)
 			assert.deepEqual(fileResult.messages[0].place, {
 				end: {
-					column: 9,
-					line: 5,
-					offset: 54,
+					column: 23,
+					line: 8,
+					offset: 160,
 				},
 				start: {
-					column: 3,
-					line: 5,
-					offset: 48,
+					column: 1,
+					line: 7,
+					offset: 57,
 				},
 			})
 		})

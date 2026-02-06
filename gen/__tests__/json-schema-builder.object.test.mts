@@ -96,7 +96,7 @@ describe('JSON Schema Builder - Object Schemas', () => {
 	})
 
 	describe('Property Ordering', () => {
-		it('should order properties by declaration order in strict mode', () => {
+		it('should order properties by declaration order in strict mode with order value', () => {
 			const s = jsonSchema({ outputDirectory: testOutputDirectory })
 			const schema = s.schema('test.json')
 
@@ -111,6 +111,27 @@ describe('JSON Schema Builder - Object Schemas', () => {
 			expect(properties?.firstName.order).toBe(0)
 			expect(properties?.lastName.order).toBe(1)
 			expect(properties?.age.order).toBe(2)
+		})
+
+		it('should order properties by declaration order in loose mode without order value', () => {
+			const s = jsonSchema({ outputDirectory: testOutputDirectory })
+			const schema = s.schema('test.json')
+
+			schema
+				.object({
+					firstName: s.required.string(),
+					lastName: s.required.string(),
+					age: s.required.number(),
+				})
+				.order('loose')
+
+			// TODO fix this tests, TODO this should work the same for array/tuples
+			// The order property just shouldn't be there on loose mode, the order or properties/items should remain
+			const result = s.build()
+			const properties = result['test.json'].properties
+			expect(properties?.firstName.order).toBeUndefined()
+			expect(properties?.lastName.order).toBeUndefined()
+			expect(properties?.age.order).toBeUndefined()
 		})
 
 		it('should maintain property order when building', () => {

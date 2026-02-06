@@ -10,7 +10,7 @@
 			"order": 1
 		},
 		"title": {
-			"anyOf": [
+			"oneOf": [
 				{
 					"type": "string"
 				},

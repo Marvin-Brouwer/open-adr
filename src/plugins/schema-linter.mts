@@ -4,7 +4,7 @@ import { getSchemaData } from '../helpers/schema-data.mts'
 import { definePlugin } from '../move-later/remark-plugin/plugin.mts'
 
 import type { ErrorObject } from 'ajv'
-import type { Node } from 'unist'
+import type { Literal, Node } from 'unist'
 
 export const pluginName = 'remark-plugin:odr-schema-linter'
 export default definePlugin({
@@ -27,9 +27,10 @@ export default definePlugin({
 				}
 
 				// We need an object, for the pos, so we take the parent if it's not an object.
-				const sourceNode: Node | undefined = typeof sourceTrail[0] === 'object'
-					? sourceTrail[0] as Node | undefined ?? undefined
-					: sourceTrail[1] as Node | undefined ?? undefined
+				const sourceNode: Node | undefined
+					= typeof sourceTrail[0] === 'object' && !Array.isArray(sourceTrail[0])
+						? sourceTrail[0] as Node | undefined ?? undefined
+						: sourceTrail[1] as Node | undefined ?? undefined
 
 				const errorMessage = formatMessage(validationError, sourceTrail[0])
 
@@ -96,6 +97,12 @@ function formatMessage(validationError: ErrorObject, value: Node | JsonPrimitive
 			const testedValue = (value as string | undefined)?.toString() ?? 'undefined'
 			return `Expected absolute value of '${validationError.params.allowedValue}', got '${testedValue}' instead`
 		}
+		case 'additionalItems': {
+			// This is an array of value nodes (TODO more testing)
+			const elements = value as unknown as Literal[]
+			const testedValue = elements.filter(v => v.value !== '<br />').length
+			return `You provided more elements than the schema expects, expected '${validationError.params.limit}' elements, got '${testedValue}' instead`
+		}
 	}
 
 	console.warn(validationError)
@@ -106,6 +113,9 @@ function getExpectedValues(validationError: ErrorObject) {
 	switch (validationError.keyword) {
 		case 'const': {
 			return [validationError.params.allowedValue as string]
+		}
+		case 'additionalItems': {
+			return
 		}
 	}
 
