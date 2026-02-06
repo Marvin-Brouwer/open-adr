@@ -125,8 +125,6 @@ describe('JSON Schema Builder - Object Schemas', () => {
 				})
 				.order('loose')
 
-			// TODO fix this tests, TODO this should work the same for array/tuples
-			// The order property just shouldn't be there on loose mode, the order or properties/items should remain
 			const result = s.build()
 			const properties = result['test.json'].properties
 			expect(properties?.firstName.order).toBeUndefined()

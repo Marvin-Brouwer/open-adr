@@ -94,5 +94,44 @@ describe('JSON Schema Builder - Array Schemas', () => {
 				unevaluatedItems: false,
 			})
 		})
+
+		it('should order tuple items by declaration order in strict mode with order value', () => {
+			const s = jsonSchema({ outputDirectory: testOutputDirectory })
+			const schema = s.schema('test.json')
+
+			schema.tuple(s.string(), s.number(), s.boolean())
+
+			const result = s.build()
+			const prefixItems = result['test.json'].prefixItems
+			expect(prefixItems?.[0].order).toBe(0)
+			expect(prefixItems?.[1].order).toBe(1)
+			expect(prefixItems?.[2].order).toBe(2)
+		})
+
+		it('should order tuple items by declaration order in loose mode without order value', () => {
+			const s = jsonSchema({ outputDirectory: testOutputDirectory })
+			const schema = s.schema('test.json')
+
+			schema.tuple(s.string(), s.number(), s.boolean()).order('loose')
+
+			const result = s.build()
+			const prefixItems = result['test.json'].prefixItems
+			expect(prefixItems?.[0].order).toBeUndefined()
+			expect(prefixItems?.[1].order).toBeUndefined()
+			expect(prefixItems?.[2].order).toBeUndefined()
+		})
+
+		it('should maintain tuple item order when building', () => {
+			const s = jsonSchema({ outputDirectory: testOutputDirectory })
+			const schema = s.schema('test.json')
+
+			schema.tuple(s.boolean(), s.string(), s.number())
+
+			const result = s.build()
+			const prefixItems = result['test.json'].prefixItems
+			expect(prefixItems?.[0].type).toBe('boolean')
+			expect(prefixItems?.[1].type).toBe('string')
+			expect(prefixItems?.[2].type).toBe('number')
+		})
 	})
 })
