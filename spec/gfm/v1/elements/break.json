@@ -2,8 +2,7 @@
 	"type": "object",
 	"properties": {
 		"type": {
-			"const": "break",
-			"order": 0
+			"const": "break"
 		}
 	},
 	"required": [

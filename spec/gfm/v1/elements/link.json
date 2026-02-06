@@ -2,12 +2,10 @@
 	"type": "object",
 	"properties": {
 		"type": {
-			"const": "link",
-			"order": 0
+			"const": "link"
 		},
 		"url": {
-			"type": "string",
-			"order": 1
+			"type": "string"
 		},
 		"title": {
 			"oneOf": [
@@ -17,15 +15,13 @@
 				{
 					"type": "null"
 				}
-			],
-			"order": 2
+			]
 		},
 		"children": {
 			"items": {
 				"$ref": "./inline-node.json"
 			},
 			"type": "array",
-			"order": 3,
 			"additionalItems": false,
 			"unevaluatedItems": false
 		}

@@ -2,8 +2,7 @@
 	"type": "object",
 	"properties": {
 		"type": {
-			"const": "table",
-			"order": 0
+			"const": "table"
 		},
 		"align": {
 			"enum": [
@@ -19,15 +18,13 @@
 				{
 					"type": "null"
 				}
-			],
-			"order": 1
+			]
 		},
 		"children": {
 			"items": {
 				"$ref": "./table-row.json"
 			},
 			"type": "array",
-			"order": 2,
 			"additionalItems": false,
 			"unevaluatedItems": false
 		}

@@ -2,15 +2,13 @@
 	"type": "object",
 	"properties": {
 		"type": {
-			"const": "tableCell",
-			"order": 0
+			"const": "tableCell"
 		},
 		"children": {
 			"items": {
 				"$ref": "./inline-node.json"
 			},
 			"type": "array",
-			"order": 1,
 			"additionalItems": false,
 			"unevaluatedItems": false
 		}

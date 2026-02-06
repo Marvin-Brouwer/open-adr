@@ -2,8 +2,7 @@
 	"type": "object",
 	"properties": {
 		"type": {
-			"const": "listItem",
-			"order": 0
+			"const": "listItem"
 		},
 		"checked": {
 			"anyOf": [
@@ -13,19 +12,16 @@
 				{
 					"type": "null"
 				}
-			],
-			"order": 1
+			]
 		},
 		"spread": {
-			"type": "boolean",
-			"order": 2
+			"type": "boolean"
 		},
 		"children": {
 			"items": {
 				"$ref": "./block-node.json"
 			},
 			"type": "array",
-			"order": 3,
 			"additionalItems": false,
 			"unevaluatedItems": false
 		}

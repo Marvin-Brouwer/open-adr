@@ -137,6 +137,11 @@ export function emitSchema(
 			continue
 		}
 
+		// Skip order property in loose mode
+		if (key === 'order' && orderMode === 'loose') {
+			continue
+		}
+
 		// Skip recursive processing for primitive arrays like 'required' and 'enum'
 		if (key === 'required') {
 			output.required = value as string[]

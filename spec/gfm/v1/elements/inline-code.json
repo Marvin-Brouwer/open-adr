@@ -2,12 +2,10 @@
 	"type": "object",
 	"properties": {
 		"type": {
-			"const": "inlineCode",
-			"order": 0
+			"const": "inlineCode"
 		},
 		"value": {
-			"type": "string",
-			"order": 1
+			"type": "string"
 		}
 	},
 	"required": [

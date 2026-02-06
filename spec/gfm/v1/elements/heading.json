@@ -2,19 +2,16 @@
 	"type": "object",
 	"properties": {
 		"type": {
-			"const": "heading",
-			"order": 0
+			"const": "heading"
 		},
 		"depth": {
-			"type": "number",
-			"order": 1
+			"type": "number"
 		},
 		"children": {
 			"items": {
 				"$ref": "./inline-node.json"
 			},
 			"type": "array",
-			"order": 2,
 			"additionalItems": false,
 			"unevaluatedItems": false
 		}

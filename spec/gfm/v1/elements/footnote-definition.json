@@ -2,19 +2,16 @@
 	"type": "object",
 	"properties": {
 		"type": {
-			"const": "footnoteDefinition",
-			"order": 0
+			"const": "footnoteDefinition"
 		},
 		"identifier": {
-			"type": "string",
-			"order": 1
+			"type": "string"
 		},
 		"children": {
 			"items": {
 				"$ref": "./block-node.json"
 			},
 			"type": "array",
-			"order": 2,
 			"additionalItems": false,
 			"unevaluatedItems": false
 		}

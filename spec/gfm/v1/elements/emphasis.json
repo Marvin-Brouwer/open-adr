@@ -2,15 +2,13 @@
 	"type": "object",
 	"properties": {
 		"type": {
-			"const": "emphasis",
-			"order": 0
+			"const": "emphasis"
 		},
 		"children": {
 			"items": {
 				"$ref": "./inline-node.json"
 			},
 			"type": "array",
-			"order": 1,
 			"additionalItems": false,
 			"unevaluatedItems": false
 		}

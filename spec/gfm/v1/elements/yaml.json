@@ -2,12 +2,10 @@
 	"type": "object",
 	"properties": {
 		"type": {
-			"const": "yaml",
-			"order": 0
+			"const": "yaml"
 		},
 		"value": {
-			"type": "string",
-			"order": 1
+			"type": "string"
 		}
 	},
 	"required": [

@@ -2,16 +2,13 @@
 	"type": "object",
 	"properties": {
 		"type": {
-			"const": "definition",
-			"order": 0
+			"const": "definition"
 		},
 		"identifier": {
-			"type": "string",
-			"order": 1
+			"type": "string"
 		},
 		"url": {
-			"type": "string",
-			"order": 2
+			"type": "string"
 		},
 		"title": {
 			"anyOf": [
@@ -21,8 +18,7 @@
 				{
 					"type": "null"
 				}
-			],
-			"order": 3
+			]
 		}
 	},
 	"required": [

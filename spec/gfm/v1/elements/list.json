@@ -2,27 +2,22 @@
 	"type": "object",
 	"properties": {
 		"type": {
-			"const": "list",
-			"order": 0
+			"const": "list"
 		},
 		"ordered": {
-			"type": "boolean",
-			"order": 1
+			"type": "boolean"
 		},
 		"start": {
-			"type": "number",
-			"order": 2
+			"type": "number"
 		},
 		"spread": {
-			"type": "boolean",
-			"order": 3
+			"type": "boolean"
 		},
 		"children": {
 			"items": {
 				"$ref": "./list-item.json"
 			},
 			"type": "array",
-			"order": 4,
 			"additionalItems": false,
 			"unevaluatedItems": false
 		}
