@@ -1,4 +1,4 @@
-import { mdLinter, mdSchema, mdSchemaInfo, mdSettings, sectionify, unsectionify } from '@md-schema/md'
+import { mdLinter, mdSchema, mdSchemaInfo, mdSettings, preserveGithubAlerts, sectionify, unsectionify } from '@md-schema/md'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkLint from 'remark-lint'
 import remarkLintCheckbox from 'remark-lint-checkbox-character-style'
@@ -28,10 +28,11 @@ export default {
 		unsectionify,
 
 		// Fix for vscode markdown-previewer
+		preserveGithubAlerts,
 		[remarkStringify, {
 			checklist: true,
 			fences: true,
-			listItemIndent: '1',
+			listItemIndent: 'one',
 			gfm: true,
 		}],
 	],

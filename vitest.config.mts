@@ -11,6 +11,13 @@ export default defineConfig({
 				fallbackCJS: true,
 			},
 		},
+		// Ensure each package's tests run in their own isolated thread
+		// to prevent Symbol identity issues across workspace packages
+		poolOptions: {
+			threads: {
+				isolate: true,
+			},
+		},
 		reporters: [
 			// Show in terminal
 			['default'],
