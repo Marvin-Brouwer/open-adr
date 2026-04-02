@@ -1,0 +1,46 @@
+{
+	"name": "@md-schema/odr",
+	"version": "1.0.0",
+	"description": "",
+	"type": "module",
+	"exports": {
+		".": {
+			"import": "./dist/_module.js",
+			"types": "./dist/_module.d.ts"
+		}
+	},
+	"scripts": {
+		"build": "tsup-node",
+		"remark:lint": "remark doc/odr/**/*.md --output",
+		"remark:reset": "move-file ./.remarkrc.mjs ./.remarkrc.mjs_ && move-file ./.remarkrc.mjs_ ./.remarkrc.mjs",
+		"debug": "pnpm build && pnpm remark:reset && pnpm remark:lint",
+		"gen:json-schema": "tsx ./gen/spec/_spec.mts"
+	},
+	"dependencies": {
+		"ajv": "^8.17.1",
+		"ajv-errors": "^3.0.0",
+		"micromatch": "^4.0.8",
+		"remark": "^15.0.1",
+		"remark-frontmatter": "^5.0.0",
+		"remark-lint": "^10.0.1",
+		"remark-lint-checkbox-character-style": "^5.0.1",
+		"remark-parse": "^11.0.0",
+		"remark-stringify": "^11.0.0",
+		"unified-language-server": "^4.0.1",
+		"unist-util-visit": "^5.0.0",
+		"yaml": "^2.8.1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@types/micromatch": "^4.0.10",
+		"@types/unist": "^3.0.3",
+		"move-file-cli": "^3.0.0",
+		"remark-cli": "^12.0.1",
+		"tsup": "^8.5.0",
+		"tsx": "^4.21.0",
+		"unified": "^11.0.5",
+		"vfile": "^6.0.3"
+	}
+}

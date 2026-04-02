@@ -1,10 +1,9 @@
+import { odrLinter, odrSchema, odrSchemaInfo, odrSettings } from '@md-schema/odr'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkLint from 'remark-lint'
 import remarkLintCheckbox from 'remark-lint-checkbox-character-style'
 import remarkParse from 'remark-parse'
 import remarkStringify from 'remark-stringify'
-
-import { odrLinter, odrSchema, odrSchemaInfo, odrSettings } from './dist/_module.js'
 
 export default {
 	settings: {

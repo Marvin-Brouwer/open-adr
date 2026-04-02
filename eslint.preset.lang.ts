@@ -17,7 +17,9 @@ export const lintTs = defineConfig([
 	{
 		languageOptions: {
 			parserOptions: {
-				projectService: true,
+				projectService: {
+					allowDefaultProject: ['demo/.remarkrc.mjs'],
+				},
 				tsconfigRootDir: import.meta.dirname,
 			},
 		},

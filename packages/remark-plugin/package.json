@@ -1,0 +1,10 @@
+{
+	"name": "@md-schema/remark-plugin",
+	"version": "1.0.0",
+	"description": "",
+	"type": "module",
+	"scripts": {},
+	"keywords": [],
+	"author": "",
+	"license": "ISC"
+}
