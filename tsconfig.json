@@ -8,6 +8,9 @@
     },
     "references": [
         {
+            "path": "./packages/remark-plugin"
+        },
+        {
             "path": "./packages/odr"
         }
     ]

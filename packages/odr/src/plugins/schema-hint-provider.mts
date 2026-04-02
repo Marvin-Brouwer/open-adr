@@ -1,5 +1,6 @@
+import { definePlugin } from '@md-schema/remark-plugin'
+
 import { checkFileIncluded } from '../files/file-include.mts'
-import { definePlugin } from '../move-later/remark-plugin/plugin.mts'
 
 // TODO parse schema and figure this out
 const pluginName = 'remark-plugin:odr-schema-provider'

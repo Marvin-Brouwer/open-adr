@@ -28,7 +28,8 @@
 		"remark-stringify": "^11.0.0",
 		"unified-language-server": "^4.0.1",
 		"unist-util-visit": "^5.0.0",
-		"yaml": "^2.8.1"
+		"yaml": "^2.8.1",
+		"@md-schema/remark-plugin": "workspace:^"
 	},
 	"keywords": [],
 	"author": "",

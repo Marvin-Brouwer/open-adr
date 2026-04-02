@@ -1,12 +1,12 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
+import { definePlugin, type RemarkPluginContext } from '@md-schema/remark-plugin'
 import Ajv, { type JSONSchemaType } from 'ajv/dist/2020.js'
 
 import { debug } from '../constants.mts'
 import { checkFileIncluded } from '../files/file-include.mts'
 import { getFrontMatterData, FrontMatterError } from '../helpers/front-matter.mts'
-import { definePlugin, type RemarkPluginContext } from '../move-later/remark-plugin/plugin.mts'
 import { getOdrSettings } from '../settings.mts'
 
 export const odrSchemaKey = 'odr:schema' as const

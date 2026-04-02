@@ -4,7 +4,7 @@ import { assert, describe, test } from 'vitest'
 import { odrSettings } from '../../../src/_module.mts'
 import { checkFileIncluded } from '../../../src/files/file-include.mts'
 
-import type { RemarkPluginContext, RemarkPluginSettings } from '../../../src/move-later/remark-plugin/plugin.mts'
+import type { RemarkPluginContext, RemarkPluginSettings } from '@md-schema/remark-plugin'
 
 describe('checkFileIncluded', () => {
 	test('not in include list', () => {

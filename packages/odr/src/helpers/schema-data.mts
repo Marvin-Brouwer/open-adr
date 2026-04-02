@@ -2,7 +2,7 @@ import { VFile } from 'vfile'
 
 import { type OdrFileMetaData, odrSchemaKey } from '../plugins/schema-loader.mts'
 
-import type { RemarkPluginContext } from '../move-later/remark-plugin/plugin.mts'
+import type { RemarkPluginContext } from '@md-schema/remark-plugin'
 import type { ValidateFunction } from 'ajv'
 
 export const getSchemaData = (fileOrContext: VFile | RemarkPluginContext) => {

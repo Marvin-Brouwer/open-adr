@@ -1,4 +1,4 @@
-import type { RemarkPluginContext } from './move-later/remark-plugin/plugin.mts'
+import type { RemarkPluginContext } from '@md-schema/remark-plugin'
 
 export type OdrSettingsDefinition = Partial<OdrSettings>
 export interface OdrSettings {

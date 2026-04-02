@@ -1,7 +1,8 @@
+import { definePlugin } from '@md-schema/remark-plugin'
+
 import { checkFileIncluded } from '../files/file-include.mts'
 import { type JsonPrimitive, trailJsonPath } from '../helpers/json-path.mts'
 import { getSchemaData } from '../helpers/schema-data.mts'
-import { definePlugin } from '../move-later/remark-plugin/plugin.mts'
 
 import type { ErrorObject } from 'ajv'
 import type { Literal, Node } from 'unist'

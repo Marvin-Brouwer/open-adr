@@ -4,7 +4,7 @@ import { Ajv, type AnySchemaObject } from 'ajv'
 
 import { odrSchemaKey } from '../../src/plugins/schema-loader.mts'
 
-import type { PluginBody } from '../../src/move-later/remark-plugin/plugin.mts'
+import type { PluginBody } from '@md-schema/remark-plugin'
 import type { Transformer } from 'unified'
 
 function createValidator(references: string[]) {

@@ -8,6 +8,6 @@
 		"**/node_modules/*"
 	],
 	"include": [
-		"../../demo/.remarkrc.mjs"
+		".remarkrc.mjs"
 	]
 }

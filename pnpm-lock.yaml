@@ -86,6 +86,9 @@ importers:
 
   packages/odr:
     dependencies:
+      '@md-schema/remark-plugin':
+        specifier: workspace:^
+        version: link:../remark-plugin
       ajv:
         specifier: ^8.17.1
         version: 8.17.1
@@ -148,7 +151,24 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
 
-  packages/remark-plugin: {}
+  packages/remark-plugin:
+    dependencies:
+      '@types/unist':
+        specifier: ^3.0.3
+        version: 3.0.3
+      remark:
+        specifier: ^15.0.1
+        version: 15.0.1
+      unified:
+        specifier: ^11.0.5
+        version: 11.0.5
+      vfile:
+        specifier: ^6.0.3
+        version: 6.0.3
+    devDependencies:
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1)
 
 packages:
 

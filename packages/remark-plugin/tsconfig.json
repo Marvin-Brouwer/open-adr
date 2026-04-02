@@ -4,12 +4,7 @@
 		"target": "esnext",
 		"module": "esnext",
 		"moduleResolution": "bundler",
-		"moduleDetection": "force",
-		"paths": {
-			"@md-schema/remark-plugin": [
-				"../remark-plugin/src/_module.mts"
-			]
-		}
+		"moduleDetection": "force"
 	},
 	"references": [
 		{
