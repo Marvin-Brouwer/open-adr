@@ -96,6 +96,9 @@ importers:
 
   packages/odr:
     dependencies:
+      '@md-schema/builder':
+        specifier: workspace:^
+        version: link:../builder
       '@md-schema/remark-plugin':
         specifier: workspace:^
         version: link:../remark-plugin

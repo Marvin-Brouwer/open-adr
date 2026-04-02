@@ -8,6 +8,9 @@
 		"paths": {
 			"@md-schema/remark-plugin": [
 				"../remark-plugin/src/_module.mts"
+			],
+			"@md-schema/builder": [
+				"../builder/src/_module.mts"
 			]
 		}
 	},
