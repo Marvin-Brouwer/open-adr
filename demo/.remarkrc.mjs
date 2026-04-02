@@ -1,4 +1,4 @@
-import { odrLinter, odrSchema, odrSchemaInfo, odrSettings } from '@md-schema/odr'
+import { odrLinter, odrSchema, odrSchemaInfo, odrSettings, sectionify, unsectionify } from '@md-schema/odr'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkLint from 'remark-lint'
 import remarkLintCheckbox from 'remark-lint-checkbox-character-style'
@@ -21,9 +21,11 @@ export default {
 
 		// Configure ODR
 		remarkFrontmatter,
+		sectionify,
 		odrSchema,
 		odrLinter,
 		odrSchemaInfo,
+		unsectionify,
 
 		// Fix for vscode markdown-previewer
 		[remarkStringify, {

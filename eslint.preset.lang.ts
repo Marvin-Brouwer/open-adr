@@ -2,6 +2,10 @@ import js from '@eslint/js'
 import { defineConfig } from 'eslint/config'
 import tseslint from 'typescript-eslint'
 
+const tsTypeCheckedConfigs = Array.isArray(tseslint.configs.recommendedTypeChecked)
+	? tseslint.configs.recommendedTypeChecked
+	: [tseslint.configs.recommendedTypeChecked]
+
 export const lintJs = defineConfig([
 	{
 		plugins: {
@@ -12,14 +16,15 @@ export const lintJs = defineConfig([
 ])
 
 export const lintTs = defineConfig([
-	// eslint-disable-next-line import/no-named-as-default-member
-	tseslint.configs.recommendedTypeChecked,
+	...tsTypeCheckedConfigs.map(config => ({
+		...config,
+		files: ['**/*.{ts,mts,cts,tsx}'],
+	})),
 	{
+		files: ['**/*.{ts,mts,cts,tsx}'],
 		languageOptions: {
 			parserOptions: {
-				projectService: {
-					allowDefaultProject: ['demo/.remarkrc.mjs'],
-				},
+				projectService: true,
 				tsconfigRootDir: import.meta.dirname,
 			},
 		},
