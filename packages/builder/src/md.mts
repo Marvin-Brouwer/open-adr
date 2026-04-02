@@ -22,6 +22,17 @@ export interface CodeBlockDescriptor extends BaseDescriptorOptions {
 
 export interface ListDescriptor extends BaseDescriptorOptions {
 	readonly [DescriptorKind]: 'list'
+	readonly ordered?: boolean
+	readonly minItems?: number
+	readonly maxItems?: number
+}
+
+export interface TableDescriptor extends BaseDescriptorOptions {
+	readonly [DescriptorKind]: 'table'
+}
+
+export interface ThematicBreakDescriptor extends BaseDescriptorOptions {
+	readonly [DescriptorKind]: 'thematicBreak'
 }
 
 export interface FrontmatterDescriptor extends BaseDescriptorOptions {
@@ -34,6 +45,8 @@ export type MdDescriptor
 	| BlockquoteDescriptor
 	| CodeBlockDescriptor
 	| ListDescriptor
+	| TableDescriptor
+	| ThematicBreakDescriptor
 	| FrontmatterDescriptor
 
 type HeadingOptions = Omit<HeadingDescriptor, typeof DescriptorKind | 'level'>
@@ -41,6 +54,8 @@ type ParagraphOptions = Omit<ParagraphDescriptor, typeof DescriptorKind>
 type BlockquoteOptions = Omit<BlockquoteDescriptor, typeof DescriptorKind>
 type CodeBlockOptions = Omit<CodeBlockDescriptor, typeof DescriptorKind>
 type ListOptions = Omit<ListDescriptor, typeof DescriptorKind>
+type TableOptions = Omit<TableDescriptor, typeof DescriptorKind>
+type ThematicBreakOptions = Omit<ThematicBreakDescriptor, typeof DescriptorKind>
 type FrontmatterOptions = Omit<FrontmatterDescriptor, typeof DescriptorKind>
 
 export const md = {
@@ -58,6 +73,12 @@ export const md = {
 	},
 	list(options?: ListOptions): ListDescriptor {
 		return { ...options, [DescriptorKind]: 'list' }
+	},
+	table(options?: TableOptions): TableDescriptor {
+		return { ...options, [DescriptorKind]: 'table' }
+	},
+	thematicBreak(options?: ThematicBreakOptions): ThematicBreakDescriptor {
+		return { ...options, [DescriptorKind]: 'thematicBreak' }
 	},
 	frontmatter(options?: FrontmatterOptions): FrontmatterDescriptor {
 		return { ...options, [DescriptorKind]: 'frontmatter' }

@@ -634,4 +634,170 @@ describe('template validation', () => {
 			assert.include(errors(results)[0].message, 'Missing required section "Decision"')
 		})
 	})
+
+	describe('table', () => {
+		test('matches table node', () => {
+			const t = template({
+				children: schema.strictOrder(
+					md.table(),
+				),
+			})
+
+			const results = t.validate(root(n('table', { children: [] })))
+			assert.isEmpty(errors(results))
+		})
+
+		test('errors on missing required table', () => {
+			const t = template({
+				children: schema.strictOrder(
+					md.table({ required: true }),
+				),
+			})
+
+			const results = t.validate(root())
+			assert.equal(errors(results).length, 1)
+			assert.include(errors(results)[0].message, 'Missing required table')
+		})
+
+		test('skips optional missing table', () => {
+			const t = template({
+				children: schema.strictOrder(
+					md.table({ optional: true }),
+					md.paragraph(),
+				),
+			})
+
+			const results = t.validate(root(paragraph()))
+			assert.isEmpty(errors(results))
+		})
+	})
+
+	describe('thematicBreak', () => {
+		test('matches thematicBreak node', () => {
+			const t = template({
+				children: schema.strictOrder(
+					md.paragraph(),
+					md.thematicBreak(),
+					md.paragraph(),
+				),
+			})
+
+			const results = t.validate(root(paragraph(), n('thematicBreak'), paragraph()))
+			assert.isEmpty(errors(results))
+		})
+
+		test('errors on missing required thematicBreak', () => {
+			const t = template({
+				children: schema.strictOrder(
+					md.thematicBreak({ required: true }),
+				),
+			})
+
+			const results = t.validate(root())
+			assert.equal(errors(results).length, 1)
+			assert.include(errors(results)[0].message, 'Missing required thematic break')
+		})
+
+		test('skips optional missing thematicBreak', () => {
+			const t = template({
+				children: schema.strictOrder(
+					md.thematicBreak({ optional: true }),
+				),
+			})
+
+			const results = t.validate(root())
+			assert.isEmpty(errors(results))
+		})
+	})
+
+	describe('list options', () => {
+		test('matches ordered list when ordered: true', () => {
+			const t = template({
+				children: schema.strictOrder(
+					md.list({ ordered: true }),
+				),
+			})
+
+			const results = t.validate(root(n('list', { ordered: true, children: [] })))
+			assert.isEmpty(errors(results))
+		})
+
+		test('rejects unordered list when ordered: true', () => {
+			const t = template({
+				children: schema.strictOrder(
+					md.list({ ordered: true }),
+				),
+			})
+
+			const results = t.validate(root(n('list', { ordered: false, children: [] })))
+			assert.isNotEmpty(errors(results))
+			assert.include(errors(results)[0].message, 'Missing required ordered list')
+		})
+
+		test('matches unordered list when ordered: false', () => {
+			const t = template({
+				children: schema.strictOrder(
+					md.list({ ordered: false }),
+				),
+			})
+
+			const results = t.validate(root(n('list', { ordered: false, children: [] })))
+			assert.isEmpty(errors(results))
+		})
+
+		test('matches any list when ordered is not specified', () => {
+			const t = template({
+				children: schema.strictOrder(
+					md.list(),
+				),
+			})
+
+			const results = t.validate(root(n('list', { ordered: true, children: [] })))
+			assert.isEmpty(errors(results))
+		})
+
+		test('errors when list has too few items', () => {
+			const t = template({
+				children: schema.strictOrder(
+					md.list({ minItems: 3 }),
+				),
+			})
+
+			const listNode = n('list', {
+				children: [n('listItem'), n('listItem')],
+			})
+			const results = t.validate(root(listNode))
+			assert.equal(errors(results).length, 1)
+			assert.include(errors(results)[0].message, 'at least 3 item(s), found 2')
+		})
+
+		test('errors when list has too many items', () => {
+			const t = template({
+				children: schema.strictOrder(
+					md.list({ maxItems: 2 }),
+				),
+			})
+
+			const listNode = n('list', {
+				children: [n('listItem'), n('listItem'), n('listItem')],
+			})
+			const results = t.validate(root(listNode))
+			assert.equal(errors(results).length, 1)
+			assert.include(errors(results)[0].message, 'at most 2 item(s), found 3')
+		})
+
+		test('passes when list item count is within range', () => {
+			const t = template({
+				children: schema.strictOrder(
+					md.list({ minItems: 1, maxItems: 5 }),
+				),
+			})
+
+			const listNode = n('list', {
+				children: [n('listItem'), n('listItem'), n('listItem')],
+			})
+			const results = t.validate(root(listNode))
+			assert.isEmpty(errors(results))
+		})
+	})
 })

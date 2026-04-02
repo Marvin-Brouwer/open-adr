@@ -72,6 +72,61 @@ describe('md factories', () => {
 			const l = md.list()
 			assert.equal(l[DescriptorKind], 'list')
 		})
+
+		test('supports ordered filter', () => {
+			const l = md.list({ ordered: true })
+			assert.equal(l.ordered, true)
+		})
+
+		test('supports unordered filter', () => {
+			const l = md.list({ ordered: false })
+			assert.equal(l.ordered, false)
+		})
+
+		test('supports minItems', () => {
+			const l = md.list({ minItems: 2 })
+			assert.equal(l.minItems, 2)
+		})
+
+		test('supports maxItems', () => {
+			const l = md.list({ maxItems: 10 })
+			assert.equal(l.maxItems, 10)
+		})
+
+		test('supports minItems and maxItems together', () => {
+			const l = md.list({ minItems: 1, maxItems: 5 })
+			assert.equal(l.minItems, 1)
+			assert.equal(l.maxItems, 5)
+		})
+	})
+
+	describe('table', () => {
+		test('creates table descriptor', () => {
+			const t = md.table()
+			assert.equal(t[DescriptorKind], 'table')
+		})
+
+		test('supports required', () => {
+			const t = md.table({ required: true })
+			assert.equal(t.required, true)
+		})
+
+		test('supports optional', () => {
+			const t = md.table({ optional: true })
+			assert.equal(t.optional, true)
+		})
+	})
+
+	describe('thematicBreak', () => {
+		test('creates thematicBreak descriptor', () => {
+			const tb = md.thematicBreak()
+			assert.equal(tb[DescriptorKind], 'thematicBreak')
+		})
+
+		test('supports optional', () => {
+			const tb = md.thematicBreak({ optional: true })
+			assert.equal(tb.optional, true)
+		})
 	})
 
 	describe('frontmatter', () => {

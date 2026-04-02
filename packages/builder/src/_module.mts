@@ -7,6 +7,8 @@ export type {
 	BlockquoteDescriptor,
 	CodeBlockDescriptor,
 	ListDescriptor,
+	TableDescriptor,
+	ThematicBreakDescriptor,
 	FrontmatterDescriptor,
 	MdDescriptor,
 } from './md.mts'

@@ -221,6 +221,28 @@ function validateSingleNode(
 		results.push(...validateChildren(sec.children, sectionChildren, ignoreTypes, node))
 	}
 
+	if (kind === 'list') {
+		const desc = descriptor
+		const listItems = 'children' in node && Array.isArray(node.children)
+			? node.children as Node[]
+			: []
+		const count = listItems.length
+		if (desc.minItems !== undefined && count < desc.minItems) {
+			results.push({
+				node,
+				message: `List must have at least ${String(desc.minItems)} item(s), found ${String(count)}`,
+				severity: 'error',
+			})
+		}
+		if (desc.maxItems !== undefined && count > desc.maxItems) {
+			results.push({
+				node,
+				message: `List must have at most ${String(desc.maxItems)} item(s), found ${String(count)}`,
+				severity: 'error',
+			})
+		}
+	}
+
 	return results
 }
 
@@ -245,7 +267,16 @@ function nodeTypeMatches(descriptor: NodeDescriptor, node: Node): boolean {
 			return true
 		}
 		case 'list': {
-			return node.type === 'list'
+			if (node.type !== 'list') return false
+			const desc = descriptor
+			if (desc.ordered !== undefined && (!('ordered' in node) || node.ordered !== desc.ordered)) return false
+			return true
+		}
+		case 'table': {
+			return node.type === 'table'
+		}
+		case 'thematicBreak': {
+			return node.type === 'thematicBreak'
 		}
 		case 'frontmatter': {
 			return node.type === 'yaml'
@@ -297,7 +328,16 @@ function descriptorLabel(descriptor: NodeDescriptor): string {
 			return 'code block'
 		}
 		case 'list': {
+			const desc = descriptor
+			if (desc.ordered === true) return 'ordered list'
+			if (desc.ordered === false) return 'unordered list'
 			return 'list'
+		}
+		case 'table': {
+			return 'table'
+		}
+		case 'thematicBreak': {
+			return 'thematic break'
 		}
 		case 'frontmatter': {
 			return 'frontmatter'
