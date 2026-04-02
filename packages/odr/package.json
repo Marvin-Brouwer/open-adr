@@ -17,8 +17,7 @@
 		"build": "tsup-node",
 		"remark:lint": "remark doc/odr/**/*.md --output",
 		"remark:reset": "move-file ./.remarkrc.mjs ./.remarkrc.mjs_ && move-file ./.remarkrc.mjs_ ./.remarkrc.mjs",
-		"debug": "pnpm build && pnpm remark:reset && pnpm remark:lint",
-		"gen:json-schema": "tsx ./gen/spec/_spec.mts"
+		"debug": "pnpm build && pnpm remark:reset && pnpm remark:lint"
 	},
 	"dependencies": {
 		"@md-schema/builder": "workspace:^"
@@ -30,7 +29,6 @@
 		"@types/unist": "^3.0.3",
 		"move-file-cli": "^3.0.0",
 		"remark-cli": "^12.0.1",
-		"tsup": "^8.5.0",
-		"tsx": "^4.21.0"
+		"tsup": "^8.5.0"
 	}
 }

@@ -1,5 +1,6 @@
 import stylistic from '@stylistic/eslint-plugin'
 import { defineConfig } from 'eslint/config'
+import tseslint from 'typescript-eslint'
 
 export const projectConfig = defineConfig([
 	stylistic.configs.customize({
@@ -11,6 +12,14 @@ export const projectConfig = defineConfig([
 		rules: {
 			'@stylistic/indent-binary-ops': ['off'],
 			'unicorn/prefer-node-protocol': ['error'],
+		},
+	},
+	{
+		files: ['**/*.{ts,mts,cts,tsx}'],
+		plugins: {
+			'@typescript-eslint': tseslint.plugin,
+		},
+		rules: {
 			'@typescript-eslint/switch-exhaustiveness-check': ['error', {
 				/** If 'true', allow 'default' cases on switch statements with exhaustive cases. */
 				allowDefaultCaseForExhaustiveSwitch: true,

@@ -1,4 +1,5 @@
 import { DescriptorKind, type BaseDescriptorOptions } from './descriptor.mts'
+
 import type { MdDescriptor } from './md.mts'
 
 export type SchemaDescriptor = SectionDescriptor | OneOrMoreDescriptor
