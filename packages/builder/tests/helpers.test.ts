@@ -20,8 +20,8 @@ function n(type: string, properties?: Record<string, unknown>): Node {
 
 describe('helpers', () => {
 	describe('getNodeText', () => {
-		test('returns empty for null', () => {
-			assert.equal(getNodeText(null), '')
+		test('returns empty for undefined', () => {
+			assert.equal(getNodeText(), '')
 		})
 
 		test('returns value for text node', () => {
@@ -51,11 +51,11 @@ describe('helpers', () => {
 			assert.strictEqual(asArray(array), array)
 		})
 
-		test('returns empty array for null', () => {
-			assert.deepEqual(asArray(null), [])
+		test('returns empty array for undefined', () => {
+			assert.deepEqual(asArray(), [])
 		})
 
-		test('returns empty array for undefined', () => {
+		test('returns empty array for undefined (explicit)', () => {
 			assert.deepEqual(asArray(), [])
 		})
 	})

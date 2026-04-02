@@ -125,7 +125,7 @@ describe('architecture-decision-record', () => {
 		test('validates a well-formed ADR document', () => {
 			const results = architectureDecisionRecord.validate(buildValidADR())
 			const errors = results.filter(r => r.severity === 'error')
-			assert.isEmpty(errors, errors.map(e => e.message).join(', '))
+			assert.isEmpty(errors, errors.map(error => error.message).join(', '))
 		})
 	})
 
@@ -160,7 +160,7 @@ describe('architecture-decision-record', () => {
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
 			assert.isNotEmpty(errors)
-			assert.isTrue(errors.some(e => e.message.includes('paragraph')))
+			assert.isTrue(errors.some(error => error.message.includes('paragraph')))
 		})
 	})
 
@@ -174,7 +174,7 @@ describe('architecture-decision-record', () => {
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
 			assert.isNotEmpty(errors)
-			assert.isTrue(errors.some(e => e.message.includes('Decision:')))
+			assert.isTrue(errors.some(error => error.message.includes('Decision:')))
 		})
 
 		test('errors when decision has no summary paragraph', () => {
@@ -190,7 +190,7 @@ describe('architecture-decision-record', () => {
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
 			assert.isNotEmpty(errors)
-			assert.isTrue(errors.some(e => e.message.includes('paragraph')))
+			assert.isTrue(errors.some(error => error.message.includes('paragraph')))
 		})
 	})
 
@@ -214,7 +214,7 @@ describe('architecture-decision-record', () => {
 				),
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
-			assert.isTrue(errors.some(e => e.message.includes('link only')))
+			assert.isTrue(errors.some(error => error.message.includes('link only')))
 		})
 
 		test('errors when driver is empty', () => {
@@ -236,7 +236,7 @@ describe('architecture-decision-record', () => {
 				),
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
-			assert.isTrue(errors.some(e => e.message.includes('may not be empty')))
+			assert.isTrue(errors.some(error => error.message.includes('may not be empty')))
 		})
 	})
 
@@ -261,7 +261,7 @@ describe('architecture-decision-record', () => {
 				),
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
-			assert.isTrue(errors.some(e => e.message.includes('link only')))
+			assert.isTrue(errors.some(error => error.message.includes('link only')))
 		})
 
 		test('errors when alternative lacks blockquote or dismissal', () => {
@@ -283,7 +283,7 @@ describe('architecture-decision-record', () => {
 				),
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
-			assert.isTrue(errors.some(e => e.message.includes('blockquote explanation')))
+			assert.isTrue(errors.some(error => error.message.includes('blockquote explanation')))
 		})
 	})
 
@@ -308,7 +308,7 @@ describe('architecture-decision-record', () => {
 				),
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
-			assert.isTrue(errors.some(e => e.message.includes('at least one `pro`')))
+			assert.isTrue(errors.some(error => error.message.includes('at least one `pro`')))
 		})
 
 		test('errors when no con entries', () => {
@@ -331,7 +331,7 @@ describe('architecture-decision-record', () => {
 				),
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
-			assert.isTrue(errors.some(e => e.message.includes('at least one `con`')))
+			assert.isTrue(errors.some(error => error.message.includes('at least one `con`')))
 		})
 
 		test('errors when pro comes after con', () => {
@@ -354,7 +354,7 @@ describe('architecture-decision-record', () => {
 				),
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
-			assert.isTrue(errors.some(e => e.message.includes('Pros must come before cons')))
+			assert.isTrue(errors.some(error => error.message.includes('Pros must come before cons')))
 		})
 	})
 
@@ -375,7 +375,7 @@ describe('architecture-decision-record', () => {
 				),
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
-			assert.isTrue(errors.some(e => e.message.includes('at least one list item')))
+			assert.isTrue(errors.some(error => error.message.includes('at least one list item')))
 		})
 	})
 
@@ -392,7 +392,7 @@ describe('architecture-decision-record', () => {
 				),
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
-			assert.isEmpty(errors, errors.map(e => e.message).join(', '))
+			assert.isEmpty(errors, errors.map(error => error.message).join(', '))
 		})
 
 		test('accepts document with frontmatter', () => {
@@ -408,7 +408,7 @@ describe('architecture-decision-record', () => {
 				),
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
-			assert.isEmpty(errors, errors.map(e => e.message).join(', '))
+			assert.isEmpty(errors, errors.map(error => error.message).join(', '))
 		})
 	})
 
@@ -429,7 +429,7 @@ describe('architecture-decision-record', () => {
 				),
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
-			assert.isEmpty(errors, errors.map(e => e.message).join(', '))
+			assert.isEmpty(errors, errors.map(error => error.message).join(', '))
 		})
 	})
 })

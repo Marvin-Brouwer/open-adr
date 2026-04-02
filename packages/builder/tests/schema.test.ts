@@ -4,6 +4,10 @@ import { DescriptorKind } from '../src/descriptor.mts'
 import { md } from '../src/md.mts'
 import { schema } from '../src/schema.mts'
 
+import type { StrictOrderDescriptor } from '../src/schema.mts'
+
+const matchFunction = () => {}
+
 describe('schema factories', () => {
 	describe('section', () => {
 		test('creates section descriptor', () => {
@@ -25,11 +29,10 @@ describe('schema factories', () => {
 			})
 			assert.equal(s[DescriptorKind], 'section')
 			const children = s.children
-			assert.equal((children as any)[DescriptorKind], 'strictOrder')
+			assert.equal((children as StrictOrderDescriptor)[DescriptorKind], 'strictOrder')
 		})
 
 		test('passes through match and required', () => {
-			const matchFunction = () => {}
 			const s = schema.section({
 				level: 1,
 				required: true,

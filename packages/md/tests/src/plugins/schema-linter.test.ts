@@ -34,24 +34,24 @@ describe(pluginName, () => {
 		trace: true,
 	}
 
-	describe('template-based validation', () => {
-		const loadProcessor = (template: SchemaTemplate, settings?: MdSettingsDefinition) => {
-			return remark().use({
-				settings: {
-					...testSettings,
-					'md-schema': mdSettings(settings ?? {}),
-				} as Settings,
-				plugins: [
-					remarkParse,
-					remarkFrontmatter,
-					sectionify,
-					mockSchemaPlugin(template),
-					pluginUnderTest,
-					unsectionify,
-				],
-			})
-		}
+	const loadProcessor = (template: SchemaTemplate, settings?: MdSettingsDefinition) => {
+		return remark().use({
+			settings: {
+				...testSettings,
+				'md-schema': mdSettings(settings ?? {}),
+			} as Settings,
+			plugins: [
+				remarkParse,
+				remarkFrontmatter,
+				sectionify,
+				mockSchemaPlugin(template),
+				pluginUnderTest,
+				unsectionify,
+			],
+		})
+	}
 
+	describe('template-based validation', () => {
 		test('valid document - no validation results', async () => {
 			// ARRANGE
 			const template: SchemaTemplate = {

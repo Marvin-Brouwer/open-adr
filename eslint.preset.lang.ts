@@ -1,10 +1,10 @@
 import js from '@eslint/js'
 import { defineConfig } from 'eslint/config'
-import tseslint from 'typescript-eslint'
+import { configs as tseslintConfigs } from 'typescript-eslint'
 
-const tsTypeCheckedConfigs = Array.isArray(tseslint.configs.recommendedTypeChecked)
-	? tseslint.configs.recommendedTypeChecked
-	: [tseslint.configs.recommendedTypeChecked]
+const tsTypeCheckedConfigs = Array.isArray(tseslintConfigs.recommendedTypeChecked)
+	? tseslintConfigs.recommendedTypeChecked
+	: [tseslintConfigs.recommendedTypeChecked]
 
 export const lintJs = defineConfig([
 	{
@@ -24,7 +24,9 @@ export const lintTs = defineConfig([
 		files: ['**/*.{ts,mts,cts,tsx}'],
 		languageOptions: {
 			parserOptions: {
-				projectService: true,
+				projectService: {
+					allowDefaultProject: ['*.ts', '*.mts'],
+				},
 				tsconfigRootDir: import.meta.dirname,
 			},
 		},

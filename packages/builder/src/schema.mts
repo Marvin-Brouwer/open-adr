@@ -4,13 +4,13 @@ import type { MdDescriptor } from './md.mts'
 
 export type SchemaDescriptor = SectionDescriptor | OneOrMoreDescriptor
 export type NodeDescriptor = MdDescriptor | SchemaDescriptor
-export type ChildrenDef = NodeDescriptor[] | StrictOrderDescriptor
+export type ChildrenDefinition = NodeDescriptor[] | StrictOrderDescriptor
 
 export interface SectionDescriptor extends BaseDescriptorOptions {
 	readonly [DescriptorKind]: 'section'
 	readonly level: number
 	readonly name?: string
-	readonly children: ChildrenDef
+	readonly children: ChildrenDefinition
 }
 
 export interface StrictOrderDescriptor {

@@ -2,7 +2,7 @@ import { DescriptorKind } from './descriptor.mts'
 
 import type { ParagraphDescriptor } from './md.mts'
 import type {
-	ChildrenDef,
+	ChildrenDefinition,
 	NodeDescriptor,
 	StrictOrderDescriptor,
 } from './schema.mts'
@@ -19,7 +19,7 @@ export interface SchemaTemplate {
 }
 
 export interface TemplateConfig {
-	children: ChildrenDef
+	children: ChildrenDefinition
 	ignoreTypes?: string[]
 }
 
@@ -40,19 +40,19 @@ function filterIgnored(children: Node[], ignoreTypes: string[]): Node[] {
 }
 
 function validateChildren(
-	childrenDef: ChildrenDef,
+	childrenDefinition: ChildrenDefinition,
 	astChildren: Node[],
 	ignoreTypes: string[],
 	parent: Node,
 ): ValidationResult[] {
-	if (isStrictOrder(childrenDef)) {
-		return validateStrictOrder(childrenDef.items, astChildren, ignoreTypes, parent)
+	if (isStrictOrder(childrenDefinition)) {
+		return validateStrictOrder(childrenDefinition.items, astChildren, ignoreTypes, parent)
 	}
-	return validateArray(childrenDef, astChildren, ignoreTypes, parent)
+	return validateArray(childrenDefinition, astChildren, ignoreTypes, parent)
 }
 
-function isStrictOrder(def: ChildrenDef): def is StrictOrderDescriptor {
-	return !Array.isArray(def) && def[DescriptorKind] === 'strictOrder'
+function isStrictOrder(definition: ChildrenDefinition): definition is StrictOrderDescriptor {
+	return !Array.isArray(definition) && definition[DescriptorKind] === 'strictOrder'
 }
 
 function validateStrictOrder(
@@ -287,6 +287,9 @@ function nodeTypeMatches(descriptor: NodeDescriptor, node: Node): boolean {
 			if (!('depth' in node) || node.depth !== sec.level) return false
 			if (sec.name !== undefined && (!('name' in node) || node.name !== sec.name)) return false
 			return true
+		}
+		case 'oneOrMore': {
+			return false
 		}
 		default: {
 			return false

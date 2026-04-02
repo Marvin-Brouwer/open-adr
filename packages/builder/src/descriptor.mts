@@ -10,5 +10,5 @@ export type MatchResult = {
 export interface BaseDescriptorOptions {
 	required?: boolean
 	optional?: boolean
-	match?(node: Node): MatchResult
+	match?: (node: Node) => MatchResult
 }

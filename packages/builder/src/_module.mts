@@ -20,7 +20,7 @@ export type {
 	OneOrMoreDescriptor,
 	SchemaDescriptor,
 	NodeDescriptor,
-	ChildrenDef,
+	ChildrenDefinition,
 } from './schema.mts'
 
 export { template } from './template.mts'

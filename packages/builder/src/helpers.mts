@@ -12,7 +12,7 @@ export function asArray<T>(value: T[] | undefined | null): T[] {
 }
 
 export function isWhitespaceText(node: Node): boolean {
-	return node.type === 'text' && !String(('value' in node ? node.value : '') || '').trim()
+	return node.type === 'text' && !('value' in node && typeof node.value === 'string' ? node.value : '').trim()
 }
 
 export function isLinkNode(node: Node): boolean {

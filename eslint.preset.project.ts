@@ -1,6 +1,6 @@
 import stylistic from '@stylistic/eslint-plugin'
 import { defineConfig } from 'eslint/config'
-import tseslint from 'typescript-eslint'
+import { plugin as tsEslintPlugin } from 'typescript-eslint'
 
 export const projectConfig = defineConfig([
 	stylistic.configs.customize({
@@ -17,7 +17,7 @@ export const projectConfig = defineConfig([
 	{
 		files: ['**/*.{ts,mts,cts,tsx}'],
 		plugins: {
-			'@typescript-eslint': tseslint.plugin,
+			'@typescript-eslint': tsEslintPlugin,
 		},
 		rules: {
 			'@typescript-eslint/switch-exhaustiveness-check': ['error', {

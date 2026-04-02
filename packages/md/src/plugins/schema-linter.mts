@@ -6,7 +6,7 @@ import { getSchemaData } from '../helpers/schema-data.mts'
 export const pluginName = 'remark-plugin:md-schema-linter'
 export default definePlugin({
 	pluginName,
-	async transform(context) {
+	transform(context) {
 		if (!checkFileIncluded(context)) return
 
 		const schema = getSchemaData(context)

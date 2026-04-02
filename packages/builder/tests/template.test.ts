@@ -297,7 +297,7 @@ describe('template validation', () => {
 			const t = template({
 				children: schema.strictOrder(
 					md.heading(1, {
-						match(node) {
+						match() {
 							return { severity: 'error', message: 'Heading must start with ADR' }
 						},
 					}),
@@ -313,7 +313,7 @@ describe('template validation', () => {
 			const t = template({
 				children: schema.strictOrder(
 					md.paragraph({
-						match(node) {
+						match() {
 							return { severity: 'warning', message: 'Consider more detail' }
 						},
 					}),

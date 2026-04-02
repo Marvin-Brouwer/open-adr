@@ -3,6 +3,8 @@ import { assert, describe, test } from 'vitest'
 import { DescriptorKind } from '../src/descriptor.mts'
 import { md } from '../src/md.mts'
 
+const matchFunction = () => {}
+
 describe('md factories', () => {
 	describe('heading', () => {
 		test('creates heading descriptor with level', () => {
@@ -19,7 +21,6 @@ describe('md factories', () => {
 		})
 
 		test('passes through match function', () => {
-			const matchFunction = () => {}
 			const h = md.heading(3, { match: matchFunction })
 			assert.equal(h.match, matchFunction)
 		})
