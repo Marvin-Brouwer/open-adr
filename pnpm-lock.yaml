@@ -11,6 +11,12 @@ importers:
       '@eslint/js':
         specifier: ^9.36.0
         version: 9.39.1
+      '@md-schema/md':
+        specifier: workspace:^
+        version: link:packages/md
+      '@md-schema/odr':
+        specifier: workspace:^
+        version: link:packages/odr
       '@stylistic/eslint-plugin':
         specifier: ^5.5.0
         version: 5.5.0(eslint@9.39.1(jiti@2.6.1))
@@ -47,6 +53,24 @@ importers:
       jiti:
         specifier: ^2.6.1
         version: 2.6.1
+      remark:
+        specifier: ^15.0.1
+        version: 15.0.1
+      remark-frontmatter:
+        specifier: ^5.0.0
+        version: 5.0.0
+      remark-lint:
+        specifier: ^10.0.1
+        version: 10.0.1
+      remark-lint-checkbox-character-style:
+        specifier: ^5.0.1
+        version: 5.0.1
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0
+      remark-stringify:
+        specifier: ^11.0.0
+        version: 11.0.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3

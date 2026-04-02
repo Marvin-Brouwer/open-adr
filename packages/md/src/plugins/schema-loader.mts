@@ -1,3 +1,5 @@
+import { createRequire } from 'node:module'
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -90,8 +92,33 @@ async function loadTemplate(identifier: string, dirname: string, context: Remark
 		moduleUrl = pathToFileURL(filePath).href
 	}
 	else {
-		// Bare specifier — rely on Node.js module resolution
-		moduleUrl = identifier
+		// Bare specifier — resolve from the document's working directory
+		// so that the consuming project's dependencies are used, not the md package's.
+		const cwd = context.file.cwd
+		const require = createRequire(path.join(cwd, '__resolve__.cjs'))
+		const packageName = resolvePackageName(identifier)
+		const subpath = identifier.slice(packageName.length)
+		const packageJsonPath = require.resolve(path.join(packageName, 'package.json'))
+		const packageDir = path.dirname(packageJsonPath)
+		const packageJson = JSON.parse(
+			readFileSync(packageJsonPath, 'utf-8'),
+		) as { exports?: Record<string, { import?: string } | string> }
+
+		const exportKey = subpath ? `.${subpath}` : '.'
+		const exportEntry = packageJson.exports?.[exportKey]
+		const importPath = typeof exportEntry === 'string'
+			? exportEntry
+			: exportEntry?.import
+
+		if (importPath) {
+			moduleUrl = pathToFileURL(path.resolve(packageDir, importPath)).href
+		}
+		else if (!subpath) {
+			moduleUrl = pathToFileURL(require.resolve(identifier)).href
+		}
+		else {
+			throw new Error(`Package "${packageName}" does not export subpath ".${subpath}"`)
+		}
 	}
 
 	if (debug.logSchemaResolver) context.writeTrace('loading template', moduleUrl)
@@ -109,4 +136,14 @@ async function loadTemplate(identifier: string, dirname: string, context: Remark
 	if (debug.logSchemaResolver) context.writeTrace('loaded template', identifier)
 
 	return template
+}
+
+function resolvePackageName(identifier: string): string {
+	if (identifier.startsWith('@')) {
+		// Scoped package: @scope/name/subpath → @scope/name
+		const parts = identifier.split('/')
+		return parts.slice(0, 2).join('/')
+	}
+	// Unscoped package: name/subpath → name
+	return identifier.split('/')[0]
 }

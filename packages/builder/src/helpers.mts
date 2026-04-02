@@ -3,6 +3,7 @@ import type { Node } from 'unist'
 export function getNodeText(node: Node | null | undefined): string {
 	if (!node) return ''
 	if ('value' in node && typeof node.value === 'string') return node.value
+	if (node.type === 'break') return '\n'
 	if (!('children' in node) || !Array.isArray(node.children)) return ''
 	return (node.children as Node[]).map(child => getNodeText(child)).join('')
 }

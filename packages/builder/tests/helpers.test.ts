@@ -43,6 +43,10 @@ describe('helpers', () => {
 		test('returns empty for node without value or children', () => {
 			assert.equal(getNodeText(n('thematicBreak')), '')
 		})
+
+		test('returns newline for break node', () => {
+			assert.equal(getNodeText(n('break')), '\n')
+		})
 	})
 
 	describe('asArray', () => {

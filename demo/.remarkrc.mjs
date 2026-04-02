@@ -9,7 +9,7 @@ export default {
 	settings: {
 		'md-schema': mdSettings({
 			// allowedSchemas: ['incident.schema.json', 'project.schema.json'],
-			include: ['docs/odr/**/*.md', 'doc/odr/**/*.md'],
+			include: ['**/docs/architecture/*.md', '**/doc/architecture/*.md'],
 		}),
 	},
 	plugins: [

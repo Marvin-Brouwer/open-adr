@@ -1,12 +1,11 @@
-import { getNodeText, asArray, isUrlLike } from '@md-schema/builder'
+import { getNodeText, asArray } from '@md-schema/builder'
 
 import type { Node } from 'unist'
 
 export const isNamedReference = (value: string): boolean => {
-	const index = value.indexOf(':')
-	if (index <= 0) return false
-	const rhs = value.slice(index + 1).trim()
-	return isUrlLike(rhs)
+	// Find a ": URL" pattern, supporting labels with colons (e.g. "vscode: name: https://...")
+	const match = value.match(/:\s+(https?:\/\/|\.{0,2}\/)/)
+	return match !== null && match.index! > 0
 }
 
 export const isObjectReference = (value: string): boolean =>

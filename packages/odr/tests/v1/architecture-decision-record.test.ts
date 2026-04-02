@@ -76,17 +76,17 @@ function buildValidADR(): Parent {
 			code('yml', 'status: proposed\ncreated: 2025-11-19'),
 			paragraph(text('There seems to be quite some documentation format drift.')),
 			paragraph(text('Documenting in markdown is the preferred solution.')),
-			section(2, 'Decision:',
-				heading(2, text('Decision:')),
+			section(2, 'Decision',
+				heading(2, text('Decision')),
 				paragraph(text('Use a custom remark plugin.')),
 				section(3, 'Drivers',
 					heading(3, text('Drivers')),
-					section(3, 'remark',
-						heading(3, linkReference('remark', text('remark'))),
+					section(4, 'remark',
+						heading(4, linkReference('remark', text('remark'))),
 						paragraph(text('We will be using remark plugins.')),
 					),
-					section(3, 'json schema',
-						heading(3, linkReference('json-schema', text('json schema'))),
+					section(4, 'json schema',
+						heading(4, linkReference('json-schema', text('json schema'))),
 						paragraph(text('We will be using jsonschemas.')),
 					),
 				),
@@ -102,10 +102,12 @@ function buildValidADR(): Parent {
 			section(2, 'Outcome',
 				heading(2, text('Outcome')),
 				paragraph(text('Once finished this product should facilitate templates.')),
-				section(3, 'Pros and cons',
+			section(3, 'Pros and cons',
 					heading(3, text('Pros and cons')),
 					paragraph(
-						text('`pro` Markdown support OOTB \\\n`pro` Standardized way of working \\\n\n`con` A new standard to adopt'),
+						inlineCode('pro'), text(' Markdown support OOTB'),
+						inlineCode('pro'), text(' Standardized way of working'),
+						inlineCode('con'), text(' A new standard to adopt'),
 					),
 				),
 			),
@@ -132,11 +134,12 @@ describe('architecture-decision-record', () => {
 	describe('heading validation', () => {
 		test('errors when h1 does not start with ADR', () => {
 			const document = root(
+				yaml('odr:schema: @md-schema/odr/v1/architecture-decision-record'),
 				section(1, 'Wrong title',
 					heading(1, text('Wrong title')),
 					paragraph(text('Some context.')),
-					section(2, 'Decision:',
-						heading(2, text('Decision:')),
+					section(2, 'Decision',
+						heading(2, text('Decision')),
 						paragraph(text('We decided.')),
 					),
 				),
@@ -152,8 +155,8 @@ describe('architecture-decision-record', () => {
 			const document = root(
 				section(1, 'ADR Title',
 					heading(1, text('ADR Title')),
-					section(2, 'Decision:',
-						heading(2, text('Decision:')),
+					section(2, 'Decision',
+						heading(2, text('Decision')),
 						paragraph(text('We decided.')),
 					),
 				),
@@ -174,7 +177,7 @@ describe('architecture-decision-record', () => {
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
 			assert.isNotEmpty(errors)
-			assert.isTrue(errors.some(error => error.message.includes('Decision:')))
+			assert.isTrue(errors.some(error => error.message.includes('Decision')))
 		})
 
 		test('errors when decision has no summary paragraph', () => {
@@ -182,8 +185,8 @@ describe('architecture-decision-record', () => {
 				section(1, 'ADR Title',
 					heading(1, text('ADR Title')),
 					paragraph(text('Context.')),
-					section(2, 'Decision:',
-						heading(2, text('Decision:')),
+					section(2, 'Decision',
+						heading(2, text('Decision')),
 						// no paragraph
 					),
 				),
@@ -200,13 +203,13 @@ describe('architecture-decision-record', () => {
 				section(1, 'ADR Title',
 					heading(1, text('ADR Title')),
 					paragraph(text('Context.')),
-					section(2, 'Decision:',
-						heading(2, text('Decision:')),
+					section(2, 'Decision',
+						heading(2, text('Decision')),
 						paragraph(text('We decided.')),
 						section(3, 'Drivers',
 							heading(3, text('Drivers')),
-							section(3, 'Not a link',
-								heading(3, text('Not a link')),
+							section(4, 'Not a link',
+								heading(4, text('Not a link')),
 								paragraph(text('Description.')),
 							),
 						),
@@ -222,13 +225,13 @@ describe('architecture-decision-record', () => {
 				section(1, 'ADR Title',
 					heading(1, text('ADR Title')),
 					paragraph(text('Context.')),
-					section(2, 'Decision:',
-						heading(2, text('Decision:')),
+					section(2, 'Decision',
+						heading(2, text('Decision')),
 						paragraph(text('We decided.')),
 						section(3, 'Drivers',
 							heading(3, text('Drivers')),
-							section(3, 'remark',
-								heading(3, linkReference('remark', text('remark'))),
+							section(4, 'remark',
+								heading(4, linkReference('remark', text('remark'))),
 								// no body
 							),
 						),
@@ -246,8 +249,8 @@ describe('architecture-decision-record', () => {
 				section(1, 'ADR Title',
 					heading(1, text('ADR Title')),
 					paragraph(text('Context.')),
-					section(2, 'Decision:',
-						heading(2, text('Decision:')),
+					section(2, 'Decision',
+						heading(2, text('Decision')),
 						paragraph(text('We decided.')),
 						section(3, 'Alternatives',
 							heading(3, text('Alternatives')),
@@ -269,8 +272,8 @@ describe('architecture-decision-record', () => {
 				section(1, 'ADR Title',
 					heading(1, text('ADR Title')),
 					paragraph(text('Context.')),
-					section(2, 'Decision:',
-						heading(2, text('Decision:')),
+					section(2, 'Decision',
+						heading(2, text('Decision')),
 						paragraph(text('We decided.')),
 						section(3, 'Alternatives',
 							heading(3, text('Alternatives')),
@@ -288,13 +291,13 @@ describe('architecture-decision-record', () => {
 	})
 
 	describe('pros and cons', () => {
-		test('errors when no pro entries', () => {
+		test('allows separate pro and con paragraphs', () => {
 			const document = root(
 				section(1, 'ADR Title',
 					heading(1, text('ADR Title')),
 					paragraph(text('Context.')),
-					section(2, 'Decision:',
-						heading(2, text('Decision:')),
+					section(2, 'Decision',
+						heading(2, text('Decision')),
 						paragraph(text('We decided.')),
 					),
 					section(2, 'Outcome',
@@ -302,22 +305,23 @@ describe('architecture-decision-record', () => {
 						paragraph(text('Outcome text.')),
 						section(3, 'Pros and cons',
 							heading(3, text('Pros and cons')),
-							paragraph(text('`con` Something bad')),
+							paragraph(inlineCode('pro'), text(' Something good')),
+							paragraph(inlineCode('con'), text(' Something bad')),
 						),
 					),
 				),
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
-			assert.isTrue(errors.some(error => error.message.includes('at least one `pro`')))
+			assert.isFalse(errors.some(error => error.message.includes('pro') || error.message.includes('con')))
 		})
 
-		test('errors when no con entries', () => {
+		test('errors when line is not tagged', () => {
 			const document = root(
 				section(1, 'ADR Title',
 					heading(1, text('ADR Title')),
 					paragraph(text('Context.')),
-					section(2, 'Decision:',
-						heading(2, text('Decision:')),
+					section(2, 'Decision',
+						heading(2, text('Decision')),
 						paragraph(text('We decided.')),
 					),
 					section(2, 'Outcome',
@@ -325,13 +329,13 @@ describe('architecture-decision-record', () => {
 						paragraph(text('Outcome text.')),
 						section(3, 'Pros and cons',
 							heading(3, text('Pros and cons')),
-							paragraph(text('`pro` Something good')),
+							paragraph(text('Not a tagged line')),
 						),
 					),
 				),
 			)
 			const errors = architectureDecisionRecord.validate(document).filter(r => r.severity === 'error')
-			assert.isTrue(errors.some(error => error.message.includes('at least one `con`')))
+			assert.isTrue(errors.some(error => error.message.includes('must contain `pro` or `con`')))
 		})
 
 		test('errors when pro comes after con', () => {
@@ -339,8 +343,8 @@ describe('architecture-decision-record', () => {
 				section(1, 'ADR Title',
 					heading(1, text('ADR Title')),
 					paragraph(text('Context.')),
-					section(2, 'Decision:',
-						heading(2, text('Decision:')),
+					section(2, 'Decision',
+						heading(2, text('Decision')),
 						paragraph(text('We decided.')),
 					),
 					section(2, 'Outcome',
@@ -348,7 +352,7 @@ describe('architecture-decision-record', () => {
 						paragraph(text('Outcome text.')),
 						section(3, 'Pros and cons',
 							heading(3, text('Pros and cons')),
-							paragraph(text('`con` Bad\n`pro` Good')),
+							paragraph(inlineCode('con'), text(' Bad'), inlineCode('pro'), text(' Good')),
 						),
 					),
 				),
@@ -364,8 +368,8 @@ describe('architecture-decision-record', () => {
 				section(1, 'ADR Title',
 					heading(1, text('ADR Title')),
 					paragraph(text('Context.')),
-					section(2, 'Decision:',
-						heading(2, text('Decision:')),
+					section(2, 'Decision',
+						heading(2, text('Decision')),
 						paragraph(text('We decided.')),
 					),
 					section(2, 'References:',
@@ -382,11 +386,12 @@ describe('architecture-decision-record', () => {
 	describe('optional sections', () => {
 		test('accepts minimal valid document (no optional sections)', () => {
 			const document = root(
+				yaml('odr:schema: @md-schema/odr/v1/architecture-decision-record'),
 				section(1, 'ADR Minimal',
 					heading(1, text('ADR Minimal')),
 					paragraph(text('Context paragraph.')),
-					section(2, 'Decision:',
-						heading(2, text('Decision:')),
+					section(2, 'Decision',
+						heading(2, text('Decision')),
 						paragraph(text('We decided.')),
 					),
 				),
@@ -401,8 +406,8 @@ describe('architecture-decision-record', () => {
 				section(1, 'ADR With Frontmatter',
 					heading(1, text('ADR With Frontmatter')),
 					paragraph(text('Context.')),
-					section(2, 'Decision:',
-						heading(2, text('Decision:')),
+					section(2, 'Decision',
+						heading(2, text('Decision')),
 						paragraph(text('We decided.')),
 					),
 				),
@@ -415,14 +420,15 @@ describe('architecture-decision-record', () => {
 	describe('ignored nodes', () => {
 		test('definition and html nodes are ignored', () => {
 			const document = root(
+				yaml('odr:schema: @md-schema/odr/v1/architecture-decision-record'),
 				n('definition', { identifier: 'remark', url: 'https://github.com/remarkjs/remark' }),
 				n('definition', { identifier: 'json-schema', url: 'https://json-schema.org/' }),
 				section(1, 'ADR Title',
 					heading(1, text('ADR Title')),
 					n('html', { value: '<!-- comment -->' }),
 					paragraph(text('Context.')),
-					section(2, 'Decision:',
-						heading(2, text('Decision:')),
+					section(2, 'Decision',
+						heading(2, text('Decision')),
 						n('html', { value: '<!-- inline comment -->' }),
 						paragraph(text('We decided.')),
 					),
