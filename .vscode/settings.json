@@ -60,5 +60,8 @@
 		"tsconfig.json": "tsconfig.*.json",
 		"package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, bun.lock",
 		"eslint.config.ts": "eslint.preset.*.ts"
+	},
+	"chat.tools.terminal.autoApprove": {
+		"pnpm": true
 	}
 }

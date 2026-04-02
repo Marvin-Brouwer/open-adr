@@ -1,0 +1,20 @@
+{
+    "name": "@md-schema/builder",
+    "version": "1.0.0",
+    "type": "module",
+    "exports": {
+        ".": {
+            "import": "./dist/_module.js",
+            "types": "./dist/_module.d.ts"
+        }
+    },
+    "scripts": {
+        "build": "tsup-node"
+    },
+    "peerDependencies": {
+        "@types/unist": "^3.0.3"
+    },
+    "devDependencies": {
+        "tsup": "^8.5.0"
+    }
+}

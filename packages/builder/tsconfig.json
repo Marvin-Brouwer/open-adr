@@ -8,13 +8,13 @@
     },
     "references": [
         {
-            "path": "./packages/remark-plugin"
+            "path": "./tsconfig.config.json"
         },
         {
-            "path": "./packages/builder"
+            "path": "./tsconfig.test.json"
         },
         {
-            "path": "./packages/odr"
+            "path": "./tsconfig.lib.json"
         }
     ]
 }
