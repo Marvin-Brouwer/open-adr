@@ -6,6 +6,7 @@
 	"private": true,
 	"license": "ISC",
 	"dependencies": {
+		"@md-schema/md": "workspace:^",
 		"@md-schema/odr": "workspace:^",
 		"remark": "^15.0.1",
 		"remark-frontmatter": "^5.0.0",

@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import { remark } from 'remark'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkParse from 'remark-parse'
 import { VFile } from 'vfile'
-import { assert, describe, test, vi } from 'vitest'
+import { assert, describe, test } from 'vitest'
 
 import { mdSettings } from '../../../src/_module.mts'
 import { getSchemaData } from '../../../src/helpers/schema-data.mts'
@@ -12,13 +15,10 @@ import pluginUnderTest, { pluginName } from '../../../src/plugins/schema-loader.
 import { type MdSettingsDefinition } from '../../../src/settings.mts'
 import { md } from '../../helpers/un-pad.mts'
 
-import type { SchemaTemplate } from '@md-schema/builder'
 import type { Settings } from 'unified'
 
-// Mock template module for file:// loading
-const mockTemplate: SchemaTemplate = {
-	validate: () => [],
-}
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const mockTemplatePath = path.resolve(__dirname, '../../fixtures/mock-template.mts')
 
 describe(pluginName, () => {
 	const testSettings: Settings & Record<string, any> = {
@@ -266,7 +266,7 @@ describe(pluginName, () => {
 			path: 'doc/odr/test/schema-valid.md',
 			value: md(`
 				---
-				odr:schema: '@md-schema/odr/v1/architecture-decision-record'
+				odr:schema: 'file://${mockTemplatePath}'
 				---
 
 				# Schema valid
@@ -275,11 +275,6 @@ describe(pluginName, () => {
 			`),
 		})
 
-		// Mock the dynamic import to return a valid template
-		vi.doMock('@md-schema/odr/v1/architecture-decision-record', () => ({
-			default: mockTemplate,
-		}))
-
 		// ACT
 		const sut = loadProcessor()
 		const file = await sut.process(document)
@@ -287,7 +282,5 @@ describe(pluginName, () => {
 		// ASSERT
 		assert.isEmpty(file.messages)
 		assert.isNotNull(getSchemaData(file)?.template)
-
-		vi.doUnmock('@md-schema/odr/v1/architecture-decision-record')
 	})
 })

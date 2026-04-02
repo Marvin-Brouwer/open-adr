@@ -237,3 +237,5 @@ export const architectureDecisionRecord = template({
 		mainSection,
 	],
 })
+
+export default architectureDecisionRecord

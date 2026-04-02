@@ -1,4 +1,4 @@
-import { odrLinter, odrSchema, odrSchemaInfo, odrSettings, sectionify, unsectionify } from '@md-schema/odr'
+import { mdLinter, mdSchema, mdSchemaInfo, mdSettings, sectionify, unsectionify } from '@md-schema/md'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkLint from 'remark-lint'
 import remarkLintCheckbox from 'remark-lint-checkbox-character-style'
@@ -7,7 +7,7 @@ import remarkStringify from 'remark-stringify'
 
 export default {
 	settings: {
-		odr: odrSettings({
+		'md-schema': mdSettings({
 			// allowedSchemas: ['incident.schema.json', 'project.schema.json'],
 			include: ['docs/odr/**/*.md', 'doc/odr/**/*.md'],
 		}),
@@ -19,12 +19,12 @@ export default {
 		remarkLint,
 		remarkLintCheckbox,
 
-		// Configure ODR
+		// Configure md-schema
 		remarkFrontmatter,
 		sectionify,
-		odrSchema,
-		odrLinter,
-		odrSchemaInfo,
+		mdSchema,
+		mdLinter,
+		mdSchemaInfo,
 		unsectionify,
 
 		// Fix for vscode markdown-previewer
