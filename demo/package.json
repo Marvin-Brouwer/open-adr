@@ -4,10 +4,17 @@
 	"description": "",
 	"type": "module",
 	"private": true,
+	"scripts": {
+		"remark:lint": "remark docs/**/*.md --output",
+		"remark:reset": "move-file ./.remarkrc.mjs ./.remarkrc.mjs_ && move-file ./.remarkrc.mjs_ ./.remarkrc.mjs",
+		"debug": "pnpm remark:reset && pnpm remark:lint"
+	},
 	"license": "ISC",
 	"dependencies": {
 		"@md-schema/md": "workspace:^",
 		"@md-schema/odr": "workspace:^",
+		"move-file-cli": "^3.0.0",
+		"remark-cli": "^12.0.1",
 		"remark": "^15.0.1",
 		"remark-frontmatter": "^5.0.0",
 		"remark-lint": "^10.0.1",

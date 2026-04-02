@@ -24,13 +24,13 @@ export async function getFrontMatterData<T>(tree: Node, schema?: JSONSchemaType<
 		return new FrontMatterError(
 			new YAMLError('YAMLParseError', [0, 0], 'IMPOSSIBLE', 'No frontmatter data found'),
 			tree,
-			tree.position,
+			tree.position!,
 		)
 	if ((yamlNode.value as string).toString().trim() === '')
 		return new FrontMatterError(
 			new YAMLError('YAMLParseError', [0, 0], 'IMPOSSIBLE', 'No frontmatter data found'),
 			yamlNode,
-			yamlNode.position,
+			yamlNode.position!,
 		)
 
 	try {
@@ -44,7 +44,7 @@ export async function getFrontMatterData<T>(tree: Node, schema?: JSONSchemaType<
 			return new FrontMatterError(
 				new YAMLError('YAMLParseError', [0, 0], 'IMPOSSIBLE', 'No frontmatter data found'),
 				yamlNode,
-				yamlNode.position,
+				yamlNode.position!,
 			)
 		// TODO get exact position of url
 		yamlResult['@position'] = yamlNode.position!
