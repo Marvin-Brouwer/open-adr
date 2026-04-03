@@ -10,14 +10,6 @@ export default {
 		'md-schema': mdSettings({
 			// allowedSchemas: ['incident.schema.json', 'project.schema.json'],
 			include: ['**/docs/architecture/*.md', '**/doc/architecture/*.md'],
-			schemas: {
-				// Just an example
-				'file-example': 'file://./non-existent.mjs',
-				// Uses an npm package alias (see "@odr/local" in package.json)
-				'@local/architecture-decision-record': 'npm://@odr/local/architecture-decision-record',
-				// Uses a published npm package alias (see "@odr/v1" in package.json)
-				// '@v1/architecture-decision-record': 'npm://@odr/v1/architecture-decision-record',
-			},
 		}),
 	},
 	plugins: [

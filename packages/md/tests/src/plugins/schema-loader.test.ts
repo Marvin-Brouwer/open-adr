@@ -202,7 +202,7 @@ describe(pluginName, () => {
 
 				# No version
 
-				This file has a schema identifier without a version
+				This file has a schema identifier that cannot be resolved
 			`),
 		})
 
@@ -212,45 +212,16 @@ describe(pluginName, () => {
 
 		// ASSERT
 		assert.isNotEmpty(file.messages)
-		assert.include(file.messages[0].message, 'must include a version')
-	})
-
-	test('schema unknown alias', async () => {
-		// ARRANGE
-		const document = new VFile({
-			path: 'doc/odr/test/unknown-alias.md',
-			value: md(`
-				---
-				schema: 'my-schema@1'
-				---
-
-				# Unknown alias
-
-				This file has a schema identifier not in the schemas map
-			`),
-		})
-
-		// ACT
-		const sut = loadProcessor()
-		const file = await sut.process(document)
-
-		// ASSERT
-		assert.isNotEmpty(file.messages)
-		assert.include(file.messages[0].message, 'Unknown schema')
+		assert.isTrue(file.messages[0].fatal)
 	})
 
 	test('schema module not found', async () => {
 		// ARRANGE
-		const settings: MdSettingsDefinition = {
-			schemas: {
-				'bad-schema@1': 'npm://@non-existent-package/schema',
-			},
-		}
 		const document = new VFile({
 			path: 'doc/odr/test/schema-not-found.md',
 			value: md(`
 				---
-				schema: 'bad-schema@1'
+				schema: '@non-existent-package/schema'
 				---
 
 				# Schema not found
@@ -260,7 +231,7 @@ describe(pluginName, () => {
 		})
 
 		// ACT
-		const sut = loadProcessor(settings)
+		const sut = loadProcessor()
 		const file = await sut.process(document)
 
 		// ASSERT
@@ -270,16 +241,11 @@ describe(pluginName, () => {
 
 	test('schema file:// not found', async () => {
 		// ARRANGE
-		const settings: MdSettingsDefinition = {
-			schemas: {
-				'missing-file@1': 'file://./does-not-exist.mts',
-			},
-		}
 		const document = new VFile({
 			path: 'doc/odr/test/file-not-found.md',
 			value: md(`
 				---
-				schema: 'missing-file@1'
+				schema: 'file://./does-not-exist.mts'
 				---
 
 				# File not found
@@ -289,7 +255,7 @@ describe(pluginName, () => {
 		})
 
 		// ACT
-		const sut = loadProcessor(settings)
+		const sut = loadProcessor()
 		const file = await sut.process(document)
 
 		// ASSERT
@@ -298,48 +264,14 @@ describe(pluginName, () => {
 		assert.include(file.messages[0].message, 'Schema file not found')
 	})
 
-	test('schema npm:// not found', async () => {
-		// ARRANGE
-		const settings: MdSettingsDefinition = {
-			schemas: {
-				'remote-schema@1': 'npm://@non-existent-package/schema',
-			},
-		}
-		const document = new VFile({
-			path: 'doc/odr/test/npm-not-found.md',
-			value: md(`
-				---
-				schema: 'remote-schema@1'
-				---
-
-				# npm package not found
-
-				This file references a non-existent npm package
-			`),
-		})
-
-		// ACT
-		const sut = loadProcessor(settings)
-		const file = await sut.process(document)
-
-		// ASSERT
-		assert.isNotEmpty(file.messages)
-		assert.isTrue(file.messages[0].fatal)
-	})
-
 	test('schema file:// invalid module', async () => {
 		// ARRANGE
 		const invalidModulePath = path.resolve(__dirname, '../../fixtures/invalid-module.mts')
-		const settings: MdSettingsDefinition = {
-			schemas: {
-				'invalid-module@1': `file://${invalidModulePath}`,
-			},
-		}
 		const document = new VFile({
 			path: 'doc/odr/test/invalid-module.md',
 			value: md(`
 				---
-				schema: 'invalid-module@1'
+				schema: 'file://${invalidModulePath}'
 				---
 
 				# Invalid module
@@ -349,7 +281,7 @@ describe(pluginName, () => {
 		})
 
 		// ACT
-		const sut = loadProcessor(settings)
+		const sut = loadProcessor()
 		const file = await sut.process(document)
 
 		// ASSERT
@@ -361,18 +293,15 @@ describe(pluginName, () => {
 	test('schema not in allow list', async () => {
 		// ARRANGE
 		const settings: MdSettingsDefinition = {
-			schemas: {
-				'different-schema@1': '@my-org/different-schema',
-			},
 			allowedSchemas: [
-				'my-schema@1',
+				'my-schema',
 			],
 		}
 		const document = new VFile({
 			path: 'doc/odr/test/schema-valid-not-allowed.md',
 			value: md(`
 				---
-				schema: 'different-schema@1'
+				schema: 'different-schema'
 				---
 
 				# Schema valid
@@ -388,7 +317,7 @@ describe(pluginName, () => {
 		// ASSERT
 		assert.equal(
 			file.messages[0].message.trim(),
-			`Schema "different-schema@1" is not allowed. Allowed: my-schema@1`,
+			`Schema "different-schema" is not allowed. Allowed: my-schema`,
 		)
 		// It should mark the schema line specifically
 		assert.deepEqual(file.messages[0].place, {
@@ -398,25 +327,20 @@ describe(pluginName, () => {
 				offset: 4,
 			},
 			end: {
-				column: 29,
+				column: 27,
 				line: 2,
-				offset: 32,
+				offset: 30,
 			},
 		})
 	})
 
 	test('schema valid template module', async () => {
 		// ARRANGE
-		const settings: MdSettingsDefinition = {
-			schemas: {
-				'mock-template@1': `file://${mockTemplatePath}`,
-			},
-		}
 		const document = new VFile({
 			path: 'doc/odr/test/schema-valid.md',
 			value: md(`
 				---
-				schema: 'mock-template@1'
+				schema: 'file://${mockTemplatePath}'
 				---
 
 				# Schema valid
@@ -426,7 +350,7 @@ describe(pluginName, () => {
 		})
 
 		// ACT
-		const sut = loadProcessor(settings)
+		const sut = loadProcessor()
 		const file = await sut.process(document)
 
 		// ASSERT

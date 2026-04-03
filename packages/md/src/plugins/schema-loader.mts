@@ -55,14 +55,7 @@ export default definePlugin({
 			return
 		}
 
-		const { schemas } = getMdSettings(context)
-		const resolved = resolveSchemaIdentifier(schemaUrl, schemas)
-		if (resolved instanceof Error) {
-			context.appendError(resolved.message, schemaPosition)
-			return
-		}
-
-		const templateResult = await tryLoadTemplate(resolved, path.join(context.file.cwd, context.file.dirname ?? '.'), context)
+		const templateResult = await tryLoadTemplate(schemaUrl, path.join(context.file.cwd, context.file.dirname ?? '.'), context)
 		if (templateResult instanceof Error) {
 			context.appendError(
 				templateResult.message,
@@ -93,31 +86,6 @@ async function tryLoadTemplate(identifier: string, dirname: string, context: Rem
 	}
 }
 
-function resolveSchemaIdentifier(identifier: string, schemas: Record<string, string>): string | Error {
-	// Schema identifiers must include a version: "name@version"
-	if (!identifier.includes('@')) {
-		const available = Object.keys(schemas)
-		const suggestions = available.filter(k => k.split('@')[0] === identifier)
-		const hint = suggestions.length > 0
-			? ` Available versions: ${suggestions.join(', ')}`
-			: ''
-		return new Error(
-			`Schema identifier "${identifier}" must include a version (e.g. "${identifier}@1").${hint}`,
-		)
-	}
-
-	// Look up in the schemas map
-	const npmSpecifier = schemas[identifier]
-	if (!npmSpecifier) {
-		const available = Object.keys(schemas)
-		return new Error(
-			`Unknown schema "${identifier}". Configure it in the schemas map.${available.length > 0 ? ` Available: ${available.join(', ')}` : ''}`,
-		)
-	}
-
-	return npmSpecifier
-}
-
 async function loadTemplate(identifier: string, dirname: string, context: RemarkPluginContext): Promise<SchemaTemplate> {
 	let moduleUrl: string
 
@@ -129,15 +97,9 @@ async function loadTemplate(identifier: string, dirname: string, context: Remark
 		}
 		moduleUrl = pathToFileURL(filePath).href
 	}
-	else if (identifier.startsWith('npm://')) {
-		// Strip the npm:// prefix and resolve as an npm package
-		const npmIdentifier = identifier.slice('npm://'.length)
-		moduleUrl = resolveNpmModule(npmIdentifier, dirname)
-	}
 	else {
-		throw new Error(
-			`Schema target "${identifier}" must use a protocol prefix. Use "npm://" for npm packages or "file://" for local files.`,
-		)
+		// Resolve as an npm module from the document's directory
+		moduleUrl = resolveNpmModule(identifier, dirname)
 	}
 
 	if (debug.logSchemaResolver) context.writeTrace('loading template', moduleUrl)
