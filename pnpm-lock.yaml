@@ -11,12 +11,12 @@ importers:
       '@eslint/js':
         specifier: ^9.36.0
         version: 9.39.1
+      '@md-schema/docs':
+        specifier: workspace:^
+        version: link:packages/docs
       '@md-schema/md':
         specifier: workspace:^
         version: link:packages/md
-      '@md-schema/odr':
-        specifier: workspace:^
-        version: link:packages/odr
       '@stylistic/eslint-plugin':
         specifier: ^5.5.0
         version: 5.5.0(eslint@9.39.1(jiti@2.6.1))
@@ -86,15 +86,15 @@ importers:
 
   demo:
     dependencies:
-      '@docs/local':
-        specifier: workspace:@md-schema/odr@^
-        version: link:../packages/odr
+      '@docs/v1':
+        specifier: workspace:@md-schema/docs@^
+        version: link:../packages/docs
+      '@md-schema/docs':
+        specifier: workspace:^
+        version: link:../packages/docs
       '@md-schema/md':
         specifier: workspace:^
         version: link:../packages/md
-      '@md-schema/odr':
-        specifier: workspace:^
-        version: link:../packages/odr
       move-file-cli:
         specifier: ^3.0.0
         version: 3.0.0
@@ -126,6 +126,25 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3
     devDependencies:
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1)
+
+  packages/docs:
+    dependencies:
+      '@md-schema/builder':
+        specifier: workspace:^
+        version: link:../builder
+    devDependencies:
+      '@types/unist':
+        specifier: ^3.0.3
+        version: 3.0.3
+      move-file-cli:
+        specifier: ^3.0.0
+        version: 3.0.0
+      remark-cli:
+        specifier: ^12.0.1
+        version: 12.0.1
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1)
@@ -181,25 +200,6 @@ importers:
       vfile:
         specifier: ^6.0.3
         version: 6.0.3
-
-  packages/odr:
-    dependencies:
-      '@md-schema/builder':
-        specifier: workspace:^
-        version: link:../builder
-    devDependencies:
-      '@types/unist':
-        specifier: ^3.0.3
-        version: 3.0.3
-      move-file-cli:
-        specifier: ^3.0.0
-        version: 3.0.0
-      remark-cli:
-        specifier: ^12.0.1
-        version: 12.0.1
-      tsup:
-        specifier: ^8.5.0
-        version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1)
 
   packages/remark-plugin:
     dependencies:

@@ -12,8 +12,8 @@
 	"license": "ISC",
 	"dependencies": {
 		"@md-schema/md": "workspace:^",
-		"@md-schema/odr": "workspace:^",
-		"@docs/local": "workspace:@md-schema/odr@^",
+		"@md-schema/docs": "workspace:^",
+		"@docs/v1": "workspace:@md-schema/docs@^",
 		"move-file-cli": "^3.0.0",
 		"remark-cli": "^12.0.1",
 		"remark": "^15.0.1",

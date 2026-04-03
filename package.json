@@ -18,7 +18,7 @@
 	"devDependencies": {
 		"@eslint/js": "^9.36.0",
 		"@md-schema/md": "workspace:^",
-		"@md-schema/odr": "workspace:^",
+		"@md-schema/docs": "workspace:^",
 		"@stylistic/eslint-plugin": "^5.5.0",
 		"@types/node": "^24.10.0",
 		"@typescript-eslint/eslint-plugin": "^8.46.3",

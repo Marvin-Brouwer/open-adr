@@ -1,6 +1,6 @@
 import { assert, describe, test } from 'vitest'
 
-import { architectureDecisionRecord } from '../../src/architecture-decision-record.mts'
+import { architectureDecisionRecord } from '../src/architecture-decision-record.mts'
 
 import type { Node, Parent } from 'unist'
 
@@ -66,7 +66,7 @@ function yaml(value: string): Node {
 
 function buildValidADR(): Parent {
 	return root(
-		yaml('schema: @md-schema/odr/v1/architecture-decision-record'),
+		yaml('schema: @md-schema/docs/v1/architecture-decision-record'),
 		section(1, '`ADR` Remark guided markdown',
 			heading(1, inlineCode('ADR'), text(' Remark guided markdown')),
 			blockquote(
@@ -102,7 +102,7 @@ function buildValidADR(): Parent {
 			section(2, 'Outcome',
 				heading(2, text('Outcome')),
 				paragraph(text('Once finished this product should facilitate templates.')),
-			section(3, 'Pros and cons',
+				section(3, 'Pros and cons',
 					heading(3, text('Pros and cons')),
 					paragraph(
 						inlineCode('pro'), text(' Markdown support OOTB'),
@@ -134,7 +134,7 @@ describe('architecture-decision-record', () => {
 	describe('heading validation', () => {
 		test('errors when h1 does not start with ADR', () => {
 			const document = root(
-				yaml('schema: @md-schema/odr/v1/architecture-decision-record'),
+				yaml('schema: @md-schema/docs/v1/architecture-decision-record'),
 				section(1, 'Wrong title',
 					heading(1, text('Wrong title')),
 					paragraph(text('Some context.')),
@@ -386,7 +386,7 @@ describe('architecture-decision-record', () => {
 	describe('optional sections', () => {
 		test('accepts minimal valid document (no optional sections)', () => {
 			const document = root(
-				yaml('schema: @md-schema/odr/v1/architecture-decision-record'),
+				yaml('schema: @md-schema/docs/v1/architecture-decision-record'),
 				section(1, 'ADR Minimal',
 					heading(1, text('ADR Minimal')),
 					paragraph(text('Context paragraph.')),
@@ -402,7 +402,7 @@ describe('architecture-decision-record', () => {
 
 		test('accepts document with frontmatter', () => {
 			const document = root(
-				yaml('schema: @md-schema/odr/v1/architecture-decision-record'),
+				yaml('schema: @md-schema/docs/v1/architecture-decision-record'),
 				section(1, 'ADR With Frontmatter',
 					heading(1, text('ADR With Frontmatter')),
 					paragraph(text('Context.')),
@@ -420,7 +420,7 @@ describe('architecture-decision-record', () => {
 	describe('ignored nodes', () => {
 		test('definition and html nodes are ignored', () => {
 			const document = root(
-				yaml('schema: @md-schema/odr/v1/architecture-decision-record'),
+				yaml('schema: @md-schema/docs/v1/architecture-decision-record'),
 				n('definition', { identifier: 'remark', url: 'https://github.com/remarkjs/remark' }),
 				n('definition', { identifier: 'json-schema', url: 'https://json-schema.org/' }),
 				section(1, 'ADR Title',

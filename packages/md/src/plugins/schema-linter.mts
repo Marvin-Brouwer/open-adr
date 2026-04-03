@@ -11,6 +11,7 @@ export default definePlugin({
 
 		const schema = getSchemaData(context)
 		if (!schema) throw new Error('No schema was present to lint, please check your plugin configuration.')
+		if (!schema.template) return
 
 		// Verify that the AST has been sectionified
 		const hasSections = context.root.children.some(child => child.type === 'section')
@@ -22,9 +23,9 @@ export default definePlugin({
 		for (const result of results) {
 			// Fall back to the schema line position for errors on nodes
 			// without a position (e.g. synthetic section nodes from sectionify)
-			const node = !result.node?.position
-				? schema.schemaPosition
-				: result.node
+			const node = result.node?.position
+				? result.node
+				: schema.schemaPosition
 
 			if (result.severity === 'error') {
 				context.appendError(result.message, node)

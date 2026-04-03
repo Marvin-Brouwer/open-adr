@@ -121,7 +121,7 @@ function validateStrictOrder(
 	while (childIndex < filtered.length) {
 		results.push({
 			node: filtered[childIndex],
-			message: `Unexpected ${filtered[childIndex].type} node`,
+			message: `Unexpected ${unexpectedNodeLabel(filtered[childIndex])}`,
 			severity: 'warning',
 		})
 		childIndex++
@@ -185,7 +185,7 @@ function validateArray(
 		if (!matched.has(index)) {
 			results.push({
 				node: element,
-				message: `Unexpected ${element.type} node`,
+				message: `Unexpected ${unexpectedNodeLabel(element)}`,
 				severity: 'warning',
 			})
 		}
@@ -356,4 +356,11 @@ function descriptorLabel(descriptor: NodeDescriptor): string {
 			return 'unknown'
 		}
 	}
+}
+
+function unexpectedNodeLabel(node: Node): string {
+	if (node.type === 'section' && 'name' in node && typeof node.name === 'string') {
+		return `section "${node.name}"`
+	}
+	return `${node.type} node`
 }
