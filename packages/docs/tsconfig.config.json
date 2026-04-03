@@ -10,6 +10,11 @@
 		"isolatedModules": true,
 		"allowJs": true,
 		"strict": true,
+		"paths": {
+			"tinyglobby": [
+				"./node_modules/tinyglobby/dist/index.d.mts"
+			]
+		}
 	},
 	"include": [
 		"eslint.*.ts",

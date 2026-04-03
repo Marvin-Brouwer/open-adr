@@ -145,6 +145,9 @@ importers:
       remark-cli:
         specifier: ^12.0.1
         version: 12.0.1
+      tinyglobby:
+        specifier: ^0.2.15
+        version: 0.2.15
       tsup:
         specifier: ^8.5.0
         version: 8.5.0(jiti@2.6.1)(postcss@8.5.6)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.1)

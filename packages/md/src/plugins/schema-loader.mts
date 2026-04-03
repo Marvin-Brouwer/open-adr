@@ -99,7 +99,7 @@ async function loadTemplate(identifier: string, dirname: string, context: Remark
 	}
 	else {
 		// Resolve as an npm module from the document's directory
-		moduleUrl = resolveNpmModule(identifier, dirname)
+		moduleUrl = await resolveNpmModule(identifier, dirname)
 	}
 
 	if (debug.logSchemaResolver) context.writeTrace('loading template', moduleUrl)
@@ -119,41 +119,42 @@ async function loadTemplate(identifier: string, dirname: string, context: Remark
 	return template
 }
 
-function resolveNpmModule(identifier: string, dirname: string): string {
+async function resolveNpmModule(identifier: string, dirname: string): Promise<string> {
 	// Resolve from the document's directory so Node walks up the tree
 	// to find the nearest node_modules with the package installed.
 	const require = createRequire(path.join(dirname, '__resolve__.cjs'))
-	const packageName = resolvePackageName(identifier)
-	const subpath = identifier.slice(packageName.length)
-	const packageJsonPath = require.resolve(`${packageName}/package.json`)
-	const packageDir = path.dirname(packageJsonPath)
-	const packageJson = JSON.parse(
-		readFileSync(packageJsonPath, 'utf-8'),
-	) as { exports?: Record<string, { import?: string } | string> }
 
-	const exportKey = subpath ? `.${subpath}` : '.'
-	const exportEntry = packageJson.exports?.[exportKey]
-	const importPath = typeof exportEntry === 'string'
-		? exportEntry
-		: exportEntry?.import
-
-	if (importPath) {
-		return pathToFileURL(path.resolve(packageDir, importPath)).href
-	}
-	else if (subpath) {
-		throw new Error(`Package "${packageName}" does not export subpath ".${subpath}"`)
-	}
-	else {
+	try {
 		return pathToFileURL(require.resolve(identifier)).href
+	}
+	catch (error) {
+		// CJS require.resolve doesn't support wildcard exports (e.g. "./*").
+		// Fall back to manual resolution using the package's exports map.
+		if ((error as NodeJS.ErrnoException).code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') throw error
+
+		const packageName = resolvePackageName(identifier)
+		const subpath = identifier.slice(packageName.length)
+		if (!subpath) throw error
+
+		const packageJsonPath = require.resolve(`${packageName}/package.json`)
+		const packageDir = path.dirname(packageJsonPath)
+		const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8')) as {
+			exports?: Record<string, { import?: string } | string>
+		}
+
+		const wildcardEntry = packageJson.exports?.['./*']
+		const wildcardPath = typeof wildcardEntry === 'string' ? wildcardEntry : wildcardEntry?.import
+		if (!wildcardPath) throw error
+
+		const resolved = wildcardPath.replace('*', subpath.slice(1))
+		return pathToFileURL(path.resolve(packageDir, resolved)).href
 	}
 }
 
 function resolvePackageName(identifier: string): string {
 	if (identifier.startsWith('@')) {
-		// Scoped package: @scope/name/subpath → @scope/name
 		const parts = identifier.split('/')
 		return parts.slice(0, 2).join('/')
 	}
-	// Unscoped package: name/subpath → name
 	return identifier.split('/')[0]
 }

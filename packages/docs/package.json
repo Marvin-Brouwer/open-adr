@@ -4,13 +4,10 @@
 	"description": "",
 	"type": "module",
 	"exports": {
-		".": {
-			"import": "./dist/_module.js",
-			"types": "./dist/_module.d.ts"
-		},
-		"./architecture-decision-record": {
-			"import": "./dist/architecture-decision-record.js",
-			"types": "./dist/architecture-decision-record.d.ts"
+		".": "./package.json",
+		"./*": {
+			"import": "./dist/templates/*.js",
+			"types": "./dist/templates/*.d.ts"
 		},
 		"./package.json": "./package.json"
 	},
@@ -30,6 +27,7 @@
 		"@types/unist": "^3.0.3",
 		"move-file-cli": "^3.0.0",
 		"remark-cli": "^12.0.1",
+		"tinyglobby": "^0.2.15",
 		"tsup": "^8.5.0"
 	}
 }
