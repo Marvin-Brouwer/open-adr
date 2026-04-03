@@ -4,10 +4,9 @@ import { alternativeList } from '../components/alternative-list.mts'
 import { driversList } from '../components/drivers-list.mts'
 import { prosAndCons } from '../components/pros-cons.mts'
 import { referenceList } from '../components/reference-list.mjs'
-import { multiline } from '../helpers.mts'
+import { guideUrl, multiline } from '../helpers.mts'
 
-const guideHost = 'https://github.com/Marvin-Brouwer/open-adr/blob/main'
-const guideUrl = `${guideHost}/packages/docs/src/templates/architecture-decision-record.md`
+const guide = guideUrl('adr')
 
 const driversSection = schema.section({
 	name: 'Drivers',
@@ -18,7 +17,7 @@ const driversSection = schema.section({
 		'Call out tensions between competing forces explicitly,',
 		'as these trade-offs are what justify the chosen path.',
 	),
-	url: `${guideUrl}#drivers`,
+	url: guide('drivers'),
 	level: 3,
 	optional: true,
 	match(node) {
@@ -42,7 +41,7 @@ const alternativesSection = schema.section({
 		'Include a brief description and the primary reason each was not chosen.',
 		'Avoid pseudo-alternatives that exist only to be dismissed.',
 	),
-	url: `${guideUrl}#alternatives`,
+	url: guide('alternatives'),
 	level: 3,
 	optional: true,
 	match(node) {
@@ -66,7 +65,7 @@ const decisionSection = schema.section({
 		'Name the chosen option, link it back to the drivers it addresses,',
 		'and provide an explicit justification.',
 	),
-	url: `${guideUrl}#decision`,
+	url: guide('decision'),
 	level: 2,
 	required: true,
 	children: schema.strictOrder(
@@ -86,7 +85,7 @@ const prosAndConsSection = schema.section({
 		'This structured analysis helps when revisiting the decision later',
 		'to understand the trade-offs that were accepted.',
 	),
-	url: `${guideUrl}#pros-and-cons`,
+	url: guide('pros-and-cons'),
 	level: 3,
 	optional: true,
 	children: [
@@ -104,7 +103,7 @@ const outcomeSection = schema.section({
 		'The consequences of one ADR often become the context for the next.',
 		'Include follow-up actions and any subsequent ADRs needed.',
 	),
-	url: `${guideUrl}#outcome`,
+	url: guide('outcome'),
 	level: 2,
 	optional: true,
 	children: schema.strictOrder(
@@ -123,7 +122,7 @@ const referencesSection = schema.section({
 		'Document when the decision should be revisited',
 		'and any validation mechanisms in place.',
 	),
-	url: `${guideUrl}#references`,
+	url: guide('references'),
 	level: 2,
 	optional: true,
 	children: schema.strictOrder(
@@ -145,7 +144,7 @@ const mainSection = schema.section({
 				'Write in value-neutral language — describe facts, not opinions.',
 				'Call out tensions between competing forces explicitly.',
 			),
-			url: guideUrl,
+			url: guide(),
 			match(node) {
 				const text = getNodeText(node).trim()
 				if (!text.startsWith('`ADR`') && !text.startsWith('ADR')) {
