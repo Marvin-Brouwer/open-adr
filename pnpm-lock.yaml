@@ -92,6 +92,9 @@ importers:
       '@md-schema/odr':
         specifier: workspace:^
         version: link:../packages/odr
+      '@odr/local':
+        specifier: workspace:@md-schema/odr@^
+        version: link:../packages/odr
       move-file-cli:
         specifier: ^3.0.0
         version: 3.0.0

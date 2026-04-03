@@ -1,6 +1,6 @@
 import { assert, describe, test } from 'vitest'
 
-import { architectureDecisionRecord } from '../../src/architecture-decision-record.mts'
+import { architectureDecisionRecord } from '../src/architecture-decision-record.mts'
 
 import type { Node, Parent } from 'unist'
 

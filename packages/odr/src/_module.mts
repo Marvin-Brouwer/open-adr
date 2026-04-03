@@ -1,1 +1,2 @@
-export { architectureDecisionRecord } from './v1/architecture-decision-record.mts'
+export { architectureDecisionRecord } from './architecture-decision-record.mts'
+export { default } from './architecture-decision-record.mts'

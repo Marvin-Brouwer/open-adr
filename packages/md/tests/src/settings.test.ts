@@ -76,6 +76,7 @@ describe('applyMdSettings', () => {
 		const input: MdSettingsDefinition = {
 			include: ['updated value'],
 			allowedSchemas: [],
+			schemas: { 'adr@1': '@md-schema/odr' },
 		}
 
 		// ACT

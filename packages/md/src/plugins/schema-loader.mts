@@ -1,5 +1,5 @@
+import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -53,7 +53,14 @@ export default definePlugin({
 			return
 		}
 
-		const templateResult = await tryLoadTemplate(schemaUrl, path.join(context.file.cwd, context.file.dirname ?? '.'), context)
+		const { schemas } = getMdSettings(context)
+		const resolved = resolveSchemaIdentifier(schemaUrl, schemas)
+		if (resolved instanceof Error) {
+			context.appendError(resolved.message, frontMatterResult['@position'])
+			return
+		}
+
+		const templateResult = await tryLoadTemplate(resolved, path.join(context.file.cwd, context.file.dirname ?? '.'), context)
 		if (templateResult instanceof Error) {
 			context.appendError(
 				templateResult.message,
@@ -83,42 +90,51 @@ async function tryLoadTemplate(identifier: string, dirname: string, context: Rem
 	}
 }
 
+function resolveSchemaIdentifier(identifier: string, schemas: Record<string, string>): string | Error {
+	// Schema identifiers must include a version: "name@version"
+	if (!identifier.includes('@')) {
+		const available = Object.keys(schemas)
+		const suggestions = available.filter(k => k.split('@')[0] === identifier)
+		const hint = suggestions.length > 0
+			? ` Available versions: ${suggestions.join(', ')}`
+			: ''
+		return new Error(
+			`Schema identifier "${identifier}" must include a version (e.g. "${identifier}@1").${hint}`,
+		)
+	}
+
+	// Look up in the schemas map
+	const npmSpecifier = schemas[identifier]
+	if (!npmSpecifier) {
+		const available = Object.keys(schemas)
+		return new Error(
+			`Unknown schema "${identifier}". Configure it in the schemas map.${available.length > 0 ? ` Available: ${available.join(', ')}` : ''}`,
+		)
+	}
+
+	return npmSpecifier
+}
+
 async function loadTemplate(identifier: string, dirname: string, context: RemarkPluginContext): Promise<SchemaTemplate> {
 	let moduleUrl: string
 
 	if (identifier.startsWith('file://')) {
 		// Resolve relative file:// paths against the document's directory
 		const filePath = path.resolve(dirname, identifier.replace('file://', ''))
+		if (!existsSync(filePath)) {
+			throw new Error(`Schema file not found: "${filePath}"`)
+		}
 		moduleUrl = pathToFileURL(filePath).href
 	}
+	else if (identifier.startsWith('npm://')) {
+		// Strip the npm:// prefix and resolve as an npm package
+		const npmIdentifier = identifier.slice('npm://'.length)
+		moduleUrl = resolveNpmModule(npmIdentifier, dirname)
+	}
 	else {
-		// Bare specifier — resolve from the document's working directory
-		// so that the consuming project's dependencies are used, not the md package's.
-		const cwd = context.file.cwd
-		const require = createRequire(path.join(cwd, '__resolve__.cjs'))
-		const packageName = resolvePackageName(identifier)
-		const subpath = identifier.slice(packageName.length)
-		const packageJsonPath = require.resolve(path.join(packageName, 'package.json'))
-		const packageDir = path.dirname(packageJsonPath)
-		const packageJson = JSON.parse(
-			readFileSync(packageJsonPath, 'utf-8'),
-		) as { exports?: Record<string, { import?: string } | string> }
-
-		const exportKey = subpath ? `.${subpath}` : '.'
-		const exportEntry = packageJson.exports?.[exportKey]
-		const importPath = typeof exportEntry === 'string'
-			? exportEntry
-			: exportEntry?.import
-
-		if (importPath) {
-			moduleUrl = pathToFileURL(path.resolve(packageDir, importPath)).href
-		}
-		else if (!subpath) {
-			moduleUrl = pathToFileURL(require.resolve(identifier)).href
-		}
-		else {
-			throw new Error(`Package "${packageName}" does not export subpath ".${subpath}"`)
-		}
+		throw new Error(
+			`Schema target "${identifier}" must use a protocol prefix. Use "npm://" for npm packages or "file://" for local files.`,
+		)
 	}
 
 	if (debug.logSchemaResolver) context.writeTrace('loading template', moduleUrl)
@@ -136,6 +152,35 @@ async function loadTemplate(identifier: string, dirname: string, context: Remark
 	if (debug.logSchemaResolver) context.writeTrace('loaded template', identifier)
 
 	return template
+}
+
+function resolveNpmModule(identifier: string, dirname: string): string {
+	// Resolve from the document's directory so Node walks up the tree
+	// to find the nearest node_modules with the package installed.
+	const require = createRequire(path.join(dirname, '__resolve__.cjs'))
+	const packageName = resolvePackageName(identifier)
+	const subpath = identifier.slice(packageName.length)
+	const packageJsonPath = require.resolve(`${packageName}/package.json`)
+	const packageDir = path.dirname(packageJsonPath)
+	const packageJson = JSON.parse(
+		readFileSync(packageJsonPath, 'utf-8'),
+	) as { exports?: Record<string, { import?: string } | string> }
+
+	const exportKey = subpath ? `.${subpath}` : '.'
+	const exportEntry = packageJson.exports?.[exportKey]
+	const importPath = typeof exportEntry === 'string'
+		? exportEntry
+		: exportEntry?.import
+
+	if (importPath) {
+		return pathToFileURL(path.resolve(packageDir, importPath)).href
+	}
+	else if (subpath) {
+		throw new Error(`Package "${packageName}" does not export subpath ".${subpath}"`)
+	}
+	else {
+		return pathToFileURL(require.resolve(identifier)).href
+	}
 }
 
 function resolvePackageName(identifier: string): string {

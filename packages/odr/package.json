@@ -8,10 +8,11 @@
 			"import": "./dist/_module.js",
 			"types": "./dist/_module.d.ts"
 		},
-		"./v1/architecture-decision-record": {
-			"import": "./dist/v1/architecture-decision-record.js",
-			"types": "./dist/v1/architecture-decision-record.d.ts"
-		}
+		"./architecture-decision-record": {
+			"import": "./dist/architecture-decision-record.js",
+			"types": "./dist/architecture-decision-record.d.ts"
+		},
+		"./package.json": "./package.json"
 	},
 	"scripts": {
 		"build": "tsup-node",

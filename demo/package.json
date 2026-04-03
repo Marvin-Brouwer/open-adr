@@ -13,6 +13,7 @@
 	"dependencies": {
 		"@md-schema/md": "workspace:^",
 		"@md-schema/odr": "workspace:^",
+		"@odr/local": "workspace:@md-schema/odr@^",
 		"move-file-cli": "^3.0.0",
 		"remark-cli": "^12.0.1",
 		"remark": "^15.0.1",
