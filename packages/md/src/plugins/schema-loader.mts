@@ -99,7 +99,7 @@ async function loadTemplate(identifier: string, dirname: string, context: Remark
 	}
 	else {
 		// Resolve as an npm module from the document's directory
-		moduleUrl = await resolveNpmModule(identifier, dirname)
+		moduleUrl = resolveNpmModule(identifier, dirname)
 	}
 
 	if (debug.logSchemaResolver) context.writeTrace('loading template', moduleUrl)
@@ -119,7 +119,7 @@ async function loadTemplate(identifier: string, dirname: string, context: Remark
 	return template
 }
 
-async function resolveNpmModule(identifier: string, dirname: string): Promise<string> {
+function resolveNpmModule(identifier: string, dirname: string): string {
 	// Resolve from the document's directory so Node walks up the tree
 	// to find the nearest node_modules with the package installed.
 	const require = createRequire(path.join(dirname, '__resolve__.cjs'))
@@ -137,8 +137,8 @@ async function resolveNpmModule(identifier: string, dirname: string): Promise<st
 		if (!subpath) throw error
 
 		const packageJsonPath = require.resolve(`${packageName}/package.json`)
-		const packageDir = path.dirname(packageJsonPath)
-		const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8')) as {
+		const packageDirectory = path.dirname(packageJsonPath)
+		const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8')) as {
 			exports?: Record<string, { import?: string } | string>
 		}
 
@@ -147,7 +147,7 @@ async function resolveNpmModule(identifier: string, dirname: string): Promise<st
 		if (!wildcardPath) throw error
 
 		const resolved = wildcardPath.replace('*', subpath.slice(1))
-		return pathToFileURL(path.resolve(packageDir, resolved)).href
+		return pathToFileURL(path.resolve(packageDirectory, resolved)).href
 	}
 }
 

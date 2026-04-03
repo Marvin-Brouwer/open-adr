@@ -1,4 +1,4 @@
-import Ajv, { type JSONSchemaType } from 'ajv'
+import { Ajv, type JSONSchemaType } from 'ajv'
 import ajvErrors from 'ajv-errors'
 import { isMap, isPair, isScalar, parseDocument, YAMLError } from 'yaml'
 

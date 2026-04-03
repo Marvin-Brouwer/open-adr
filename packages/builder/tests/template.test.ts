@@ -330,7 +330,7 @@ describe('template validation', () => {
 			const t = template({
 				children: schema.strictOrder(
 					md.heading(1, {
-						match() { return },
+						match() { return void 0 },
 					}),
 				),
 			})

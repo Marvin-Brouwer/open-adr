@@ -1,10 +1,10 @@
 import { defineConfig } from 'eslint/config'
-import importPlugin from 'eslint-plugin-import'
+import { flatConfigs } from 'eslint-plugin-import-x'
 import unusedImports from 'eslint-plugin-unused-imports'
 
 export const lintImports = defineConfig([
-	importPlugin.flatConfigs.recommended,
-	importPlugin.flatConfigs.typescript,
+	flatConfigs.recommended,
+	flatConfigs.typescript,
 	{
 		plugins: {
 			['unused-imports']: unusedImports,
@@ -21,10 +21,10 @@ export const lintImports = defineConfig([
 	},
 	{
 		settings: {
-			'import/parsers': {
+			'import-x/parsers': {
 				'@typescript-eslint/parser': ['.ts', '.tsx', '.mts', '.cts', '.d.ts'],
 			},
-			'import/resolver': {
+			'import-x/resolver': {
 				typescript: {
 					alwaysTryTypes: true,
 				},
@@ -33,11 +33,11 @@ export const lintImports = defineConfig([
 					moduleDirectory: ['node_modules', 'src/', 'tests/'],
 				},
 			},
-			'import/extensions': ['.js', '.jsx', '.ts', '.tsx', '.mts', '.cts'],
+			'import-x/extensions': ['.js', '.jsx', '.ts', '.tsx', '.mts', '.cts'],
 
 		},
 		rules: {
-			'import/order': [
+			'import-x/order': [
 				'error',
 				{
 					'groups': [

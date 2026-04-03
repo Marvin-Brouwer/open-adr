@@ -8,7 +8,7 @@ import { lintJs, lintTs } from './eslint.preset.lang.js'
 import { projectConfig } from './eslint.preset.project'
 
 export default defineConfig([
-	globalIgnores(['node_modules', '**/node_modules', '**/dist']),
+	globalIgnores(['node_modules', '**/node_modules', '**/dist', '**/.tsup']),
 	configureFiles([
 		'eslint.*.ts',
 		'packages/*/src/**/*.mts',
@@ -20,6 +20,12 @@ export default defineConfig([
 	unicorn.configs.recommended,
 	lintImports,
 	projectConfig,
+	{
+		files: ['**/tests/**/*.{ts,mts,cts}'],
+		rules: {
+			'unicorn/consistent-function-scoping': 'off',
+		},
+	},
 ])
 
 function configureFiles(files: Config['files']): Config {
