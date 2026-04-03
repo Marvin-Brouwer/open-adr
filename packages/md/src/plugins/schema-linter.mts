@@ -30,6 +30,9 @@ export default definePlugin({
 			if (result.severity === 'error') {
 				context.appendError(result.message, node)
 			}
+			else if (result.severity === 'info') {
+				context.appendDescription(result.message, node, result.url)
+			}
 			else {
 				context.appendWarn(result.message, node)
 			}

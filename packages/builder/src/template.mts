@@ -11,7 +11,8 @@ import type { Node, Parent } from 'unist'
 export interface ValidationResult {
 	node?: Node
 	message: string
-	severity: 'error' | 'warning'
+	severity: 'error' | 'warning' | 'info'
+	url?: string
 }
 
 export interface SchemaTemplate {
@@ -201,6 +202,20 @@ function validateSingleNode(
 ): ValidationResult[] {
 	const results: ValidationResult[] = []
 	const kind = descriptor[DescriptorKind]
+
+	if ('description' in descriptor && typeof descriptor.description === 'string') {
+		const headingNode = kind === 'section'
+			&& 'children' in node && Array.isArray(node.children)
+			? (node.children as Node[]).find(child => child.type === 'heading')
+			: undefined
+
+		results.push({
+			node: headingNode ?? node,
+			message: descriptor.description,
+			severity: 'info',
+			...('url' in descriptor && typeof descriptor.url === 'string' ? { url: descriptor.url } : {}),
+		})
+	}
 
 	if ('match' in descriptor && typeof descriptor.match === 'function') {
 		const matchResult = descriptor.match(node)

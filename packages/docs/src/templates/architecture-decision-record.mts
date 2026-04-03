@@ -9,6 +9,7 @@ import type { Node } from 'unist'
 
 const driversSection = schema.section({
 	name: 'Drivers',
+	description: 'What are the forces and constraints that influence the decision',
 	level: 3,
 	optional: true,
 	match(node) {
@@ -28,6 +29,7 @@ const driversSection = schema.section({
 
 const alternativesSection = schema.section({
 	name: 'Alternatives',
+	description: 'What other options were considered and why were they dismissed',
 	level: 3,
 	optional: true,
 	match(node) {
@@ -47,6 +49,8 @@ const alternativesSection = schema.section({
 
 const decisionSection = schema.section({
 	name: 'Decision',
+	description: 'What is the change that we are proposing and/or doing?',
+	url: 'https://adr.github.io/',
 	level: 2,
 	required: true,
 	children: schema.strictOrder(
@@ -59,6 +63,7 @@ const decisionSection = schema.section({
 
 const prosAndConsSection = schema.section({
 	name: 'Pros and cons',
+	description: 'What are the pros and cons of the decision outcome',
 	level: 3,
 	optional: true,
 	children: [
@@ -69,6 +74,7 @@ const prosAndConsSection = schema.section({
 
 const outcomeSection = schema.section({
 	name: 'Outcome',
+	description: 'What was the result of the decision',
 	level: 2,
 	optional: true,
 	children: schema.strictOrder(
@@ -80,6 +86,7 @@ const outcomeSection = schema.section({
 
 const referencesSection = schema.section({
 	name: 'References:',
+	description: 'Links to related documents, resources, or discussions',
 	level: 2,
 	optional: true,
 	children: schema.strictOrder(

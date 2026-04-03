@@ -8,8 +8,10 @@ import remarkStringify from 'remark-stringify'
 export default {
 	settings: {
 		'md-schema': mdSettings({
-			// allowedSchemas: ['incident.schema.json', 'project.schema.json'],
-			include: ['**/docs/architecture/*.md', '**/doc/architecture/*.md'],
+			include: [
+				'**/docs/**/*.md',
+				'**/doc/**/*.md',
+			],
 		}),
 	},
 	plugins: [
@@ -28,6 +30,9 @@ export default {
 		unsectionify,
 
 		// Fix for vscode markdown-previewer
+		// This is not required for using md-schema, however,
+		// it makes sure the save action doesn't mess up the file in vscode
+		// to a point where the built-in previewer breaks
 		preserveGithubAlerts,
 		[remarkStringify, {
 			checklist: true,

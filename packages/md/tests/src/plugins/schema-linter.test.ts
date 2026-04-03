@@ -140,6 +140,37 @@ describe(pluginName, () => {
 			assert.isNotTrue(fileResult.messages[0].fatal)
 		})
 
+		test('validation info messages are mapped to appendInfo', async () => {
+			// ARRANGE
+			const infoNode = { type: 'heading' }
+			const template: SchemaTemplate = {
+				validate: () => [
+					{ message: 'What is the change', severity: 'info', node: infoNode } as ValidationResult,
+				],
+			}
+			const document = new VFile({
+				path: 'doc/odr/test/info.md',
+				value: md(`
+					---
+					schema: 'test://mock'
+					---
+
+					# Example
+
+					Some content.
+				`),
+			})
+
+			// ACT
+			const sut = loadProcessor(template)
+			const fileResult = await sut.process(document)
+
+			// ASSERT
+			assert.equal(fileResult.messages.length, 1)
+			assert.equal(fileResult.messages[0].message, 'What is the change')
+			assert.isUndefined(fileResult.messages[0].fatal)
+		})
+
 		test('multiple validation results', async () => {
 			// ARRANGE
 			const template: SchemaTemplate = {

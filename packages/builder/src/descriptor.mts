@@ -10,5 +10,7 @@ export type MatchResult = {
 export interface BaseDescriptorOptions {
 	required?: boolean
 	optional?: boolean
+	description?: string
+	url?: string
 	match?: (node: Node) => MatchResult
 }

@@ -12,8 +12,26 @@ export function createMessageWriter(root: Node, file: VFile, pluginName: string,
 
 			console.info(`[${pluginName}]`, ...arguments_)
 		},
-		appendInfo(message: string, location?: Parent | Node | Position) {
-			file.info(message, location as Node ?? root)
+		/**
+		 * Add hover information to nodes in the markdown file.
+		 * This is used to provide additional context to users when they hover over a node in the markdown file.
+		 *
+		 * **NOTE:** Currently this is the same as appendInfo since unified-language-server doesn't support hint diagnostics,
+		 * the difference is that we don't output this on CLI mode.
+		 */
+		appendDescription(message: string, location?: Parent | Node | Position, url?: string) {
+			if (process.stdout.isTTY) return
+
+			const info = file.info(message, location as Node ?? root)
+			// remark extension doesn't support url in info messages
+			if (url) info.note = `Read more: ${url}`
+			if (url) info.url = url
+		},
+		appendInfo(message: string, location?: Parent | Node | Position, url?: string) {
+			const info = file.info(message, location as Node ?? root)
+			// remark extension doesn't support url in info messages
+			if (url) info.note = url
+			if (url) info.url = url
 		},
 		appendWarn(message: string, location?: Parent | Node | Position) {
 			file.message(message, location as Node ?? root)

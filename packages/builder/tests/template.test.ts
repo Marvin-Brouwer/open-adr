@@ -800,4 +800,82 @@ describe('template validation', () => {
 			assert.isEmpty(errors(results))
 		})
 	})
+
+	describe('description', () => {
+		function infos(results: ValidationResult[]): ValidationResult[] {
+			return results.filter(r => r.severity === 'info')
+		}
+
+		test('emits info for section with description', () => {
+			const t = template({
+				children: [
+					schema.section({
+						name: 'Decision',
+						description: 'What is the change',
+						level: 2,
+						required: true,
+						children: [md.heading(2)],
+					}),
+				],
+			})
+
+			const results = t.validate(root(
+				section(2, 'Decision', [heading(2, 'Decision')]),
+			))
+			assert.isEmpty(errors(results))
+			assert.equal(infos(results).length, 1)
+			assert.equal(infos(results)[0].message, 'What is the change')
+		})
+
+		test('targets heading node for section description', () => {
+			const h = heading(2, 'Decision')
+			const t = template({
+				children: [
+					schema.section({
+						name: 'Decision',
+						description: 'What is the change',
+						level: 2,
+						required: true,
+						children: [md.heading(2)],
+					}),
+				],
+			})
+
+			const results = t.validate(root(
+				section(2, 'Decision', [h]),
+			))
+			assert.equal(infos(results)[0].node, h)
+		})
+
+		test('does not emit info when no description', () => {
+			const t = template({
+				children: [
+					schema.section({
+						name: 'Decision',
+						level: 2,
+						required: true,
+						children: [md.heading(2)],
+					}),
+				],
+			})
+
+			const results = t.validate(root(
+				section(2, 'Decision', [heading(2, 'Decision')]),
+			))
+			assert.isEmpty(infos(results))
+		})
+
+		test('emits info for heading with description', () => {
+			const t = template({
+				children: schema.strictOrder(
+					md.heading(1, { description: 'The title of the document' }),
+				),
+			})
+
+			const results = t.validate(root(heading(1, 'My Title')))
+			assert.isEmpty(errors(results))
+			assert.equal(infos(results).length, 1)
+			assert.equal(infos(results)[0].message, 'The title of the document')
+		})
+	})
 })
