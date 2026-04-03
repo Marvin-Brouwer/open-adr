@@ -1,0 +1,62 @@
+name: Deploy GitHub Pages redirects
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/generate-redirects.mjs
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one deployment at a time; cancel any in-flight run.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  # Edit these redirects directly in this file.
+  # Reserved keys: 'index' (root page), '404' (unknown URLs).
+  # Each other key creates a redirect at https://md-schema.github.io/md-schema/{key}
+  REDIRECTS: |
+    index: "https://github.com/md-schema/md-schema/tree/main#readme"
+    404: "https://github.com/md-schema/md-schema/tree/main#readme"
+
+    adr/v1: "https://github.com/md-schema/md-schema/blob/main/packages/docs/src/templates/architecture-decision-record.md#writing-an-architecture-decision-record"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Write redirects config
+        run: printf '%s' "$REDIRECTS" > redirects.yml
+
+      - name: Generate redirect pages
+        run: node scripts/generate-redirects.mjs
+        working-directory: "${{ github.workspace }}/.github/workflows/"
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deploy
