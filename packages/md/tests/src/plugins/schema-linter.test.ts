@@ -61,7 +61,7 @@ describe(pluginName, () => {
 				path: 'doc/odr/test/valid.md',
 				value: md(`
 					---
-					odr:schema: 'test://mock'
+					schema: 'test://mock'
 					---
 
 					# Example
@@ -90,7 +90,7 @@ describe(pluginName, () => {
 				path: 'doc/odr/test/invalid.md',
 				value: md(`
 					---
-					odr:schema: 'test://mock'
+					schema: 'test://mock'
 					---
 
 					# Example
@@ -121,7 +121,7 @@ describe(pluginName, () => {
 				path: 'doc/odr/test/warnings.md',
 				value: md(`
 					---
-					odr:schema: 'test://mock'
+					schema: 'test://mock'
 					---
 
 					# Example
@@ -153,7 +153,7 @@ describe(pluginName, () => {
 				path: 'doc/odr/test/multiple.md',
 				value: md(`
 					---
-					odr:schema: 'test://mock'
+					schema: 'test://mock'
 					---
 
 					# Example
@@ -197,7 +197,7 @@ describe(pluginName, () => {
 				path: 'doc/odr/test/no-sections.md',
 				value: md(`
 					---
-					odr:schema: 'test://mock'
+					schema: 'test://mock'
 					---
 
 					# Example
@@ -237,7 +237,7 @@ describe(pluginName, () => {
 				path: 'doc/odr/test/no-schema.md',
 				value: md(`
 					---
-					odr:schema: 'test://mock'
+					schema: 'test://mock'
 					---
 
 					# Example

@@ -13,7 +13,7 @@ import { getMdSettings } from '../settings.mts'
 
 import type { SchemaTemplate } from '@md-schema/builder'
 
-export const mdSchemaKey = 'odr:schema' as const
+export const mdSchemaKey = 'schema' as const
 
 export interface MdFileMetaData { [mdSchemaKey]: string }
 

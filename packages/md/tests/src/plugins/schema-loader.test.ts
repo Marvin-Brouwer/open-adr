@@ -116,7 +116,7 @@ describe(pluginName, () => {
 
 				# No schema
 
-				This file has no odr:schema in the remark data
+				This file has no schema in the remark data
 			`),
 		})
 
@@ -125,7 +125,7 @@ describe(pluginName, () => {
 		const file = await sut.process(document)
 
 		// ASSERT
-		assert.equal(file.messages[0].message, `meta-data must have required property 'odr:schema'`)
+		assert.equal(file.messages[0].message, `meta-data must have required property 'schema'`)
 		// It should mark the yaml
 		// But it marks the entire block for now
 		assert.deepEqual(file.messages[0].place, {
@@ -148,12 +148,12 @@ describe(pluginName, () => {
 			path: 'doc/odr/test/empty-schema.md',
 			value: md(`
 				---
-				odr:schema: ''
+				schema: ''
 				---
 
 				# Empty schema
 
-				This file has an invalid odr:schema in the remark data
+				This file has an invalid schema in the remark data
 			`),
 		})
 
@@ -173,13 +173,13 @@ describe(pluginName, () => {
 			path: 'doc/odr/test/duplicate-schema.md',
 			value: md(`
 				---
-				odr:schema: 'file://./any.json'
-				odr:schema: 'file://./any.json'
+				schema: 'file://./any.json'
+				schema: 'file://./any.json'
 				---
 
 				# Double schema
 
-				This file has an invalid odr:schema in the remark data
+				This file has an invalid schema in the remark data
 			`),
 		})
 
@@ -197,7 +197,7 @@ describe(pluginName, () => {
 			path: 'doc/odr/test/no-version.md',
 			value: md(`
 				---
-				odr:schema: 'my-schema'
+				schema: 'my-schema'
 				---
 
 				# No version
@@ -221,7 +221,7 @@ describe(pluginName, () => {
 			path: 'doc/odr/test/unknown-alias.md',
 			value: md(`
 				---
-				odr:schema: 'my-schema@1'
+				schema: 'my-schema@1'
 				---
 
 				# Unknown alias
@@ -250,7 +250,7 @@ describe(pluginName, () => {
 			path: 'doc/odr/test/schema-not-found.md',
 			value: md(`
 				---
-				odr:schema: 'bad-schema@1'
+				schema: 'bad-schema@1'
 				---
 
 				# Schema not found
@@ -279,7 +279,7 @@ describe(pluginName, () => {
 			path: 'doc/odr/test/file-not-found.md',
 			value: md(`
 				---
-				odr:schema: 'missing-file@1'
+				schema: 'missing-file@1'
 				---
 
 				# File not found
@@ -309,7 +309,7 @@ describe(pluginName, () => {
 			path: 'doc/odr/test/npm-not-found.md',
 			value: md(`
 				---
-				odr:schema: 'remote-schema@1'
+				schema: 'remote-schema@1'
 				---
 
 				# npm package not found
@@ -339,7 +339,7 @@ describe(pluginName, () => {
 			path: 'doc/odr/test/invalid-module.md',
 			value: md(`
 				---
-				odr:schema: 'invalid-module@1'
+				schema: 'invalid-module@1'
 				---
 
 				# Invalid module
@@ -372,12 +372,12 @@ describe(pluginName, () => {
 			path: 'doc/odr/test/schema-valid-not-allowed.md',
 			value: md(`
 				---
-				odr:schema: 'different-schema@1'
+				schema: 'different-schema@1'
 				---
 
 				# Schema valid
 
-				This file has a valid odr:schema in the remark data
+				This file has a valid schema in the remark data
 			`),
 		})
 
@@ -390,7 +390,7 @@ describe(pluginName, () => {
 			file.messages[0].message.trim(),
 			`Schema "different-schema@1" is not allowed. Allowed: my-schema@1`,
 		)
-		// It should mark the odr:schema line specifically
+		// It should mark the schema line specifically
 		assert.deepEqual(file.messages[0].place, {
 			start: {
 				column: 1,
@@ -398,9 +398,9 @@ describe(pluginName, () => {
 				offset: 4,
 			},
 			end: {
-				column: 33,
+				column: 29,
 				line: 2,
-				offset: 36,
+				offset: 32,
 			},
 		})
 	})
@@ -416,12 +416,12 @@ describe(pluginName, () => {
 			path: 'doc/odr/test/schema-valid.md',
 			value: md(`
 				---
-				odr:schema: 'mock-template@1'
+				schema: 'mock-template@1'
 				---
 
 				# Schema valid
 
-				This file has a valid odr:schema in the remark data
+				This file has a valid schema in the remark data
 			`),
 		})
 
