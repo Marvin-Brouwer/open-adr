@@ -1,4 +1,4 @@
-import { DescriptorKind, type BaseDescriptorOptions } from './descriptor.mts'
+import { DescriptorKind, type BaseDescriptorOptions, type MatchResult } from './descriptor.mts'
 
 import type { MdDescriptor } from './md.mts'
 
@@ -34,5 +34,11 @@ export const schema = {
 	},
 	oneOrMore(item: NodeDescriptor): OneOrMoreDescriptor {
 		return { [DescriptorKind]: 'oneOrMore', item }
+	},
+	error(message: string): MatchResult {
+		return { severity: 'error', message }
+	},
+	warning(message: string): MatchResult {
+		return { severity: 'warning', message }
 	},
 } as const

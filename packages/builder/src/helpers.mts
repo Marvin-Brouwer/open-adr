@@ -1,11 +1,19 @@
 import type { Node } from 'unist'
 
+export function getNodeChildren(node: Node, type: string): Node[]
+export function getNodeChildren(node: Node): Node[]
+export function getNodeChildren(node: Node, type?: string): Node[] {
+	if (!('children' in node) || !Array.isArray(node.children)) return []
+	const children = node.children as Node[]
+	if (type) return children.filter(child => child.type === type)
+	return children
+}
+
 export function getNodeText(node: Node | null | undefined): string {
 	if (!node) return ''
 	if ('value' in node && typeof node.value === 'string') return node.value
 	if (node.type === 'break') return '\n'
-	if (!('children' in node) || !Array.isArray(node.children)) return ''
-	return (node.children as Node[]).map(child => getNodeText(child)).join('')
+	return getNodeChildren(node).map(child => getNodeText(child)).join('')
 }
 
 export function asArray<T>(value: T[] | undefined | null): T[] {
@@ -21,8 +29,7 @@ export function isLinkNode(node: Node): boolean {
 }
 
 export function getHeadingNode(sectionNode: Node): Node | undefined {
-	if (!('children' in sectionNode) || !Array.isArray(sectionNode.children)) return undefined
-	return (sectionNode.children as Node[]).find(child => child.type === 'heading')
+	return getNodeChildren(sectionNode).find(child => child.type === 'heading')
 }
 
 export function hasLinkOnlyHeading(sectionNode: Node, level: number): boolean {
@@ -30,16 +37,15 @@ export function hasLinkOnlyHeading(sectionNode: Node, level: number): boolean {
 	if (!heading) return false
 	if (!('depth' in heading) || heading.depth !== level) return false
 
-	const children = 'children' in heading && Array.isArray(heading.children)
-		? heading.children as Node[]
-		: []
+	const children = getNodeChildren(heading)
 	const meaningfulChildren = children.filter(child => !isWhitespaceText(child))
 	return meaningfulChildren.length === 1 && isLinkNode(meaningfulChildren[0])
 }
 
 export function hasNonEmptyBody(sectionNode: Node): boolean {
-	if (!('children' in sectionNode) || !Array.isArray(sectionNode.children)) return false
-	const bodyNodes = (sectionNode.children as Node[]).filter(child => child.type !== 'heading')
+	const children = getNodeChildren(sectionNode)
+	if (children.length === 0) return false
+	const bodyNodes = children.filter(child => child.type !== 'heading')
 	return bodyNodes.some((child) => {
 		const text = getNodeText(child).trim()
 		return !!text || child.type === 'blockquote' || child.type === 'list' || child.type === 'code'

@@ -27,6 +27,7 @@ export { template } from './template.mts'
 export type { ValidationResult, SchemaTemplate, TemplateConfig } from './template.mts'
 
 export {
+	getNodeChildren,
 	getNodeText,
 	asArray,
 	isWhitespaceText,
