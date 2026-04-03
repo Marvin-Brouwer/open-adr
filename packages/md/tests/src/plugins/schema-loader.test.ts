@@ -390,18 +390,17 @@ describe(pluginName, () => {
 			file.messages[0].message.trim(),
 			`Schema "different-schema@1" is not allowed. Allowed: my-schema@1`,
 		)
-		// It should mark the yaml URL value
-		// But it marks the entire block for now
+		// It should mark the odr:schema line specifically
 		assert.deepEqual(file.messages[0].place, {
 			start: {
 				column: 1,
-				line: 1,
-				offset: 0,
+				line: 2,
+				offset: 4,
 			},
 			end: {
-				column: 4,
-				line: 3,
-				offset: 40,
+				column: 33,
+				line: 2,
+				offset: 36,
 			},
 		})
 	})

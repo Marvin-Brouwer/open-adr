@@ -44,19 +44,21 @@ export default definePlugin({
 		}
 
 		const schemaUrl = frontMatterResult[mdSchemaKey]
+		const schemaPosition = frontMatterResult['@positions']?.[mdSchemaKey] ?? frontMatterResult['@position']
 		context.file.data[mdSchemaKey] = {
 			schemaUrl,
+			schemaPosition,
 		}
 
 		if (allowedSchemas && allowedSchemas.length > 0 && !allowedSchemas.includes(schemaUrl)) {
-			context.appendError(`Schema "${schemaUrl}" is not allowed. Allowed: ${allowedSchemas.join(', ')}`, frontMatterResult['@position'])
+			context.appendError(`Schema "${schemaUrl}" is not allowed. Allowed: ${allowedSchemas.join(', ')}`, schemaPosition)
 			return
 		}
 
 		const { schemas } = getMdSettings(context)
 		const resolved = resolveSchemaIdentifier(schemaUrl, schemas)
 		if (resolved instanceof Error) {
-			context.appendError(resolved.message, frontMatterResult['@position'])
+			context.appendError(resolved.message, schemaPosition)
 			return
 		}
 
@@ -64,7 +66,7 @@ export default definePlugin({
 		if (templateResult instanceof Error) {
 			context.appendError(
 				templateResult.message,
-				frontMatterResult['@position'],
+				schemaPosition,
 				{
 					stack: templateResult.stack,
 					file: schemaUrl,
@@ -76,6 +78,7 @@ export default definePlugin({
 
 		context.file.data[mdSchemaKey] = {
 			schemaUrl,
+			schemaPosition,
 			template: templateResult,
 		}
 	},

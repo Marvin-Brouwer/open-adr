@@ -20,11 +20,17 @@ export default definePlugin({
 
 		const results = schema.template.validate(context.root)
 		for (const result of results) {
+			// Fall back to the schema line position for errors on nodes
+			// without a position (e.g. synthetic section nodes from sectionify)
+			const node = !result.node?.position
+				? schema.schemaPosition
+				: result.node
+
 			if (result.severity === 'error') {
-				context.appendError(result.message, result.node)
+				context.appendError(result.message, node)
 			}
 			else {
-				context.appendWarn(result.message, result.node)
+				context.appendWarn(result.message, node)
 			}
 		}
 	},
