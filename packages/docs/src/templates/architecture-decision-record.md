@@ -22,6 +22,25 @@ Examples of good titles:
 Nygard's convention stores ADRs in the repository under a `doc/arch/` or `doc/adr/` directory.
 This template enforces that titles start with "ADR" to make the intent immediately recognizable.
 
+## Filename
+
+ADR files must follow this naming convention:
+
+```
+{creationDate}.{counter}.{slug}.md
+```
+
+For example: `2025-11-19.001.remark-guided-docs.md`
+
+| Part | Format | Description |
+| --- | --- | --- |
+| `creationDate` | `YYYY-MM-DD` | The date the ADR was created, in [ISO 8601][iso-8601] date format |
+| `counter` | `001`–`999` | A zero-padded three-digit counter to ensure sequential ordering when multiple ADRs are created on the same date. Resets to `001` on each new date. |
+| `slug` | URL-safe string | A lowercase, hyphen-separated representation of the ADR title, excluding the `ADR` prefix. Use only `a-z`, `0-9`, and `-`. |
+
+The counter ensures that ADRs created on the same day appear in the order they were written.
+The slug should be derived from the document title — for example, an ADR titled *"`ADR` Remark guided docs"* becomes `remark-guided-docs`.
+
 ## Status
 
 Use a blockquote at the top of the document to communicate the lifecycle status of the decision.
@@ -129,3 +148,4 @@ This guide draws from the following sources:
 [nygard]: https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions "Documenting Architecture Decisions"
 [jph]: https://github.com/joelparkerhenderson/architecture-decision-record "Architecture Decision Record"
 [madr-primer]: https://www.ozimmer.ch/practices/2022/11/22/MADRTemplatePrimer.html "MADR Template Primer"
+[iso-8601]: https://www.iso.org/iso-8601-date-and-time-format.html "ISO 8601 Date and time format"
