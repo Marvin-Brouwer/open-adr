@@ -1,6 +1,6 @@
 import { getNodeText, getNodeChildren } from '@md-schema/builder'
 
-import { guideHost, guideVersion } from './constants.mts'
+import { guideHost, schemaVersion } from './constants.mts'
 
 import type { Node } from 'unist'
 
@@ -23,5 +23,5 @@ export const hasBlockquoteAndDismissal = (node: Node): boolean => {
 export const multiline = (...lines: string[]) => lines.join('\n')
 
 export const guideUrl = (shortcut: string) =>
-	(section?: string) => `${guideHost}/${shortcut}/${guideVersion}/`
+	(section?: string) => `${guideHost}/${schemaVersion}/${shortcut}/`
 		+ (section ? `#${section.toLowerCase().replaceAll(/\s+/g, '-')}` : '')

@@ -26,7 +26,7 @@ env:
     index: "https://github.com/md-schema/md-schema/tree/main#readme"
     404: "https://github.com/md-schema/md-schema/tree/main#readme"
 
-    adr/v1: "https://github.com/md-schema/md-schema/blob/main/packages/docs/src/templates/architecture-decision-record.md#writing-an-architecture-decision-record"
+    v1/adr: "https://github.com/md-schema/md-schema/blob/main/packages/docs/src/templates/architecture-decision-record.md#writing-an-architecture-decision-record"
 
 jobs:
   build:

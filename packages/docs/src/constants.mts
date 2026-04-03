@@ -1,2 +1,2 @@
 export const guideHost = 'https://md-schema.github.io'
-export const guideVersion = 'v1'
+export const schemaVersion = 'v1'
