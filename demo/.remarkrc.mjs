@@ -23,11 +23,11 @@ export default {
 
 		// Configure md-schema
 		remarkFrontmatter,
-		mdSchemaLoader,
-		mdSectionify,
-		mdLinter,
-		mdSchemaInfo,
-		mdUnSectionify,
+		mdSchemaLoader, //		\
+		mdSectionify, //		 \
+		mdLinter, //			  - Will become `mdSchema`,
+		mdSchemaInfo, //		 /
+		mdUnSectionify, //		/
 
 		// Fix for vscode markdown-previewer
 		// This is not required for using md-schema, however, it makes sure the save action in vscode
