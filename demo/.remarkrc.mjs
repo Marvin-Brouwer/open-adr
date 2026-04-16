@@ -1,4 +1,4 @@
-import { mdLinter, mdSchema, mdSchemaInfo, mdSettings, preserveGithubAlerts, sectionify, unsectionify } from '@md-schema/md'
+import { mdLinter, mdSchemaLoader, mdSchemaInfo, mdSettings, mdSectionify, mdUnSectionify, preserveGithubAlerts } from '@md-schema/md'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkLint from 'remark-lint'
 import remarkLintCheckbox from 'remark-lint-checkbox-character-style'
@@ -23,16 +23,15 @@ export default {
 
 		// Configure md-schema
 		remarkFrontmatter,
-		sectionify,
-		mdSchema,
+		mdSchemaLoader,
+		mdSectionify,
 		mdLinter,
 		mdSchemaInfo,
-		unsectionify,
+		mdUnSectionify,
 
 		// Fix for vscode markdown-previewer
-		// This is not required for using md-schema, however,
-		// it makes sure the save action doesn't mess up the file in vscode
-		// to a point where the built-in previewer breaks
+		// This is not required for using md-schema, however, it makes sure the save action in vscode
+		// doesn't mess up the file to a point where the built-in previewer breaks
 		preserveGithubAlerts,
 		[remarkStringify, {
 			checklist: true,

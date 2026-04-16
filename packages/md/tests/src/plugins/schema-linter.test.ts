@@ -10,7 +10,7 @@ import { mdSettings } from '../../../src/_module.mts'
 import pluginUnderTest, { pluginName } from '../../../src/plugins/schema-linter.mts'
 import { mdSchemaKey } from '../../../src/plugins/schema-loader.mts'
 import sectionify from '../../../src/plugins/sectionify.mts'
-import unsectionify from '../../../src/plugins/unsectionify.mts'
+import unsectionify from '../../../src/plugins/un-sectionify.mts'
 import { type MdSettingsDefinition } from '../../../src/settings.mts'
 import { md } from '../../helpers/un-pad.mts'
 

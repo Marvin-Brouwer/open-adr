@@ -3,7 +3,7 @@ import { unified } from 'unified'
 import { describe, it, expect } from 'vitest'
 
 import sectionify from '../../../src/plugins/sectionify.mts'
-import unsectionify from '../../../src/plugins/unsectionify.mts'
+import unsectionify from '../../../src/plugins/un-sectionify.mts'
 
 import type { Node, Parent } from 'unist'
 
