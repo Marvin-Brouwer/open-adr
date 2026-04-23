@@ -299,9 +299,7 @@ function nodeTypeMatches(descriptor: NodeDescriptor, node: Node): boolean {
 		case 'section': {
 			if (node.type !== 'section') return false
 			const sec = descriptor
-			if (!('depth' in node) || node.depth !== sec.level) return false
-			if (sec.name !== undefined && (!('name' in node) || node.name !== sec.name)) return false
-			return true
+			return 'depth' in node && node.depth === sec.level
 		}
 		case 'oneOrMore': {
 			return false
