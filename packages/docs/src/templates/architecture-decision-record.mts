@@ -5,7 +5,6 @@ import { driversList } from '../components/drivers-list.mts'
 import { prosAndCons } from '../components/pros-cons.mts'
 import { referenceList } from '../components/reference-list.mjs'
 import { guideUrl, multiline } from '../helpers.mts'
-import { matchSectionHeader } from '../tools/sections.mts'
 
 const guide = guideUrl('adr')
 
@@ -28,9 +27,7 @@ const driversSection = schema.section({
 		)
 	},
 	children: [
-		md.heading(3, {
-			match: matchSectionHeader('drivers', 'Drivers'),
-		}),
+		md.heading(3),
 		driversList,
 	],
 })
@@ -54,9 +51,7 @@ const alternativesSection = schema.section({
 		)
 	},
 	children: [
-		md.heading(3, {
-			match: matchSectionHeader('alternatives', 'Alternatives'),
-		}),
+		md.heading(3),
 		alternativeList,
 	],
 })
@@ -74,9 +69,7 @@ const decisionSection = schema.section({
 	level: 2,
 	required: true,
 	children: schema.strictOrder(
-		md.heading(2, {
-			match: matchSectionHeader('decision', 'Decision'),
-		}),
+		md.heading(2),
 		md.paragraph({ required: true }),
 		driversSection,
 		alternativesSection,
@@ -96,9 +89,7 @@ const prosAndConsSection = schema.section({
 	level: 3,
 	optional: true,
 	children: [
-		md.heading(3, {
-			match: matchSectionHeader('pros and cons', 'Pros and cons'),
-		}),
+		md.heading(3),
 		prosAndCons,
 	],
 })
@@ -116,16 +107,14 @@ const outcomeSection = schema.section({
 	level: 2,
 	optional: true,
 	children: schema.strictOrder(
-		md.heading(2, {
-			match: matchSectionHeader('outcome', 'Outcome'),
-		}),
+		md.heading(2),
 		md.paragraph({ required: true }),
 		prosAndConsSection,
 	),
 })
 
 const referencesSection = schema.section({
-	name: 'References:',
+	name: 'References',
 	description: multiline(
 		'What sources informed this decision?',
 		'',
@@ -137,9 +126,7 @@ const referencesSection = schema.section({
 	level: 2,
 	optional: true,
 	children: schema.strictOrder(
-		md.heading(2, {
-			match: matchSectionHeader('reference', 'References'),
-		}),
+		md.heading(2),
 		referenceList,
 	),
 })
@@ -168,9 +155,7 @@ const mainSection = schema.section({
 		md.blockquote({ optional: true }),
 		md.codeBlock({ optional: true, language: 'yml' }),
 		md.paragraph({ minOccurrences: 1, maxOccurrences: 5 }),
-		decisionSection,
-		outcomeSection,
-		referencesSection,
+		schema.sectionMap(decisionSection, outcomeSection, referencesSection),
 	),
 })
 

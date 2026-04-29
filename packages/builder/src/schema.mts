@@ -2,7 +2,7 @@ import { DescriptorKind, type BaseDescriptorOptions, type MatchResult } from './
 
 import type { MdDescriptor } from './md.mts'
 
-export type SchemaDescriptor = SectionDescriptor | OneOrMoreDescriptor
+export type SchemaDescriptor = SectionDescriptor | OneOrMoreDescriptor | SectionMapDescriptor
 export type NodeDescriptor = MdDescriptor | SchemaDescriptor
 export type ChildrenDefinition = NodeDescriptor[] | StrictOrderDescriptor
 
@@ -23,6 +23,11 @@ export interface OneOrMoreDescriptor {
 	readonly item: NodeDescriptor
 }
 
+export interface SectionMapDescriptor {
+	readonly [DescriptorKind]: 'sectionMap'
+	readonly sections: readonly SectionDescriptor[]
+}
+
 type SectionOptions = Omit<SectionDescriptor, typeof DescriptorKind>
 
 export const schema = {
@@ -34,6 +39,9 @@ export const schema = {
 	},
 	oneOrMore(item: NodeDescriptor): OneOrMoreDescriptor {
 		return { [DescriptorKind]: 'oneOrMore', item }
+	},
+	sectionMap(...sections: SectionDescriptor[]): SectionMapDescriptor {
+		return { [DescriptorKind]: 'sectionMap', sections }
 	},
 	error(message: string): MatchResult {
 		return { severity: 'error', message }

@@ -633,6 +633,175 @@ describe('template validation', () => {
 			assert.isNotEmpty(errors(results))
 			assert.include(errors(results)[0].message, 'Missing required section "Decision"')
 		})
+
+	})
+
+	describe('sectionMap', () => {
+		function makeTemplate(required = true) {
+			return template({
+				children: [
+					schema.section({
+						level: 1,
+						children: schema.strictOrder(
+							md.heading(1),
+							schema.sectionMap(
+								schema.section({ level: 2, name: 'A', required: true, children: [md.heading(2)] }),
+								schema.section({ level: 2, name: 'B', required, children: [md.heading(2)] }),
+								schema.section({ level: 2, name: 'C', optional: true, children: [md.heading(2)] }),
+							),
+						),
+					}),
+				],
+			})
+		}
+
+		test('all sections present in correct order — no errors or warnings', () => {
+			const r = root(section(1, 'Title', [
+				heading(1, 'Title'),
+				section(2, 'A', [heading(2, 'A')]),
+				section(2, 'B', [heading(2, 'B')]),
+				section(2, 'C', [heading(2, 'C')]),
+			]))
+			const results = makeTemplate().validate(r)
+			assert.isEmpty(errors(results))
+			assert.isEmpty(warnings(results))
+		})
+
+		test('required section absent with no other sections — error points to parent', () => {
+			const r = root(section(1, 'Title', [heading(1, 'Title')]))
+			const results = makeTemplate().validate(r)
+			assert.equal(errors(results).length, 2)
+			assert.include(errors(results)[0].message, 'Missing required section "A"')
+			assert.include(errors(results)[1].message, 'Missing required section "B"')
+		})
+
+		test('required section absent with later sections present — error on next section, no cascade', () => {
+			const r = root(section(1, 'Title', [
+				heading(1, 'Title'),
+				section(2, 'B', [heading(2, 'B')]),
+				section(2, 'C', [heading(2, 'C')]),
+			]))
+			const results = makeTemplate().validate(r)
+			assert.equal(errors(results).length, 1)
+			assert.include(errors(results)[0].message, 'Missing required section "A"')
+			assert.isEmpty(warnings(results))
+		})
+
+		test('both required sections absent — two independent errors', () => {
+			const r = root(section(1, 'Title', [
+				heading(1, 'Title'),
+				section(2, 'C', [heading(2, 'C')]),
+			]))
+			const results = makeTemplate().validate(r)
+			assert.equal(errors(results).length, 2)
+			assert.include(errors(results)[0].message, 'Missing required section "A"')
+			assert.include(errors(results)[1].message, 'Missing required section "B"')
+		})
+
+		test('optional section absent — no error, surrounding sections validated', () => {
+			const r = root(section(1, 'Title', [
+				heading(1, 'Title'),
+				section(2, 'A', [heading(2, 'A')]),
+				section(2, 'B', [heading(2, 'B')]),
+			]))
+			const results = makeTemplate().validate(r)
+			assert.isEmpty(errors(results))
+			assert.isEmpty(warnings(results))
+		})
+
+		test('unexpected section (not in schema) — warning', () => {
+			const r = root(section(1, 'Title', [
+				heading(1, 'Title'),
+				section(2, 'A', [heading(2, 'A')]),
+				section(2, 'B', [heading(2, 'B')]),
+				section(2, 'Surprise', [heading(2, 'Surprise')]),
+			]))
+			const results = makeTemplate().validate(r)
+			assert.isEmpty(errors(results))
+			assert.equal(warnings(results).length, 1)
+			assert.include(warnings(results)[0].message, 'Unexpected section "Surprise"')
+		})
+
+		test('unexpected section among valid sections — warning only on unexpected', () => {
+			const r = root(section(1, 'Title', [
+				heading(1, 'Title'),
+				section(2, 'A', [heading(2, 'A')]),
+				section(2, 'Surprise', [heading(2, 'Surprise')]),
+				section(2, 'B', [heading(2, 'B')]),
+				section(2, 'C', [heading(2, 'C')]),
+			]))
+			const results = makeTemplate().validate(r)
+			assert.isEmpty(errors(results))
+			assert.equal(warnings(results).length, 1)
+			assert.include(warnings(results)[0].message, 'Unexpected section "Surprise"')
+		})
+
+		test('sections in wrong order — warning on misplaced section', () => {
+			const r = root(section(1, 'Title', [
+				heading(1, 'Title'),
+				section(2, 'A', [heading(2, 'A')]),
+				section(2, 'C', [heading(2, 'C')]),
+				section(2, 'B', [heading(2, 'B')]),
+			]))
+			const results = makeTemplate().validate(r)
+			assert.isEmpty(errors(results))
+			assert.equal(warnings(results).length, 1)
+			assert.include(warnings(results)[0].message, 'out of order')
+		})
+
+		test('typo in section name — missing error + unexpected warning, no cascade', () => {
+			const r = root(section(1, 'Title', [
+				heading(1, 'Title'),
+				section(2, 'AA', [heading(2, 'AA')]),
+				section(2, 'B', [heading(2, 'B')]),
+				section(2, 'C', [heading(2, 'C')]),
+			]))
+			const results = makeTemplate().validate(r)
+			assert.equal(errors(results).length, 1)
+			assert.include(errors(results)[0].message, 'Missing required section "A"')
+			assert.equal(warnings(results).length, 1)
+			assert.include(warnings(results)[0].message, 'Unexpected section "AA"')
+		})
+
+		test('matched section validates its children', () => {
+			const t = template({
+				children: [
+					schema.section({
+						level: 1,
+						children: schema.strictOrder(
+							md.heading(1),
+							schema.sectionMap(
+								schema.section({
+									level: 2,
+									name: 'A',
+									required: true,
+									children: schema.strictOrder(
+										md.heading(2),
+										md.paragraph({ required: true }),
+									),
+								}),
+							),
+						),
+					}),
+				],
+			})
+			const r = root(section(1, 'Title', [
+				heading(1, 'Title'),
+				section(2, 'A', [heading(2, 'A')]),
+			]))
+			const results = t.validate(r)
+			assert.equal(errors(results).length, 1)
+			assert.include(errors(results)[0].message, 'Missing required paragraph')
+		})
+
+		test('all required sections missing — errors point to parent', () => {
+			const r = root(section(1, 'Title', [heading(1, 'Title')]))
+			const results = makeTemplate(true).validate(r)
+			const errs = errors(results)
+			assert.equal(errs.length, 2)
+			assert.include(errs[0].message, 'Missing required section "A"')
+			assert.include(errs[1].message, 'Missing required section "B"')
+		})
 	})
 
 	describe('table', () => {

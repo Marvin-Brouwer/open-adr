@@ -4,6 +4,7 @@ import type { ParagraphDescriptor } from './md.mts'
 import type {
 	ChildrenDefinition,
 	NodeDescriptor,
+	SectionDescriptor,
 	StrictOrderDescriptor,
 } from './schema.mts'
 import type { Node, Parent } from 'unist'
@@ -103,6 +104,13 @@ function validateStrictOrder(
 					severity: 'error',
 				})
 			}
+			continue
+		}
+
+		if (kind === 'sectionMap') {
+			const { sections } = descriptor
+			results.push(...validateSectionMap(sections, filtered.slice(childIndex), ignoreTypes, parent))
+			childIndex = filtered.length
 			continue
 		}
 
@@ -299,7 +307,9 @@ function nodeTypeMatches(descriptor: NodeDescriptor, node: Node): boolean {
 		case 'section': {
 			if (node.type !== 'section') return false
 			const sec = descriptor
-			return 'depth' in node && node.depth === sec.level
+			if (!('depth' in node) || node.depth !== sec.level) return false
+			if (sec.name !== undefined && (!('name' in node) || node.name !== sec.name)) return false
+			return true
 		}
 		case 'oneOrMore': {
 			return false
@@ -376,4 +386,73 @@ function unexpectedNodeLabel(node: Node): string {
 		return `section "${node.name}"`
 	}
 	return `${node.type} node`
+}
+
+function sectionHeading(node: Node): Node {
+	if (node.type !== 'section') return node
+	const heading = ('children' in node && Array.isArray(node.children))
+		? (node.children as Node[]).find(c => c.type === 'heading')
+		: undefined
+	return heading ?? node
+}
+
+function validateSectionMap(
+	sections: readonly SectionDescriptor[],
+	nodes: Node[],
+	ignoreTypes: string[],
+	parent: Node,
+): ValidationResult[] {
+	const results: ValidationResult[] = []
+	const consumed = new Set<number>()
+	const matches: Array<{ sec: SectionDescriptor, nodeIndex: number }> = []
+
+	for (const sec of sections) {
+		const secName = sec.name
+		const matchIndex = nodes.findIndex(
+			(n, nodeIndex) => !consumed.has(nodeIndex)
+				&& n.type === 'section'
+				&& 'name' in n
+				&& typeof n.name === 'string'
+				&& n.name === secName,
+		)
+		if (matchIndex !== -1) {
+			consumed.add(matchIndex)
+			matches.push({ sec, nodeIndex: matchIndex })
+			results.push(...validateSingleNode(sec, nodes[matchIndex], ignoreTypes))
+		}
+		else if (isRequired(sec)) {
+			const next = nodes.find((node, nodeIndex) => !consumed.has(nodeIndex) && node.type === 'section')
+			results.push({
+				node: next !== undefined ? sectionHeading(next) : parent,
+				message: `Missing required ${descriptorLabel(sec)}`,
+				severity: 'error',
+			})
+		}
+	}
+
+	let lastNodeIndex = -1
+	for (const { sec, nodeIndex } of matches) {
+		if (nodeIndex < lastNodeIndex) {
+			results.push({
+				node: sectionHeading(nodes[nodeIndex]),
+				message: `Section "${sec.name ?? 'unknown'}" is out of order`,
+				severity: 'warning',
+			})
+		}
+		else {
+			lastNodeIndex = nodeIndex
+		}
+	}
+
+	for (const [nodeIndex, node] of nodes.entries()) {
+		if (!consumed.has(nodeIndex)) {
+			results.push({
+				node: sectionHeading(node),
+				message: `Unexpected ${unexpectedNodeLabel(node)}`,
+				severity: 'warning',
+			})
+		}
+	}
+
+	return results
 }
