@@ -21,5 +21,6 @@ export default defineConfig({
 	minify: false,
 	esbuildOptions(options) {
 		options.outbase = './src'
+		options.external = [...(options.external ?? []), '@md-schema/*']
 	},
 })

@@ -1,5 +1,24 @@
 export { DescriptorKind, type MatchResult, type BaseDescriptorOptions } from './descriptor.mts'
 
+export { fm, compileFmSchema, FmKind } from './fm.mts'
+export type {
+	FmDescriptor,
+	FmItemDescriptor,
+	FmObjectDescriptor,
+	FmStringDescriptor,
+	FmNumberDescriptor,
+	FmBooleanDescriptor,
+	FmDateDescriptor,
+	FmEnumDescriptor,
+	FmEnumOptions,
+	FmListDescriptor,
+	FmContributorsDescriptor,
+	FmOptionalDescriptor,
+	FmCustomDescriptor,
+	FmCustomContext,
+	FmSchemaOptions,
+} from './fm.mts'
+
 export { md } from './md.mts'
 export type {
 	HeadingDescriptor,

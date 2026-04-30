@@ -38,9 +38,9 @@ describe('md factories', () => {
 			assert.equal(p.maxOccurrences, 5)
 		})
 
-		test('supports optional', () => {
-			const p = md.paragraph({ optional: true })
-			assert.equal(p.optional, true)
+		test('supports required: false', () => {
+			const p = md.paragraph({ required: false })
+			assert.equal(p.required, false)
 		})
 	})
 
@@ -112,9 +112,9 @@ describe('md factories', () => {
 			assert.equal(t.required, true)
 		})
 
-		test('supports optional', () => {
-			const t = md.table({ optional: true })
-			assert.equal(t.optional, true)
+		test('supports required: false', () => {
+			const t = md.table({ required: false })
+			assert.equal(t.required, false)
 		})
 	})
 
@@ -124,9 +124,9 @@ describe('md factories', () => {
 			assert.equal(tb[DescriptorKind], 'thematicBreak')
 		})
 
-		test('supports optional', () => {
-			const tb = md.thematicBreak({ optional: true })
-			assert.equal(tb.optional, true)
+		test('supports required: false', () => {
+			const tb = md.thematicBreak({ required: false })
+			assert.equal(tb.required, false)
 		})
 	})
 
@@ -136,9 +136,9 @@ describe('md factories', () => {
 			assert.equal(fm[DescriptorKind], 'frontmatter')
 		})
 
-		test('supports optional', () => {
-			const fm = md.frontmatter({ optional: true })
-			assert.equal(fm.optional, true)
+		test('supports required: false', () => {
+			const fm = md.frontmatter({ required: false })
+			assert.equal(fm.required, false)
 		})
 	})
 })

@@ -1,6 +1,7 @@
-import { DescriptorKind } from './descriptor.mts'
+import { DescriptorKind, type BaseDescriptorOptions } from './descriptor.mts'
 
-import type { ParagraphDescriptor } from './md.mts'
+import type { FmObjectDescriptor } from './fm.mts'
+import type { CodeBlockDescriptor, FrontmatterDescriptor, ParagraphDescriptor } from './md.mts'
 import type {
 	ChildrenDefinition,
 	NodeDescriptor,
@@ -16,8 +17,13 @@ export interface ValidationResult {
 	url?: string
 }
 
+export interface ValidationContext {
+	validateYamlContent?: (node: Node, fields: FmObjectDescriptor) => ValidationResult[]
+}
+
 export interface SchemaTemplate {
-	validate(root: Parent): ValidationResult[]
+	validate(root: Parent, context?: ValidationContext): ValidationResult[]
+	readonly frontmatterDescriptor?: FrontmatterDescriptor
 }
 
 export interface TemplateConfig {
@@ -31,10 +37,19 @@ export function template(config: TemplateConfig): SchemaTemplate {
 	const ignoreTypes = config.ignoreTypes ?? DEFAULT_IGNORE_TYPES
 
 	return {
-		validate(root: Parent): ValidationResult[] {
-			return validateChildren(config.children, root.children ?? [], ignoreTypes, root)
+		validate(root: Parent, context?: ValidationContext): ValidationResult[] {
+			return validateChildren(config.children, root.children ?? [], ignoreTypes, root, context)
 		},
+		frontmatterDescriptor: findFrontmatterDescriptor(config.children),
 	}
+}
+
+function findFrontmatterDescriptor(children: ChildrenDefinition): FrontmatterDescriptor | undefined {
+	const items = isStrictOrder(children) ? children.items : (children as NodeDescriptor[])
+	return items.find(
+		(d): d is FrontmatterDescriptor =>
+			d[DescriptorKind] === 'frontmatter' && 'fields' in d && d.fields !== undefined,
+	)
 }
 
 function filterIgnored(children: Node[], ignoreTypes: string[]): Node[] {
@@ -46,11 +61,12 @@ function validateChildren(
 	astChildren: Node[],
 	ignoreTypes: string[],
 	parent: Node,
+	context?: ValidationContext,
 ): ValidationResult[] {
 	if (isStrictOrder(childrenDefinition)) {
-		return validateStrictOrder(childrenDefinition.items, astChildren, ignoreTypes, parent)
+		return validateStrictOrder(childrenDefinition.items, astChildren, ignoreTypes, parent, context)
 	}
-	return validateArray(childrenDefinition, astChildren, ignoreTypes, parent)
+	return validateArray(childrenDefinition, astChildren, ignoreTypes, parent, context)
 }
 
 function isStrictOrder(definition: ChildrenDefinition): definition is StrictOrderDescriptor {
@@ -62,6 +78,7 @@ function validateStrictOrder(
 	astChildren: Node[],
 	ignoreTypes: string[],
 	parent: Node,
+	context?: ValidationContext,
 ): ValidationResult[] {
 	const results: ValidationResult[] = []
 	const filtered = filterIgnored(astChildren, ignoreTypes)
@@ -74,7 +91,7 @@ function validateStrictOrder(
 			const { item } = descriptor
 			let count = 0
 			while (childIndex < filtered.length && nodeTypeMatches(item, filtered[childIndex])) {
-				results.push(...validateSingleNode(item, filtered[childIndex], ignoreTypes))
+				results.push(...validateSingleNode(item, filtered[childIndex], ignoreTypes, context))
 				childIndex++
 				count++
 			}
@@ -93,7 +110,7 @@ function validateStrictOrder(
 			const max = (descriptor as ParagraphDescriptor).maxOccurrences ?? Infinity
 			let count = 0
 			while (childIndex < filtered.length && count < max && nodeTypeMatches(descriptor, filtered[childIndex])) {
-				results.push(...validateSingleNode(descriptor, filtered[childIndex], ignoreTypes))
+				results.push(...validateSingleNode(descriptor, filtered[childIndex], ignoreTypes, context))
 				childIndex++
 				count++
 			}
@@ -109,19 +126,19 @@ function validateStrictOrder(
 
 		if (kind === 'sectionMap') {
 			const { sections } = descriptor
-			results.push(...validateSectionMap(sections, filtered.slice(childIndex), ignoreTypes, parent))
+			results.push(...validateSectionMap(sections, filtered.slice(childIndex), ignoreTypes, parent, context))
 			childIndex = filtered.length
 			continue
 		}
 
 		if (childIndex < filtered.length && nodeTypeMatches(descriptor, filtered[childIndex])) {
-			results.push(...validateSingleNode(descriptor, filtered[childIndex], ignoreTypes))
+			results.push(...validateSingleNode(descriptor, filtered[childIndex], ignoreTypes, context))
 			childIndex++
 		}
 		else if (isRequired(descriptor)) {
 			results.push({
 				node: filtered[childIndex] ?? parent,
-				message: `Missing required ${descriptorLabel(descriptor)}`,
+				message: getMissingMessage(descriptor),
 				severity: 'error',
 			})
 		}
@@ -144,6 +161,7 @@ function validateArray(
 	astChildren: Node[],
 	ignoreTypes: string[],
 	parent: Node,
+	context?: ValidationContext,
 ): ValidationResult[] {
 	const results: ValidationResult[] = []
 	const filtered = filterIgnored(astChildren, ignoreTypes)
@@ -157,7 +175,7 @@ function validateArray(
 			let count = 0
 			for (const [index, element] of filtered.entries()) {
 				if (!matched.has(index) && nodeTypeMatches(item, element) && nameMatches(item, element)) {
-					results.push(...validateSingleNode(item, element, ignoreTypes))
+					results.push(...validateSingleNode(item, element, ignoreTypes, context))
 					matched.add(index)
 					count++
 				}
@@ -175,7 +193,7 @@ function validateArray(
 		let found = false
 		for (const [index, element] of filtered.entries()) {
 			if (!matched.has(index) && nodeTypeMatches(descriptor, element) && nameMatches(descriptor, element)) {
-				results.push(...validateSingleNode(descriptor, element, ignoreTypes))
+				results.push(...validateSingleNode(descriptor, element, ignoreTypes, context))
 				matched.add(index)
 				found = true
 				break
@@ -184,7 +202,7 @@ function validateArray(
 		if (!found && isRequired(descriptor)) {
 			results.push({
 				node: parent,
-				message: `Missing required ${descriptorLabel(descriptor)}`,
+				message: getMissingMessage(descriptor),
 				severity: 'error',
 			})
 		}
@@ -207,6 +225,7 @@ function validateSingleNode(
 	descriptor: NodeDescriptor,
 	node: Node,
 	ignoreTypes: string[],
+	context?: ValidationContext,
 ): ValidationResult[] {
 	const results: ValidationResult[] = []
 	const kind = descriptor[DescriptorKind]
@@ -241,7 +260,7 @@ function validateSingleNode(
 		const sectionChildren = 'children' in node && Array.isArray(node.children)
 			? node.children as Node[]
 			: []
-		results.push(...validateChildren(sec.children, sectionChildren, ignoreTypes, node))
+		results.push(...validateChildren(sec.children, sectionChildren, ignoreTypes, node, context))
 	}
 
 	if (kind === 'list') {
@@ -264,6 +283,11 @@ function validateSingleNode(
 				severity: 'error',
 			})
 		}
+	}
+
+	if ((kind === 'frontmatter' || kind === 'codeBlock') && context?.validateYamlContent) {
+		const fields = (descriptor as CodeBlockDescriptor).fields
+		if (fields) results.push(...context.validateYamlContent(node, fields))
 	}
 
 	return results
@@ -314,6 +338,9 @@ function nodeTypeMatches(descriptor: NodeDescriptor, node: Node): boolean {
 		case 'oneOrMore': {
 			return false
 		}
+		case 'sectionMap': {
+			return false
+		}
 		default: {
 			return false
 		}
@@ -333,52 +360,61 @@ function hasOccurrenceRange(descriptor: NodeDescriptor): boolean {
 }
 
 function isRequired(descriptor: NodeDescriptor): boolean {
-	if ('required' in descriptor && descriptor.required === true) return true
-	if ('optional' in descriptor && descriptor.optional === true) return false
+	if ('required' in descriptor) return descriptor.required !== false
 	return true
 }
 
 function descriptorLabel(descriptor: NodeDescriptor): string {
+	const name = (descriptor as Partial<BaseDescriptorOptions>).name
 	const kind = descriptor[DescriptorKind]
 	switch (kind) {
 		case 'heading': {
-			return `heading (level ${String((descriptor).level)})`
+			return name ?? `heading (level ${String((descriptor).level)})`
 		}
 		case 'paragraph': {
-			return 'paragraph'
+			return name ?? 'paragraph'
 		}
 		case 'blockquote': {
-			return 'blockquote'
+			return name ?? 'blockquote'
 		}
 		case 'codeBlock': {
-			return 'code block'
+			return name ? `"${name}" code block` : 'code block'
 		}
 		case 'list': {
+			if (name) return name
 			const desc = descriptor
 			if (desc.ordered === true) return 'ordered list'
 			if (desc.ordered === false) return 'unordered list'
 			return 'list'
 		}
 		case 'table': {
-			return 'table'
+			return name ?? 'table'
 		}
 		case 'thematicBreak': {
-			return 'thematic break'
+			return name ?? 'thematic break'
 		}
 		case 'frontmatter': {
-			return 'frontmatter'
+			return name ?? 'frontmatter'
 		}
 		case 'section': {
-			const sec = descriptor
-			return sec.name ? `section "${sec.name}"` : `section (level ${String(sec.level)})`
+			return name ? `section "${name}"` : `section (level ${String((descriptor).level)})`
 		}
 		case 'oneOrMore': {
 			return descriptorLabel((descriptor).item)
 		}
+		case 'sectionMap': {
+			return name ?? 'section map'
+		}
 		default: {
-			return 'unknown'
+			return name ?? 'unknown'
 		}
 	}
+}
+
+function getMissingMessage(descriptor: NodeDescriptor): string {
+	const missingFunction = (descriptor as Partial<BaseDescriptorOptions>).missingErrorMessage
+	if (typeof missingFunction === 'function') return missingFunction.call(descriptor as BaseDescriptorOptions)
+	return `Missing required ${descriptorLabel(descriptor)}`
 }
 
 function unexpectedNodeLabel(node: Node): string {
@@ -401,6 +437,7 @@ function validateSectionMap(
 	nodes: Node[],
 	ignoreTypes: string[],
 	parent: Node,
+	context?: ValidationContext,
 ): ValidationResult[] {
 	const results: ValidationResult[] = []
 	const consumed = new Set<number>()
@@ -418,13 +455,13 @@ function validateSectionMap(
 		if (matchIndex !== -1) {
 			consumed.add(matchIndex)
 			matches.push({ sec, nodeIndex: matchIndex })
-			results.push(...validateSingleNode(sec, nodes[matchIndex], ignoreTypes))
+			results.push(...validateSingleNode(sec, nodes[matchIndex], ignoreTypes, context))
 		}
 		else if (isRequired(sec)) {
 			const next = nodes.find((node, nodeIndex) => !consumed.has(nodeIndex) && node.type === 'section')
 			results.push({
-				node: next !== undefined ? sectionHeading(next) : parent,
-				message: `Missing required ${descriptorLabel(sec)}`,
+				node: next === undefined ? parent : sectionHeading(next),
+				message: getMissingMessage(sec),
 				severity: 'error',
 			})
 		}

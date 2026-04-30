@@ -1,6 +1,6 @@
 import { Ajv, type JSONSchemaType } from 'ajv'
 import ajvErrors from 'ajv-errors'
-import { isMap, isPair, isScalar, parseDocument, YAMLError } from 'yaml'
+import { isMap, isPair, isScalar, isSeq, parseDocument, YAMLError } from 'yaml'
 
 import { scan } from '../nodes/node-helper.mts'
 
@@ -92,15 +92,14 @@ function getRelativePosition(tree: Node, error: YAMLError): Position {
 
 const getYamlNode = (tree: Node) => scan<Literal>(tree, 'yaml').then(nodes => nodes.length > 0 ? nodes[0] : undefined)
 
-function getKeyPositions(document: Document, yamlNode: Literal): Record<string, Position> {
+export function getYamlKeyPositions(document: Document, node: Literal, contentSkip: number): Record<string, Position> {
 	const positions: Record<string, Position> = {}
 	const contents = document.contents
 	if (!isMap(contents)) return positions
 
-	const yamlString = yamlNode.value as string
-	// The yaml content starts on the line after the opening ---
-	const contentStartLine = (yamlNode.position?.start.line ?? 1) + 1
-	const contentStartOffset = (yamlNode.position?.start.offset ?? 0) + 4 // skip "---\n"
+	const yamlString = node.value as string
+	const contentStartLine = (node.position?.start.line ?? 1) + 1
+	const contentStartOffset = (node.position?.start.offset ?? 0) + contentSkip
 
 	for (const item of contents.items) {
 		if (!isPair(item) || !isScalar(item.key) || !item.key.range) continue
@@ -118,6 +117,65 @@ function getKeyPositions(document: Document, yamlNode: Literal): Record<string, 
 	}
 
 	return positions
+}
+
+function getKeyPositions(document: Document, yamlNode: Literal): Record<string, Position> {
+	return getYamlKeyPositions(document, yamlNode, 4) // skip "---\n"
+}
+
+export function getYamlValuePosition(
+	document: Document,
+	node: Literal,
+	contentSkip: number,
+	instancePath: string,
+): Position | undefined {
+	if (!instancePath) return undefined
+	const parts = instancePath.replace(/^\//, '').split('/')
+	if (!parts[0]) return undefined
+
+	const yamlString = node.value as string
+	const contentStartLine = (node.position?.start.line ?? 1) + 1
+	const contentStartOffset = (node.position?.start.offset ?? 0) + contentSkip
+
+	let current: unknown = document.contents
+	for (let partIndex = 0; partIndex < parts.length; partIndex++) {
+		const part = parts[partIndex]
+		if (isMap(current)) {
+			const pair = current.items.find(
+				item => isPair(item) && isScalar(item.key) && String(item.key.value) === part,
+			)
+			if (!pair || !isPair(pair)) return undefined
+			if (partIndex === parts.length - 1) {
+				if (isScalar(pair.value) && pair.value.range) {
+					return {
+						start: offsetToLinePos(yamlString, pair.value.range[0], contentStartLine, contentStartOffset),
+						end: offsetToLinePos(yamlString, pair.value.range[2], contentStartLine, contentStartOffset),
+					}
+				}
+				return undefined
+			}
+			current = pair.value
+		}
+		else if (isSeq(current)) {
+			const index = Number.parseInt(part, 10)
+			if (Number.isNaN(index) || index < 0 || index >= current.items.length) return undefined
+			const item = current.items[index]
+			if (partIndex === parts.length - 1) {
+				if (isScalar(item) && item.range) {
+					return {
+						start: offsetToLinePos(yamlString, item.range[0], contentStartLine, contentStartOffset),
+						end: offsetToLinePos(yamlString, item.range[2], contentStartLine, contentStartOffset),
+					}
+				}
+				return undefined
+			}
+			current = item
+		}
+		else {
+			return undefined
+		}
+	}
+	return undefined
 }
 
 function offsetToLinePos(

@@ -76,7 +76,7 @@ describe('template validation', () => {
 		test('skips optional missing node', () => {
 			const t = template({
 				children: schema.strictOrder(
-					md.blockquote({ optional: true }),
+					md.blockquote({ required: false }),
 					md.paragraph(),
 				),
 			})
@@ -555,8 +555,8 @@ describe('template validation', () => {
 						level: 1,
 						children: schema.strictOrder(
 							md.heading(1),
-							md.blockquote({ optional: true }),
-							md.codeBlock({ optional: true, language: 'yml' }),
+							md.blockquote({ required: false }),
+							md.codeBlock({ required: false, language: 'yml' }),
 							md.paragraph({ minOccurrences: 1, maxOccurrences: 5 }),
 							schema.section({
 								level: 2,
@@ -570,7 +570,7 @@ describe('template validation', () => {
 							schema.section({
 								level: 2,
 								name: 'Outcome',
-								optional: true,
+								required: false,
 								children: schema.strictOrder(
 									md.heading(2),
 									md.paragraph({ required: true }),
@@ -633,7 +633,6 @@ describe('template validation', () => {
 			assert.isNotEmpty(errors(results))
 			assert.include(errors(results)[0].message, 'Missing required section "Decision"')
 		})
-
 	})
 
 	describe('sectionMap', () => {
@@ -647,7 +646,7 @@ describe('template validation', () => {
 							schema.sectionMap(
 								schema.section({ level: 2, name: 'A', required: true, children: [md.heading(2)] }),
 								schema.section({ level: 2, name: 'B', required, children: [md.heading(2)] }),
-								schema.section({ level: 2, name: 'C', optional: true, children: [md.heading(2)] }),
+								schema.section({ level: 2, name: 'C', required: false, children: [md.heading(2)] }),
 							),
 						),
 					}),
@@ -831,7 +830,7 @@ describe('template validation', () => {
 		test('skips optional missing table', () => {
 			const t = template({
 				children: schema.strictOrder(
-					md.table({ optional: true }),
+					md.table({ required: false }),
 					md.paragraph(),
 				),
 			})
@@ -870,7 +869,7 @@ describe('template validation', () => {
 		test('skips optional missing thematicBreak', () => {
 			const t = template({
 				children: schema.strictOrder(
-					md.thematicBreak({ optional: true }),
+					md.thematicBreak({ required: false }),
 				),
 			})
 

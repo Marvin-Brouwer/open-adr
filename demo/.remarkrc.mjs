@@ -1,4 +1,4 @@
-import { mdLinter, mdSchemaLoader, mdSchemaInfo, mdSettings, mdSectionify, mdUnSectionify, preserveGithubAlerts } from '@md-schema/md'
+import { mdLinter, mdSchemaLoader, mdSchemaInfo, mdSettings, mdSectionify, mdUnSectionify, preserveGithubAlerts, gitContributors } from '@md-schema/md'
 import remarkFrontmatter from 'remark-frontmatter'
 import remarkLint from 'remark-lint'
 import remarkLintCheckbox from 'remark-lint-checkbox-character-style'
@@ -12,6 +12,7 @@ export default {
 				'**/docs/**/*.md',
 				'**/doc/**/*.md',
 			],
+			contributors: await gitContributors(),
 		}),
 	},
 	plugins: [

@@ -9,7 +9,6 @@ export type ChildrenDefinition = NodeDescriptor[] | StrictOrderDescriptor
 export interface SectionDescriptor extends BaseDescriptorOptions {
 	readonly [DescriptorKind]: 'section'
 	readonly level: number
-	readonly name?: string
 	readonly children: ChildrenDefinition
 }
 

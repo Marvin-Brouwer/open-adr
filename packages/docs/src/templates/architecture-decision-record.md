@@ -41,20 +41,57 @@ For example: `2025-11-19.001.remark-guided-docs.md`
 The counter ensures that ADRs created on the same day appear in the order they were written.
 The slug should be derived from the document title — for example, an ADR titled *"`ADR` Remark guided docs"* becomes `remark-guided-docs`.
 
-## Status
+## Metadata
 
-Use a blockquote at the top of the document to communicate the lifecycle status of the decision.
-Common statuses are:
+Every ADR must open with a `yml` code block immediately after the title heading.
+This block is validated by the linter and must contain at least the following fields:
+
+```yml
+status: in progress
+created: 2025-11-19
+deciders:
+  - contributor-slug
+```
+
+### status
+
+The lifecycle status of the decision.
+Must be one of the following values (lowercase, exactly as written):
 
 | Status | Meaning |
 | --- | --- |
-| **Proposed** | Under discussion, not yet agreed upon by stakeholders |
-| **Accepted** | Agreed upon and in effect |
-| **Deprecated** | No longer recommended, but not formally replaced |
-| **Superseded** | Replaced by a newer ADR (include a reference to the replacement) |
+| `in progress` | Being drafted — context and alternatives are still being gathered |
+| `proposed` | Under discussion, not yet agreed upon by all stakeholders |
+| `rejected` | Considered but not adopted |
+| `accepted` | Agreed upon and in effect |
 
-When superseding an ADR, always keep the old record in place and mark it as superseded.
-Never delete old ADRs — the historical record of *why* a decision was once made remains valuable.
+### created
+
+The date the ADR was first written, in `YYYY-MM-DD` format ([ISO 8601][iso-8601]).
+This should match the date part of the filename.
+
+### deciders
+
+A list of contributor slugs identifying everyone who participated in making this decision.
+Contributors are configured in the remark settings; the linter will reject any slug that is not a known contributor.
+
+### supersedes *(optional)*
+
+A relative path to the ADR that this record replaces.
+If the superseded file still exists on disk, a plain relative path is sufficient:
+
+```yml
+supersedes: ./2021-11-03.001.old-decision.md
+```
+
+If the superseded file has been deleted from the repository, append a git commit hash so the linter can verify the reference existed in history:
+
+```yml
+supersedes: ./2021-11-03.001.deleted-decision.md#g0c85fbc
+```
+
+When superseding an ADR, always keep the old record in place — never delete it.
+The historical record of *why* a decision was once made remains valuable.
 
 > *"Don't alter existing information in an ADR. Instead, amend the ADR by adding new information, or supersede the ADR by creating a new ADR."*
 > — Joel Parker Henderson, [Architecture Decision Record][jph]

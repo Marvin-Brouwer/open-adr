@@ -1,7 +1,11 @@
+import path from 'node:path'
+
 import { definePlugin } from '@md-schema/remark-plugin'
 
 import { checkFileIncluded } from '../files/file-include.mts'
+import { validateYamlContent } from '../helpers/frontmatter-fields.mts'
 import { getSchemaData } from '../helpers/schema-data.mts'
+import { getMdSettings } from '../settings.mts'
 
 export const pluginName = 'remark-plugin:md-schema-linter'
 export default definePlugin({
@@ -19,7 +23,13 @@ export default definePlugin({
 			throw new Error('Schema linter requires sectionified AST. Ensure the sectionify plugin runs before the linter.')
 		}
 
-		const results = schema.template.validate(context.root)
+		const settings = getMdSettings(context)
+		const filePath = path.resolve(context.file.cwd, context.file.path ?? '')
+		const results = schema.template.validate(context.root, {
+			validateYamlContent: (node, fields) =>
+				validateYamlContent(node, fields, settings.contributors, filePath),
+		})
+
 		for (const result of results) {
 			// Fall back to the schema line position for errors on nodes
 			// without a position (e.g. synthetic section nodes from sectionify)

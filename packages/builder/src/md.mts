@@ -1,5 +1,7 @@
 import { DescriptorKind, type BaseDescriptorOptions } from './descriptor.mts'
 
+import type { FmObjectDescriptor } from './fm.mts'
+
 export interface HeadingDescriptor extends BaseDescriptorOptions {
 	readonly [DescriptorKind]: 'heading'
 	readonly level: number
@@ -18,6 +20,7 @@ export interface BlockquoteDescriptor extends BaseDescriptorOptions {
 export interface CodeBlockDescriptor extends BaseDescriptorOptions {
 	readonly [DescriptorKind]: 'codeBlock'
 	readonly language?: string
+	readonly fields?: FmObjectDescriptor
 }
 
 export interface ListDescriptor extends BaseDescriptorOptions {
@@ -37,6 +40,7 @@ export interface ThematicBreakDescriptor extends BaseDescriptorOptions {
 
 export interface FrontmatterDescriptor extends BaseDescriptorOptions {
 	readonly [DescriptorKind]: 'frontmatter'
+	readonly fields?: FmObjectDescriptor
 }
 
 export type MdDescriptor

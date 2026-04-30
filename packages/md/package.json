@@ -13,13 +13,14 @@
 		"build": "tsup-node"
 	},
 	"dependencies": {
+		"@md-schema/builder": "workspace:^",
+		"@md-schema/remark-plugin": "workspace:^",
 		"ajv": "^8.17.1",
 		"ajv-errors": "^3.0.0",
+		"ajv-formats": "^3.0.1",
 		"micromatch": "^4.0.8",
 		"unist-util-visit": "^5.0.0",
-		"yaml": "^2.8.1",
-		"@md-schema/remark-plugin": "workspace:^",
-		"@md-schema/builder": "workspace:^"
+		"yaml": "^2.8.1"
 	},
 	"devDependencies": {
 		"@types/micromatch": "^4.0.10",

@@ -9,8 +9,9 @@ export type MatchResult = {
 
 export interface BaseDescriptorOptions {
 	required?: boolean
-	optional?: boolean
+	name?: string
 	description?: string
 	url?: string
 	match?: (node: Node) => MatchResult
+	missingErrorMessage?: (this: BaseDescriptorOptions) => string
 }

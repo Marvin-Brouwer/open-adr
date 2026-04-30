@@ -1,10 +1,11 @@
-import { template, schema, md, getNodeText, getNodeChildren } from '@md-schema/builder'
+import { template, schema, md, fm, getNodeText, getNodeChildren } from '@md-schema/builder'
 
 import { alternativeList } from '../components/alternative-list.mts'
 import { driversList } from '../components/drivers-list.mts'
 import { prosAndCons } from '../components/pros-cons.mts'
 import { referenceList } from '../components/reference-list.mjs'
 import { guideUrl, multiline } from '../helpers.mts'
+import { cfm } from '../tools/custom-frontmatter.mts'
 
 const guide = guideUrl('adr')
 
@@ -19,7 +20,7 @@ const driversSection = schema.section({
 	),
 	url: guide('drivers'),
 	level: 3,
-	optional: true,
+	required: false,
 	match(node) {
 		const sections = getNodeChildren(node, 'section')
 		if (sections.length === 0) return schema.error(
@@ -43,7 +44,7 @@ const alternativesSection = schema.section({
 	),
 	url: guide('alternatives'),
 	level: 3,
-	optional: true,
+	required: false,
 	match(node) {
 		const sections = getNodeChildren(node, 'section')
 		if (sections.length === 0) return schema.error(
@@ -87,7 +88,7 @@ const prosAndConsSection = schema.section({
 	),
 	url: guide('pros-and-cons'),
 	level: 3,
-	optional: true,
+	required: false,
 	children: [
 		md.heading(3),
 		prosAndCons,
@@ -105,7 +106,7 @@ const outcomeSection = schema.section({
 	),
 	url: guide('outcome'),
 	level: 2,
-	optional: true,
+	required: false,
 	children: schema.strictOrder(
 		md.heading(2),
 		md.paragraph({ required: true }),
@@ -124,7 +125,7 @@ const referencesSection = schema.section({
 	),
 	url: guide('references'),
 	level: 2,
-	optional: true,
+	required: false,
 	children: schema.strictOrder(
 		md.heading(2),
 		referenceList,
@@ -152,8 +153,32 @@ const mainSection = schema.section({
 				}
 			},
 		}),
-		md.blockquote({ optional: true }),
-		md.codeBlock({ optional: true, language: 'yml' }),
+		md.codeBlock({
+			required: true,
+			name: 'metadata',
+			missingErrorMessage() {
+				return multiline(
+					'The metadata for an ADR is required,',
+					'add a yml codeblock with at least the following fields:',
+					'```yaml',
+					'status: in progress | proposed | rejected | accepted',
+					'created: YYYY-MM-DD',
+					'deciders:',
+					'  - list of people or teams responsible for the decision',
+					'```',
+				)
+			},
+			language: 'yml',
+			fields: fm.object({
+				status: fm.enum({
+					message: v => `Status must be one of: \n - ${v.join('\n - ')}`,
+					values: ['in progress', 'proposed', 'rejected', 'accepted'],
+				}),
+				created: fm.date(),
+				deciders: fm.contributors(),
+				supersedes: fm.optional(cfm.validFileOrGitRef()),
+			}),
+		}),
 		md.paragraph({ minOccurrences: 1, maxOccurrences: 5 }),
 		schema.sectionMap(decisionSection, outcomeSection, referencesSection),
 	),
@@ -161,8 +186,8 @@ const mainSection = schema.section({
 
 export default template({
 	children: [
-		// If this is not there, this whole template is never loaded
-		md.frontmatter({ optional: false }),
+		// If this is not present, this whole template is never loaded
+		md.frontmatter(),
 		mainSection,
 	],
 })

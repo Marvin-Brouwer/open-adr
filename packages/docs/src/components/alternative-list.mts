@@ -4,7 +4,7 @@ import { hasBlockquoteAndDismissal } from '../helpers.mts'
 
 const alternativeEntry = schema.section({
 	level: 4,
-	optional: true,
+	required: false,
 	match(node) {
 		if (!hasLinkOnlyHeading(node, 4)) return schema.error(
 			'Alternative entries must be h4 sections with a heading that is a link only',
@@ -15,8 +15,8 @@ const alternativeEntry = schema.section({
 	},
 	children: [
 		md.heading(4),
-		md.blockquote({ optional: true }),
-		md.paragraph({ optional: true }),
+		md.blockquote({ required: false }),
+		md.paragraph({ required: false }),
 	],
 })
 
