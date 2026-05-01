@@ -149,7 +149,7 @@ export function getYamlValuePosition(
 				if (isScalar(pair.value) && pair.value.range) {
 					return {
 						start: offsetToLinePos(yamlString, pair.value.range[0], contentStartLine, contentStartOffset),
-						end: offsetToLinePos(yamlString, pair.value.range[2], contentStartLine, contentStartOffset),
+						end: offsetToLinePos(yamlString, pair.value.range[1], contentStartLine, contentStartOffset),
 					}
 				}
 				return undefined
@@ -164,7 +164,7 @@ export function getYamlValuePosition(
 				if (isScalar(item) && item.range) {
 					return {
 						start: offsetToLinePos(yamlString, item.range[0], contentStartLine, contentStartOffset),
-						end: offsetToLinePos(yamlString, item.range[2], contentStartLine, contentStartOffset),
+						end: offsetToLinePos(yamlString, item.range[1], contentStartLine, contentStartOffset),
 					}
 				}
 				return undefined

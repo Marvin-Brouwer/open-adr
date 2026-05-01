@@ -3,7 +3,6 @@ import { md, schema, getNodeText, getNodeChildren, isUrlLike } from '@md-schema/
 import { isNamedReference, isObjectReference } from '../helpers.mts'
 
 export const referenceList = md.list({
-	required: true,
 	match(node) {
 		const items = getNodeChildren(node, 'listItem')
 		if (items.length === 0) return schema.error(

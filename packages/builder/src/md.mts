@@ -1,6 +1,7 @@
-import { DescriptorKind, type BaseDescriptorOptions } from './descriptor.mts'
+import { DescriptorKind, type BaseDescriptorOptions, type MatcherObject, type MatchResult } from './descriptor.mts'
 
 import type { FmObjectDescriptor } from './fm.mts'
+import type { Node } from 'unist'
 
 export interface HeadingDescriptor extends BaseDescriptorOptions {
 	readonly [DescriptorKind]: 'heading'
@@ -9,8 +10,6 @@ export interface HeadingDescriptor extends BaseDescriptorOptions {
 
 export interface ParagraphDescriptor extends BaseDescriptorOptions {
 	readonly [DescriptorKind]: 'paragraph'
-	readonly minOccurrences?: number
-	readonly maxOccurrences?: number
 }
 
 export interface BlockquoteDescriptor extends BaseDescriptorOptions {
@@ -53,6 +52,22 @@ export type MdDescriptor
 	| ThematicBreakDescriptor
 	| FrontmatterDescriptor
 
+function createMatcher(
+	min: number,
+	max: number,
+	message?: MatcherObject['message'],
+	validateFunction?: (node: Node) => MatchResult,
+): MatcherObject {
+	return {
+		min,
+		max,
+		message,
+		with(message_: MatcherObject['message']) { return createMatcher(min, max, message_, validateFunction) },
+		validate(function_: (node: Node) => MatchResult) { return createMatcher(min, max, message, function_) },
+		test(node: Node): MatchResult { return validateFunction?.(node) },
+	}
+}
+
 type HeadingOptions = Omit<HeadingDescriptor, typeof DescriptorKind | 'level'>
 type ParagraphOptions = Omit<ParagraphDescriptor, typeof DescriptorKind>
 type BlockquoteOptions = Omit<BlockquoteDescriptor, typeof DescriptorKind>
@@ -86,5 +101,9 @@ export const md = {
 	},
 	frontmatter(options?: FrontmatterOptions): FrontmatterDescriptor {
 		return { ...options, [DescriptorKind]: 'frontmatter' }
+	},
+	match: {
+		required: createMatcher(1, 1),
+		range(min: number, max: number): MatcherObject { return createMatcher(min, max) },
 	},
 } as const

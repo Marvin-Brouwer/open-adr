@@ -38,7 +38,7 @@ export default definePlugin({
 				: schema.schemaPosition
 
 			if (result.severity === 'error') {
-				context.appendError(result.message, node)
+				context.appendError(result.message, node, { expectedValues: result.expectedValues })
 			}
 			else if (result.severity === 'info') {
 				context.appendDescription(result.message, node, result.url)

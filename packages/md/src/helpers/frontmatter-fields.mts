@@ -67,10 +67,13 @@ export function validateYamlContent(
 				? getYamlValuePosition(yamlDocument, literal, contentSkip, error.instancePath)
 				: undefined
 			const descriptor = resolveDescriptor(fields, error.instancePath)
+			const value = getValueAtPath(data, error.instancePath)
+			const { message, expectedValues } = buildErrorMessage(error, descriptor, value)
 			return {
 				node: position ? { type: node.type, position } as Node : node,
-				message: buildErrorMessage(error, descriptor),
+				message,
 				severity: 'error' as const,
+				...(expectedValues ? { expectedValues } : {}),
 			}
 		}))
 	}
@@ -85,16 +88,16 @@ export function validateYamlContent(
 			const fieldValue = (data as Record<string, unknown>)[key]
 			if (!Array.isArray(fieldValue)) continue
 
-			const invalidSlugs = fieldValue.filter(v => typeof v === 'string' && !slugs.has(v))
-			if (invalidSlugs.length === 0) continue
-
-			const keyPositions = getYamlKeyPositions(yamlDocument, literal, contentSkip)
-			const position = keyPositions[key]
-			results.push({
-				node: position ? { type: node.type, position } as Node : node,
-				message: `The ${key} may only contain valid contributors provided by ${contributors.source}`,
-				severity: 'error',
-			})
+			for (const [index, slug] of fieldValue.entries()) {
+				if (typeof slug !== 'string' || slugs.has(slug)) continue
+				const position = getYamlValuePosition(yamlDocument, literal, contentSkip, `/${key}/${index}`)
+				results.push({
+					node: position ? { type: node.type, position } as Node : node,
+					message: `"${slug}" is not a valid contributor (source: ${contributors.source})`,
+					severity: 'error',
+					expectedValues: contributors.who.map(c => c.slug),
+				})
+			}
 		}
 	}
 
@@ -155,34 +158,82 @@ function resolveDescriptor(fields: FmObjectDescriptor, instancePath: string): Fm
 	return current ? unwrapOptional(current) : undefined
 }
 
-function buildErrorMessage(error: ErrorObject, descriptor: FmItemDescriptor | undefined): string {
+function tryFormatDate(value: string): string | undefined {
+	try {
+		const date = new Date(value)
+		if (Number.isNaN(date.getTime())) return undefined
+		return date.toISOString().slice(0, 10)
+	}
+	catch {
+		return undefined
+	}
+}
+
+function getValueAtPath(data: unknown, instancePath: string): unknown {
+	if (!instancePath) return undefined
+	const parts = instancePath.slice(1).split('/')
+	let current: unknown = data
+	for (const part of parts) {
+		if (current === null || typeof current !== 'object') return undefined
+		current = (current as Record<string, unknown>)[part]
+	}
+	return current
+}
+
+function buildErrorMessage(
+	error: ErrorObject,
+	descriptor: FmItemDescriptor | undefined,
+	value?: unknown,
+): { message: string, expectedValues?: string[] } {
 	const field = error.instancePath.replace(/^\//, '').replaceAll('/', '.')
 
 	if (descriptor?.[FmKind] === 'enum') {
 		const enumDesc = descriptor as FmEnumDescriptor
-		if (enumDesc.message) return enumDesc.message(enumDesc.values)
+		if (enumDesc.message) return {
+			message: enumDesc.message(enumDesc.values),
+			expectedValues: [...enumDesc.values],
+		}
 	}
 
 	switch (error.keyword) {
 		case 'enum': {
 			const allowed = (error.params as { allowedValues: unknown[] }).allowedValues
-				.map(v => `"${String(v)}"`).join(', ')
-			return `The "${field}" field may only contain one of: ${allowed}`
+			return {
+				message: `The "${field}" field may only contain one of: ${allowed.map(v => `"${String(v)}"`).join(', ')}`,
+				expectedValues: allowed.map(String),
+			}
+		}
+		case 'type': {
+			const expected = (error.params as { type: string }).type
+			if (expected === 'boolean') {
+				return {
+					message: `The "${field}" field must be a boolean`,
+					expectedValues: ['true', 'false'],
+				}
+			}
+			break
 		}
 		case 'format': {
 			const fmt = String((error.params as { format: string }).format)
-			if (fmt === 'date') return `The "${field}" field must be a valid date (YYYY-MM-DD)`
-			return `The "${field}" field must match format "${fmt}"`
+			if (fmt === 'date') {
+				const formatted = typeof value === 'string' ? tryFormatDate(value) : undefined
+				return {
+					message: `The "${field}" field must be a valid date (YYYY-MM-DD)`,
+					...(formatted ? { expectedValues: [formatted] } : {}),
+				}
+			}
+			return { message: `The "${field}" field must match format "${fmt}"` }
 		}
 		case 'required': {
 			const missing = String((error.params as { missingProperty: string }).missingProperty)
-			return `The "${missing}" field is required`
+			return { message: `The "${missing}" field is required` }
 		}
-		default: {
-			return field
-				? `The "${field}" field ${error.message ?? 'is invalid'}`
-				: error.message ?? 'Invalid value'
-		}
+	}
+
+	return {
+		message: field
+			? `The "${field}" field ${error.message ?? 'is invalid'}`
+			: error.message ?? 'Invalid value',
 	}
 }
 

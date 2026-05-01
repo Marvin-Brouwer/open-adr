@@ -9,7 +9,6 @@ function getTaggedLines(node: Node): Array<'pro' | 'con'> {
 }
 
 export const prosConsParagraph = md.paragraph({
-	required: true,
 	match(node) {
 		const tags = getTaggedLines(node)
 		if (tags.length === 0) return schema.error(

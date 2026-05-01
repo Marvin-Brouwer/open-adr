@@ -1,4 +1,4 @@
-export { DescriptorKind, type MatchResult, type BaseDescriptorOptions } from './descriptor.mts'
+export { DescriptorKind, type MatchResult, type MatcherObject, type BaseDescriptorOptions } from './descriptor.mts'
 
 export { fm, compileFmSchema, FmKind } from './fm.mts'
 export type {

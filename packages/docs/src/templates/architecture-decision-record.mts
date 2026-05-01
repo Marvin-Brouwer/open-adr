@@ -1,4 +1,4 @@
-import { template, schema, md, fm, getNodeText, getNodeChildren } from '@md-schema/builder'
+import { template, schema, md, fm, getNodeText } from '@md-schema/builder'
 
 import { alternativeList } from '../components/alternative-list.mts'
 import { driversList } from '../components/drivers-list.mts'
@@ -20,13 +20,7 @@ const driversSection = schema.section({
 	),
 	url: guide('drivers'),
 	level: 3,
-	required: false,
-	match(node) {
-		const sections = getNodeChildren(node, 'section')
-		if (sections.length === 0) return schema.error(
-			'Drivers section is optional, but may not be empty if present',
-		)
-	},
+	match: md.match.range(0, 1),
 	children: [
 		md.heading(3),
 		driversList,
@@ -44,13 +38,7 @@ const alternativesSection = schema.section({
 	),
 	url: guide('alternatives'),
 	level: 3,
-	required: false,
-	match(node) {
-		const sections = getNodeChildren(node, 'section')
-		if (sections.length === 0) return schema.error(
-			'Alternatives section is optional, but may not be empty if present',
-		)
-	},
+	match: md.match.range(0, 1),
 	children: [
 		md.heading(3),
 		alternativeList,
@@ -68,10 +56,14 @@ const decisionSection = schema.section({
 	),
 	url: guide('decision'),
 	level: 2,
-	required: true,
+	match: md.match.required,
 	children: schema.strictOrder(
 		md.heading(2),
-		md.paragraph({ required: true }),
+		md.paragraph({
+			match: md.match.required.with(
+				'Add a paragraph stating the decision in active voice ("We will ...")',
+			),
+		}),
 		driversSection,
 		alternativesSection,
 	),
@@ -88,7 +80,7 @@ const prosAndConsSection = schema.section({
 	),
 	url: guide('pros-and-cons'),
 	level: 3,
-	required: false,
+	match: md.match.range(0, 1),
 	children: [
 		md.heading(3),
 		prosAndCons,
@@ -106,10 +98,14 @@ const outcomeSection = schema.section({
 	),
 	url: guide('outcome'),
 	level: 2,
-	required: false,
+	match: md.match.range(0, 1),
 	children: schema.strictOrder(
 		md.heading(2),
-		md.paragraph({ required: true }),
+		md.paragraph({
+			match: md.match.required.with(
+				'Add a paragraph describing the consequences — positive, negative, and neutral',
+			),
+		}),
 		prosAndConsSection,
 	),
 })
@@ -125,7 +121,7 @@ const referencesSection = schema.section({
 	),
 	url: guide('references'),
 	level: 2,
-	required: false,
+	match: md.match.range(0, 1),
 	children: schema.strictOrder(
 		md.heading(2),
 		referenceList,
@@ -134,10 +130,9 @@ const referencesSection = schema.section({
 
 const mainSection = schema.section({
 	level: 1,
-	required: true,
+	match: md.match.required,
 	children: schema.strictOrder(
 		md.heading(1, {
-			required: true,
 			description: multiline(
 				'Architecture decision record (ADR)',
 				'',
@@ -154,20 +149,17 @@ const mainSection = schema.section({
 			},
 		}),
 		md.codeBlock({
-			required: true,
 			name: 'metadata',
-			missingErrorMessage() {
-				return multiline(
-					'The metadata for an ADR is required,',
-					'add a yml codeblock with at least the following fields:',
-					'```yaml',
-					'status: in progress | proposed | rejected | accepted',
-					'created: YYYY-MM-DD',
-					'deciders:',
-					'  - list of people or teams responsible for the decision',
-					'```',
-				)
-			},
+			match: md.match.required.with(multiline(
+				'The metadata for an ADR is required,',
+				'add a yml codeblock with at least the following fields:',
+				'```yaml',
+				'status: in progress | proposed | rejected | accepted',
+				'created: YYYY-MM-DD',
+				'deciders:',
+				'  - list of people or teams responsible for the decision',
+				'```',
+			)),
 			language: 'yml',
 			fields: fm.object({
 				status: fm.enum({
@@ -179,7 +171,7 @@ const mainSection = schema.section({
 				supersedes: fm.optional(cfm.validFileOrGitRef()),
 			}),
 		}),
-		md.paragraph({ minOccurrences: 1, maxOccurrences: 5 }),
+		md.paragraph({ match: md.match.range(1, 5) }),
 		schema.sectionMap(decisionSection, outcomeSection, referencesSection),
 	),
 })

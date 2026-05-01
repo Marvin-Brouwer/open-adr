@@ -1,7 +1,7 @@
-import { DescriptorKind, type BaseDescriptorOptions } from './descriptor.mts'
+import { DescriptorKind, type BaseDescriptorOptions, type MatcherObject, type MatchResult } from './descriptor.mts'
 
 import type { FmObjectDescriptor } from './fm.mts'
-import type { CodeBlockDescriptor, FrontmatterDescriptor, ParagraphDescriptor } from './md.mts'
+import type { CodeBlockDescriptor, FrontmatterDescriptor } from './md.mts'
 import type {
 	ChildrenDefinition,
 	NodeDescriptor,
@@ -15,6 +15,7 @@ export interface ValidationResult {
 	message: string
 	severity: 'error' | 'warning' | 'info'
 	url?: string
+	expectedValues?: string[]
 }
 
 export interface ValidationContext {
@@ -106,8 +107,9 @@ function validateStrictOrder(
 		}
 
 		if (hasOccurrenceRange(descriptor)) {
-			const min = (descriptor as ParagraphDescriptor).minOccurrences ?? 0
-			const max = (descriptor as ParagraphDescriptor).maxOccurrences ?? Infinity
+			const matcher = getMatcher(descriptor)!
+			const min = matcher.min
+			const max = matcher.max
 			let count = 0
 			while (childIndex < filtered.length && count < max && nodeTypeMatches(descriptor, filtered[childIndex])) {
 				results.push(...validateSingleNode(descriptor, filtered[childIndex], ignoreTypes, context))
@@ -137,7 +139,7 @@ function validateStrictOrder(
 		}
 		else if (isRequired(descriptor)) {
 			results.push({
-				node: filtered[childIndex] ?? parent,
+				node: sectionHeading(parent),
 				message: getMissingMessage(descriptor),
 				severity: 'error',
 			})
@@ -201,7 +203,7 @@ function validateArray(
 		}
 		if (!found && isRequired(descriptor)) {
 			results.push({
-				node: parent,
+				node: sectionHeading(parent),
 				message: getMissingMessage(descriptor),
 				severity: 'error',
 			})
@@ -244,8 +246,9 @@ function validateSingleNode(
 		})
 	}
 
-	if ('match' in descriptor && typeof descriptor.match === 'function') {
-		const matchResult = descriptor.match(node)
+	const matchFunction = getMatchFunction(descriptor)
+	if (matchFunction) {
+		const matchResult = matchFunction(node)
 		if (matchResult) {
 			results.push({
 				node,
@@ -355,12 +358,30 @@ function nameMatches(descriptor: NodeDescriptor, node: Node): boolean {
 	return 'name' in node && node.name === sec.name
 }
 
+function isMatcher(value: unknown): value is MatcherObject {
+	return typeof value === 'object' && value !== null && 'min' in value && 'max' in value
+}
+
+function getMatcher(descriptor: NodeDescriptor): MatcherObject | undefined {
+	const m = (descriptor as Partial<BaseDescriptorOptions>).match
+	return isMatcher(m) ? m : undefined
+}
+
+function getMatchFunction(descriptor: NodeDescriptor): ((node: Node) => MatchResult) | undefined {
+	const m = (descriptor as Partial<BaseDescriptorOptions>).match
+	if (!m) return undefined
+	if (isMatcher(m)) return m.test.bind(m)
+	return m
+}
+
 function hasOccurrenceRange(descriptor: NodeDescriptor): boolean {
-	return 'minOccurrences' in descriptor || 'maxOccurrences' in descriptor
+	const matcher = getMatcher(descriptor)
+	return matcher !== undefined && matcher.max > 1
 }
 
 function isRequired(descriptor: NodeDescriptor): boolean {
-	if ('required' in descriptor) return descriptor.required !== false
+	const matcher = getMatcher(descriptor)
+	if (matcher) return matcher.min >= 1
 	return true
 }
 
@@ -412,8 +433,12 @@ function descriptorLabel(descriptor: NodeDescriptor): string {
 }
 
 function getMissingMessage(descriptor: NodeDescriptor): string {
-	const missingFunction = (descriptor as Partial<BaseDescriptorOptions>).missingErrorMessage
-	if (typeof missingFunction === 'function') return missingFunction.call(descriptor as BaseDescriptorOptions)
+	const matcher = getMatcher(descriptor)
+	if (matcher?.message !== undefined) {
+		const { message } = matcher
+		const name = (descriptor as Partial<BaseDescriptorOptions>).name
+		return typeof message === 'function' ? message({ name }) : message
+	}
 	return `Missing required ${descriptorLabel(descriptor)}`
 }
 

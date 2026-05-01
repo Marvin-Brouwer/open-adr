@@ -2,7 +2,6 @@ import { schema, md, hasLinkOnlyHeading, hasNonEmptyBody } from '@md-schema/buil
 
 const driverEntry = schema.section({
 	level: 4,
-	required: false,
 	match(node) {
 		if (!hasLinkOnlyHeading(node, 4)) return schema.error(
 			'Driver entries must be h4 sections with a heading that is a link only',
@@ -13,7 +12,7 @@ const driverEntry = schema.section({
 	},
 	children: [
 		md.heading(4),
-		md.paragraph({ required: false }),
+		md.paragraph({ match: md.match.range(0, 1) }),
 	],
 })
 
